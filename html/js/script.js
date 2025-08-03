@@ -106,6 +106,31 @@ function showNotification(message) {
     }, 2000);
 }
 
+// 切换内容展开/收起状态
+function toggleContent(id) {
+    const contentElement = document.querySelector(`.record-content[data-id="${id}"]`);
+    if (!contentElement) return;
+    
+    const isCollapsed = contentElement.classList.contains('collapsed');
+    const expandBtn = contentElement.querySelector('.expand-btn');
+    
+    if (isCollapsed) {
+        // 展开内容
+        contentElement.classList.remove('collapsed');
+        if (expandBtn) {
+            expandBtn.textContent = '收起';
+            expandBtn.onclick = function() { toggleContent(id); };
+        }
+    } else {
+        // 收起内容
+        contentElement.classList.add('collapsed');
+        if (expandBtn) {
+            expandBtn.textContent = '...展开';
+            expandBtn.onclick = function() { toggleContent(id); };
+        }
+    }
+}
+
 // 进入批量操作模式
 function enterBatchMode() {
     // 添加批量操作模式类
@@ -201,9 +226,15 @@ function loadRecords() {
                         // 使用Base64编码内容，避免特殊字符问题
                         const encodedContent = btoa(unescape(encodeURIComponent(trimmedContent)));
                         
+                        // 检查内容是否超过3行（大约60个字符）
+                        const isLongContent = trimmedContent.length > 60 || (trimmedContent.match(/\n/g) || []).length > 2;
+                        const contentClass = isLongContent ? 'record-content collapsed' : 'record-content';
+                        const buttonText = isLongContent ? '...展开' : '';
+                        
                         recordsHTML += '<li class="record-item">' +
-                            '<div class="record-content">' +
+                            '<div class="' + contentClass + '" data-id="' + record.id + '">' +
                             trimmedContent +
+                            (isLongContent ? '<button class="expand-btn" onclick="toggleContent(' + record.id + ')">' + buttonText + '</button>' : '') +
                             '<div class="record-meta">' +
                             '长度: ' + record.length + ' | ' +
                             '时间: ' + record.timestamp +
@@ -389,6 +420,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 return response.text();
             })
             .then(data => {
+                // 检查服务器返回的是否是错误信息
+                if (data.includes('保存失败') || data.includes('内容不能为空')) {
+                    throw new Error(data);
+                }
+                
                 // 清空并重新启用表单
                 textarea.value = '';
                 
@@ -404,7 +440,7 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(error => {
                 console.error('Error:', error);
-                showNotification('保存失败: ' + error.message);
+                showNotification('保存失败: ' + (error.message || '未知错误'));
                 
                 if (submitBtn) {
                     restoreButtonState(submitBtn);

@@ -143,6 +143,37 @@ body {
     line-height: 1.4;
     color: #333;
     text-align: left;
+    position: relative;
+    overflow: hidden;
+}
+
+.record-content.collapsed {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    max-height: 4.2em; /* 3行的高度 */
+}
+
+.record-content .expand-btn {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: linear-gradient(to right, transparent, rgba(255, 255, 255) 30%);
+    color: #667eea;
+    border: none;
+    padding: 0 10px 0 50px;
+    cursor: pointer;
+    font-weight: bold;
+    height: 1.4em;
+}
+
+.record-content:not(.collapsed) .expand-btn {
+    position: static;
+    background: none;
+    padding: 5px 0;
+    margin-top: 5px;
+    text-align: right;
+    width: 100%;
 }
 
 .record-meta {

@@ -9,7 +9,11 @@ require_once __DIR__ . '/function/initDatabase.php';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['content'])) {
     $content = trim($_POST['content']);
     if (!empty($content)) {
-        $result = saveToD1($content);
+        // 计算内容长度和时间戳
+        $length = strlen($content);
+        $timestamp = date('Y-m-d H:i:s');
+        
+        $result = saveToD1($content, $length, $timestamp);
         if ($result) {
             // 保存成功，重定向以避免重复提交
             header('Location: /CloudClipboard/index.php?saved=1');
