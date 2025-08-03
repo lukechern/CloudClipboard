@@ -159,44 +159,33 @@ body {
 }
 
 .copy-btn {
-    background: #f8f9fa url('../img/copy.svg') no-repeat center center;
-    background-size: 16px 16px;
-    border: 1px solid #e1e5e9;
+    background: #ffffff;
+    border: 2px solid #ffffff;
     border-radius: 6px;
     padding: 8px;
     cursor: pointer;
     transition: all 0.3s;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
+    width: 60px;
+    height: 60px;
 }
 
 .copy-btn:hover {
-    border-color: #667eea;
-    color: white;
+    border-color: #E1E5E9;
 }
 
-.delete-btn {
-    background: #f8f9fa url('../img/delete.svg') no-repeat center center;
-    background-size: 16px 16px;
-    border: 1px solid #e1e5e9;
-    border-radius: 6px;
-    padding: 8px;
-    cursor: pointer;
-    transition: all 0.3s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #dc3545;
-    width: 32px;
-    height: 32px;
+.copy-btn .icon {
+    width: 16px;
+    height: 16px;
+    margin-bottom: 4px;
 }
 
-.delete-btn:hover {
-    border-color: #dc3545;
-    color: white;
+.copy-btn .copy-text {
+    font-size: 12px;
+    font-weight: normal;
 }
 
 .notification {
@@ -343,7 +332,7 @@ body {
     gap: 5px;
     background: none;
     border: none;
-    color: #dc3545;
+    color: #9C3B21;
     cursor: pointer;
     font-weight: bold;
     padding: 8px 12px;
@@ -355,6 +344,10 @@ body {
 
 .batch-toolbar .delete-btn:hover {
     background-color: #f8f9fa;
+}
+
+.batch-toolbar .delete-btn .icon {
+    filter: invert(27%) sepia(50%) saturate(1000%) hue-rotate(330deg) brightness(100%) contrast(100%);
 }
 
 .batch-toolbar .complete-btn {

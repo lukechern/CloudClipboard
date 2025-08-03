@@ -21,30 +21,6 @@ function copyToClipboard(id, encodedContent) {
     document.body.removeChild(textArea);
 }
 
-// 删除记录功能
-function deleteRecord(id) {
-    showConfirm('确认删除', '确定要删除这条记录吗？', () => {
-        // 发送删除请求到服务器
-        fetch('./index.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: 'delete_id=' + encodeURIComponent(id)
-        })
-        .then(response => response.text())
-        .then(data => {
-            // 重新加载记录
-            loadRecords();
-            showNotification('记录已删除');
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showNotification('删除失败');
-        });
-    });
-}
-
 // 批量删除记录功能
 function batchDeleteRecords(ids) {
     showConfirm('确认删除', `确定要删除这 ${ids.length} 条记录吗？`, () => {
@@ -166,16 +142,13 @@ function updateRecordItemsForBatchMode(isBatchMode) {
     recordItems.forEach(item => {
         const checkbox = item.querySelector('.record-checkbox');
         const copyBtn = item.querySelector('.copy-btn');
-        const deleteBtn = item.querySelector('.delete-btn');
         
         if (isBatchMode) {
             item.classList.add('batch-mode');
             checkbox.style.display = 'block';
-            deleteBtn.style.display = 'none';
         } else {
             item.classList.remove('batch-mode');
             checkbox.style.display = 'none';
-            deleteBtn.style.display = 'block';
             checkbox.checked = false; // 取消选中
         }
     });
@@ -239,10 +212,8 @@ function loadRecords() {
                             '<div class="record-actions">' +
                             '<input type="checkbox" class="record-checkbox" data-id="' + record.id + '" style="display: none;">' +
                             '<button class="copy-btn" onclick="copyToClipboard(' + record.id + ', \'' + encodedContent + '\')" title="复制">' +
-                            '<span class="icon copy-icon"></span>' +
-                            '</button>' +
-                            '<button class="delete-btn" onclick="deleteRecord(' + record.id + ')" title="删除">' +
-                            '<span class="icon delete-icon"></span>' +
+                            '<img src="html/img/copy.svg" class="icon copy-icon">' +
+                            '<span class="copy-text">复制</span>' +
                             '</button>' +
                             '</div>' +
                             '</li>';
@@ -305,19 +276,14 @@ document.addEventListener('DOMContentLoaded', function() {
     batchToolbar.innerHTML = `
         <div class="actions">
             <button class="complete-btn">
-                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                </svg>
+                <img src="html/img/complete.svg" class="icon" alt="完成" width="16" height="16">
                 完成
             </button>
             <span class="count">已选择 0 项</span>
         </div>
         <div class="actions">
             <button class="delete-btn" disabled>
-                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="3 6 5 6 21 6"></polyline>
-                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                </svg>
+                <img src="html/img/delete.svg" class="icon" alt="删除" width="16" height="16">
                 批量删除
             </button>
         </div>
