@@ -258,18 +258,20 @@ body {
     transition: opacity 0.3s, transform 0.2s;
 }
 
+.back-to-top::before {
+    content: "";
+    background: url('../img/arrow-up.svg') no-repeat center center;
+    background-size: 24px 24px;
+    width: 24px;
+    height: 24px;
+}
+
 .back-to-top.show {
     opacity: 1;
 }
 
 .back-to-top:hover {
     transform: scale(1.1);
-}
-
-.back-to-top svg {
-    width: 24px;
-    height: 24px;
-    fill: white;
 }
 
 /* 自定义确认对话框样式 */

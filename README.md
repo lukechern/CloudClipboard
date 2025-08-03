@@ -64,7 +64,7 @@
 - [Visual Studio Code](https://code.visualstudio.com/) - 优秀的代码编辑器
 - [Cline](https://github.com/cline/cline.git) - AI助手工具
 - [通义灵码](https://tongyi.aliyun.com/lingma/) - 阿里巴巴智能编码助手
-- [通义千问](https://tongyi.aliyun.com/qianwen/) - 阿里巴巴通义实验室研发的超大规模语言模型
+- [Qwen3-Coder](https://tongyi.aliyun.com/qianwen/) - 阿里巴巴通义实验室研发的超大规模语言模型
 
 ## 联系我们
 
