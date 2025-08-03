@@ -56,3 +56,16 @@
 ## 许可证
 
 本项目采用 MIT 许可证，详情请见 [LICENSE](file:///LICENSE) 文件。
+
+## 致谢
+
+感谢以下工具和平台对本项目的支持：
+
+- [Visual Studio Code](https://code.visualstudio.com/) - 优秀的代码编辑器
+- [Cline](https://github.com/cline/cline.git) - AI助手工具
+- [通义灵码](https://tongyi.aliyun.com/lingma/) - 阿里巴巴智能编码助手
+- [通义千问](https://tongyi.aliyun.com/qianwen/) - 阿里巴巴通义实验室研发的超大规模语言模型
+
+## 联系我们
+
+如有任何问题或建议，请访问我们的 [GitHub 仓库](https://github.com/lukechern/CloudClipboard) 提交 Issue 或 Pull Request。
