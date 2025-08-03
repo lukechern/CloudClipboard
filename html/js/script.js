@@ -211,6 +211,12 @@ function updateBatchToolbarCount() {
 
 // 加载记录
 function loadRecords() {
+    // 显示加载状态
+    const container = document.getElementById('records-container');
+    const loadingElement = document.getElementById('records-loading');
+    container.style.display = 'none';
+    loadingElement.style.display = 'flex';
+    
     // 修复URL路径，确保相对于网站根目录
     fetch('./index.php?get_records=true')
         .then(response => {
@@ -221,10 +227,13 @@ function loadRecords() {
             return response.text(); // 先获取文本内容
         })
         .then(text => {
+            // 隐藏加载状态
+            loadingElement.style.display = 'none';
+            container.style.display = 'block';
+            
             // 尝试解析JSON
             try {
                 const data = JSON.parse(text);
-                const container = document.getElementById('records-container');
                 if (data.length === 0) {
                     container.innerHTML = '<p style="text-align: center; color: #666; padding: 40px 0;">暂无记录</p>';
                 } else {
@@ -270,12 +279,16 @@ function loadRecords() {
             } catch (e) {
                 console.error('JSON解析错误:', e);
                 console.error('收到的响应:', text);
-                document.getElementById('records-container').innerHTML = '<p style="text-align: center; color: #666; padding: 40px 0;">加载记录失败: 数据格式错误</p>';
+                container.innerHTML = '<p style="text-align: center; color: #666; padding: 40px 0;">加载记录失败: 数据格式错误</p>';
             }
         })
         .catch(error => {
+            // 隐藏加载状态
+            loadingElement.style.display = 'none';
+            container.style.display = 'block';
+            
             console.error('Error:', error);
-            document.getElementById('records-container').innerHTML = '<p style="text-align: center; color: #666; padding: 40px 0;">加载记录失败: ' + error.message + '</p>';
+            container.innerHTML = '<p style="text-align: center; color: #666; padding: 40px 0;">加载记录失败: ' + error.message + '</p>';
         });
 }
 
