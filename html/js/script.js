@@ -24,6 +24,17 @@ function copyToClipboard(id, encodedContent) {
 // 批量删除记录功能
 function batchDeleteRecords(ids) {
     showConfirm('确认删除', `确定要删除这 ${ids.length} 条记录吗？`, () => {
+        // 立即从前端界面移除选中的记录条目
+        ids.forEach(id => {
+            const recordItem = document.querySelector(`.record-checkbox[data-id="${id}"]`)?.closest('.record-item');
+            if (recordItem) {
+                recordItem.remove();
+            }
+        });
+        
+        // 退出批量操作模式
+        exitBatchMode();
+        
         // 发送批量删除请求到服务器
         fetch('./index.php', {
             method: 'POST',
@@ -34,16 +45,15 @@ function batchDeleteRecords(ids) {
         })
         .then(response => response.text())
         .then(data => {
-            // 退出批量操作模式
-            exitBatchMode();
-            
-            // 重新加载记录
+            // 重新加载记录以确保数据一致性
             loadRecords();
             showNotification(`已删除 ${ids.length} 条记录`);
         })
         .catch(error => {
             console.error('Error:', error);
             showNotification('批量删除失败');
+            // 如果删除失败，重新加载记录以恢复界面
+            loadRecords();
         });
     });
 }
@@ -232,6 +242,7 @@ function loadRecords() {
                         const buttonText = isLongContent ? '...展开' : '';
                         
                         recordsHTML += '<li class="record-item">' +
+                            '<input type="checkbox" class="record-checkbox" data-id="' + record.id + '" style="display: none;">' +
                             '<div class="' + contentClass + '" data-id="' + record.id + '">' +
                             trimmedContent +
                             (isLongContent ? '<button class="expand-btn" onclick="toggleContent(' + record.id + ')">' + buttonText + '</button>' : '') +
@@ -241,7 +252,6 @@ function loadRecords() {
                             '</div>' +
                             '</div>' +
                             '<div class="record-actions">' +
-                            '<input type="checkbox" class="record-checkbox" data-id="' + record.id + '" style="display: none;">' +
                             '<button class="copy-btn" onclick="copyToClipboard(' + record.id + ', \'' + encodedContent + '\')" title="复制">' +
                             '<img src="html/img/copy.svg" class="icon copy-icon">' +
                             '<span class="copy-text">复制</span>' +

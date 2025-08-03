@@ -131,6 +131,14 @@ body {
     transition: box-shadow 0.3s;
 }
 
+.record-item .record-checkbox {
+    margin-right: 10px;
+    margin-top: 3px;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
 .record-item:hover {
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
@@ -530,7 +538,7 @@ body {
 
     .record-item.batch-mode .record-actions {
         flex-direction: row;
-        margin-left: 0;
+        margin-left: 10px;
         margin-top: 0; /* 移除顶部边距 */
         align-self: flex-start; /* 改为flex-start，使按钮与内容顶部对齐 */
         gap: 6px;

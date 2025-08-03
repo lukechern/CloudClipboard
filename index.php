@@ -27,17 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['content'])) {
     exit();
 }
 
-// 处理删除记录请求
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_id'])) {
-    $id = $_POST['delete_id'];
-    $result = deleteFromD1($id);
-    if ($result) {
-        echo "删除成功";
-    } else {
-        echo "删除失败";
-    }
-    exit();
-}
+
 
 // 处理批量删除记录请求
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['batch_delete_ids'])) {
