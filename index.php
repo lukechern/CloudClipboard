@@ -1,59 +1,71 @@
 <?php
-// 引入配置文件
-require_once 'config/config.php';
+require_once __DIR__ . '/config/config.php';
+require_once __DIR__ . '/function/saveToD1.php';
+require_once __DIR__ . '/function/getRecordsFromD1.php';
+require_once __DIR__ . '/function/deleteFromD1.php';
+require_once __DIR__ . '/function/initDatabase.php';
 
-// 引入函数文件
-require_once 'function/curlRequest.php';
-require_once 'function/saveToD1.php';
-require_once 'function/getRecordsFromD1.php';
-require_once 'function/deleteFromD1.php';
-
-// 处理API请求
-if (isset($_GET['get_records'])) {
-    header('Content-Type: application/json');
-    echo json_encode(getRecordsFromD1());
-    exit;
+// 处理保存内容请求
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['content'])) {
+    $content = trim($_POST['content']);
+    if (!empty($content)) {
+        $result = saveToD1($content);
+        if ($result) {
+            // 保存成功，重定向以避免重复提交
+            header('Location: /CloudClipboard/index.php?saved=1');
+            exit();
+        } else {
+            echo "保存失败";
+        }
+    } else {
+        echo "内容不能为空";
+    }
+    exit();
 }
 
-// 处理表单提交
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['content'])) {
-        $content = $_POST['content'];
-        $length = strlen($content);
-        $timestamp = date('Y-m-d H:i:s');
-        
-        // 调用Cloudflare D1 API保存数据
-        saveToD1($content, $length, $timestamp);
-        
-        // 如果是AJAX请求，返回成功响应
-        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
-            echo json_encode(['success' => true]);
-            exit;
-        }
-    } elseif (isset($_POST['delete_id'])) {
-        $id = intval($_POST['delete_id']);
-        
-        // 调用Cloudflare D1 API删除数据
-        deleteFromD1($id);
-        
-        // 如果是AJAX请求，返回成功响应
-        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
-            echo json_encode(['success' => true]);
-            exit;
+// 处理删除记录请求
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_id'])) {
+    $id = $_POST['delete_id'];
+    $result = deleteFromD1($id);
+    if ($result) {
+        echo "删除成功";
+    } else {
+        echo "删除失败";
+    }
+    exit();
+}
+
+// 处理批量删除记录请求
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['batch_delete_ids'])) {
+    $ids = json_decode($_POST['batch_delete_ids']);
+    $successCount = 0;
+    
+    foreach ($ids as $id) {
+        if (deleteFromD1($id)) {
+            $successCount++;
         }
     }
+    
+    if ($successCount == count($ids)) {
+        echo "批量删除成功";
+    } else {
+        echo "部分删除失败";
+    }
+    exit();
 }
 
-// 从D1数据库获取所有记录
-$records = getRecordsFromD1();
-?>
-<?php
-// 如果没有特定的API请求，则显示主页面
-if (!isset($_GET['get_records']) && empty($_POST)) {
-    // 设置默认时区
-    date_default_timezone_set('Asia/Shanghai');
-    
-    // 包含HTML页面
-    include 'html/index.html';
+// 处理获取记录请求
+if (isset($_GET['get_records'])) {
+    header('Content-Type: application/json');
+    try {
+        $records = getRecordsFromD1();
+        echo json_encode($records);
+    } catch (Exception $e) {
+        echo json_encode([]);
+    }
+    exit();
 }
+
+// 显示主页面
+include __DIR__ . '/html/index.html';
 ?>

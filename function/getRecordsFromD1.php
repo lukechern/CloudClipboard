@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/curlRequest.php';
+
 function getRecordsFromD1() {
     $url = "https://api.cloudflare.com/client/v4/accounts/" . CF_ACCOUNT_ID . "/d1/database/" . CF_DATABASE_ID . "/query";
     
@@ -14,7 +16,18 @@ function getRecordsFromD1() {
     
     $response = curlRequest($url, $data, $headers);
     
+    // 检查响应是否为空
+    if (empty($response)) {
+        return [];
+    }
+    
     $result = json_decode($response, true);
+    
+    // 检查JSON解析是否成功
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        // JSON解析失败，返回空数组
+        return [];
+    }
     
     if (isset($result['result']) && isset($result['result'][0]) && isset($result['result'][0]['success']) && $result['result'][0]['success']) {
         $records = $result['result'][0]['results'] ?? [];
