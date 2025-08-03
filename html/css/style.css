@@ -86,6 +86,29 @@ body {
     transform: translateY(0);
 }
 
+.input-section button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.input-section button .spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+    vertical-align: middle;
+    background: url('../img/spinner.svg') no-repeat center center;
+    background-size: contain;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
 .records-section h2 {
     color: #333;
     margin-bottom: 15px;
@@ -136,7 +159,8 @@ body {
 }
 
 .copy-btn {
-    background: #f8f9fa;
+    background: #f8f9fa url('../img/copy.svg') no-repeat center center;
+    background-size: 16px 16px;
     border: 1px solid #e1e5e9;
     border-radius: 6px;
     padding: 8px;
@@ -151,21 +175,12 @@ body {
 
 .copy-btn:hover {
     border-color: #667eea;
-}
-
-.copy-icon {
-    width: 16px;
-    height: 16px;
-    fill: #333;
-    transition: transform 0.3s;
-}
-
-.copy-btn:hover .copy-icon {
-    transform: scale(1.15);
+    color: white;
 }
 
 .delete-btn {
-    background: #f8f9fa;
+    background: #f8f9fa url('../img/delete.svg') no-repeat center center;
+    background-size: 16px 16px;
     border: 1px solid #e1e5e9;
     border-radius: 6px;
     padding: 8px;
@@ -181,17 +196,7 @@ body {
 
 .delete-btn:hover {
     border-color: #dc3545;
-}
-
-.delete-icon {
-    width: 16px;
-    height: 16px;
-    fill: #dc3545;
-    transition: transform 0.3s;
-}
-
-.delete-btn:hover .delete-icon {
-    transform: scale(1.15);
+    color: white;
 }
 
 .notification {
