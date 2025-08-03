@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>初始化数据库</title>
+    <link rel="stylesheet" href="html/css/init_db.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>数据库初始化</h1>
+            <p>云剪贴板数据库设置</p>
+        </div>
+        
+        <div class="content">
+            <div id="message-container"></div>
+            
+            <div class="init-form">
+                <form method="POST">
+                    <input type="hidden" name="init" value="1">
+                    <button type="submit" class="init-btn">创建数据库表</button>
+                </form>
+            </div>
+            
+            <div class="info">
+                <h3>配置信息</h3>
+                <ul>
+                    <li>账户ID: <span id="account-id"></span></li>
+                    <li>数据库ID: <span id="database-id"></span></li>
+                    <li>表名: <span id="table-name"></span></li>
+                </ul>
+                <p>请确保config/config.php中的配置信息正确无误。</p>
+            </div>
+        </div>
+    </div>
+    
+    <script src="html/js/init_db.js"></script>
+</body>
+</html>
