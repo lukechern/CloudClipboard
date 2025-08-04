@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function() {
             button.disabled = true;
             
             // 发送请求
-            fetch('init_db.php', {
+            fetch('./init_db.php', {
                 method: 'POST',
                 body: new FormData(form)
             })
@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 // 加载详细存储信息
 function loadStorageDetails() {
-    fetch('index.php?get_storage_info=1')
+    fetch('./index.php?get_storage_info=1')
         .then(response => response.json())
         .then(data => {
             displayStorageDetails(data);
@@ -153,7 +153,7 @@ function displayStorageDetails(storageInfo) {
 }
 // 检查表是否存在
 function checkTableExists() {
-    fetch('index.php?get_records=1')
+    fetch('./index.php?get_records=1')
         .then(response => response.json())
         .then(data => {
             // 如果能成功获取记录，说明表存在

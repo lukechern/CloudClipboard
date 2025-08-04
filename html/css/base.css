@@ -43,7 +43,6 @@ body {
 /* 存储信息样式 */
 .storage-info {
     background: none;
-    border-top: 1px solid #e9ecef;
     padding: 15px 20px;
     font-size: 0.9rem;
     color: #f0f0f0;

@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', function() {
             formData.append('content', content);
             
             // 发送请求
-            fetch('/CloudClipboard/index.php', {
+            fetch('./index.php', {
                 method: 'POST',
                 body: formData
             })
@@ -169,7 +169,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 // 加载存储信息
 function loadStorageInfo() {
-    fetch('/CloudClipboard/index.php?get_storage_info=1')
+    fetch('./index.php?get_storage_info=1')
         .then(response => response.json())
         .then(data => {
             displayStorageInfo(data);
@@ -193,7 +193,7 @@ function displayStorageInfo(storageInfo) {
     const html = `
         <div class="storage-info-item">
             <span class="storage-info-label">数据存储位置:</span>
-            <span class="storage-info-value"><a href="init_db.php" target="_blank">${storageInfo.type} (${storageInfo.location})</a></span>
+            <span class="storage-info-value"><a href="./init_db.php" target="_blank">${storageInfo.type} (${storageInfo.location})</a></span>
         </div>
     `;
     

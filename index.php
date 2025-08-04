@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['content'])) {
         $result = $dbManager->saveData($content, $length, $timestamp);
         if ($result) {
             // 保存成功，重定向以避免重复提交
-            header('Location: /CloudClipboard/index.php?saved=1');
+            header('Location: ./index.php?saved=1');
             exit();
         } else {
             echo "保存失败";
