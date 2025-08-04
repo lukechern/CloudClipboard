@@ -16,6 +16,14 @@
         <div class="content">
             <div id="message-container"></div>
             
+            <!-- 详细存储信息 -->
+            <div class="storage-details">
+                <h3>当前存储配置</h3>
+                <div id="storage-info-details">
+                    <!-- 存储信息将通过JavaScript动态加载 -->
+                </div>
+            </div>
+            
             <div class="init-form">
                 <form method="POST">
                     <input type="hidden" name="init" value="1">
@@ -24,13 +32,8 @@
             </div>
             
             <div class="info">
-                <h3>配置信息</h3>
-                <ul>
-                    <li>账户ID: <span id="account-id"></span></li>
-                    <li>数据库ID: <span id="database-id"></span></li>
-                    <li>表名: <span id="table-name"></span></li>
-                </ul>
-                <p>请确保config/config.php中的配置信息正确无误。</p>
+                <h3>说明</h3>
+                <p>请确保config/config.php中的配置信息正确无误。点击上方按钮创建或更新数据库表结构。</p>
             </div>
         </div>
     </div>

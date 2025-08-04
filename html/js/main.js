@@ -3,6 +3,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // 加载记录
     loadRecords();
     
+    // 加载存储信息
+    loadStorageInfo();
+    
     // 检查是否有成功消息
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.has('saved')) {
@@ -164,3 +167,35 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+// 加载存储信息
+function loadStorageInfo() {
+    fetch('/CloudClipboard/index.php?get_storage_info=1')
+        .then(response => response.json())
+        .then(data => {
+            displayStorageInfo(data);
+        })
+        .catch(error => {
+            console.error('加载存储信息失败:', error);
+            // 如果加载失败，显示默认信息
+            displayStorageInfo({
+                type: '未知',
+                location: '未知',
+                status: '获取失败'
+            });
+        });
+}
+
+// 显示存储信息（简化版，只显示存储位置）
+function displayStorageInfo(storageInfo) {
+    const container = document.getElementById('storage-info-container');
+    if (!container) return;
+    
+    const html = `
+        <div class="storage-info-item">
+            <span class="storage-info-label">数据存储位置:</span>
+            <span class="storage-info-value"><a href="init_db.php" target="_blank">${storageInfo.type} (${storageInfo.location})</a></span>
+        </div>
+    `;
+    
+    container.innerHTML = html;
+}

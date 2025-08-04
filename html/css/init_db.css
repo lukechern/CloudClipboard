@@ -105,3 +105,56 @@ body {
 .info li {
     margin-bottom: 8px;
 }
+/* 详细存储信息样式 */
+.storage-details {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px 0;
+    text-align: left;
+}
+
+.storage-details h3 {
+    margin-bottom: 15px;
+    color: #333;
+    text-align: center;
+}
+
+.storage-info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.storage-info-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.storage-info-label {
+    font-weight: 600;
+    color: #495057;
+    min-width: 120px;
+}
+
+
+.storage-status {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.85em;
+    font-weight: 500;
+}
+
+.storage-status.configured {
+    background: #d4edda;
+    color: #155724;
+}
+
+.storage-status.not-configured {
+    background: #f8d7da;
+    color: #721c24;
+}

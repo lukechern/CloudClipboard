@@ -1,9 +1,9 @@
 <?php
 require_once __DIR__ . '/config/config.php';
-require_once __DIR__ . '/function/saveToD1.php';
-require_once __DIR__ . '/function/getRecordsFromD1.php';
-require_once __DIR__ . '/function/deleteFromD1.php';
-require_once __DIR__ . '/function/initDatabase.php';
+require_once __DIR__ . '/function/DatabaseManager.php';
+
+// 初始化数据库管理器
+$dbManager = new DatabaseManager();
 
 // 处理保存内容请求
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['content'])) {
@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['content'])) {
         $length = strlen($content);
         $timestamp = date('Y-m-d H:i:s');
         
-        $result = saveToD1($content, $length, $timestamp);
+        $result = $dbManager->saveData($content, $length, $timestamp);
         if ($result) {
             // 保存成功，重定向以避免重复提交
             header('Location: /CloudClipboard/index.php?saved=1');
@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['batch_delete_ids'])) 
     $successCount = 0;
     
     foreach ($ids as $id) {
-        if (deleteFromD1($id)) {
+        if ($dbManager->deleteRecord($id)) {
             $successCount++;
         }
     }
@@ -52,11 +52,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['batch_delete_ids'])) 
 if (isset($_GET['get_records'])) {
     header('Content-Type: application/json');
     try {
-        $records = getRecordsFromD1();
+        $records = $dbManager->getRecords();
         echo json_encode($records);
     } catch (Exception $e) {
         echo json_encode([]);
     }
+    exit();
+}
+
+// 处理获取存储信息请求
+if (isset($_GET['get_storage_info'])) {
+    header('Content-Type: application/json');
+    echo json_encode($dbManager->getStorageInfo());
     exit();
 }
 

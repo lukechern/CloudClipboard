@@ -40,3 +40,59 @@ body {
 .content {
     padding: 20px;
 }
+/* 存储信息样式 */
+.storage-info {
+    background: none;
+    border-top: 1px solid #e9ecef;
+    padding: 15px 20px;
+    font-size: 0.9rem;
+    color: #f0f0f0;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.storage-info-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 8px;
+    gap: 10px;
+}
+
+.storage-info-item:last-child {
+    margin-bottom: 0;
+}
+
+.storage-info-label {
+    font-weight: 500;
+}
+
+.storage-info-value {
+    color: #495057;
+}
+
+.storage-info-value a {
+    color: #f0f0f0;
+    text-decoration: none;
+}
+
+.storage-info-value a:hover {
+    text-decoration: underline;
+}
+
+.storage-status {
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.storage-status.configured {
+    background: #d4edda;
+    color: #155724;
+}
+
+.storage-status.not-configured {
+    background: #f8d7da;
+    color: #721c24;
+}
