@@ -19,14 +19,7 @@ wrangler d1 create cloudclipboard
 
 ### 2. 配置项目
 
-编辑 `wrangler.toml` 文件，更新数据库配置：
-
-```toml
-[[d1_databases]]
-binding = "DB"
-database_name = "cloudclipboard"
-database_id = "your-actual-database-id-here"  # 替换为实际的数据库ID
-```
+项目已配置完成，无需修改 `wrangler.toml` 文件。D1 数据库绑定将在 Cloudflare Pages 仪表盘中手动配置。
 
 ### 3. 部署到Cloudflare Pages
 
@@ -68,7 +61,9 @@ npm run deploy
 1. 进入 "Settings" → "Functions"
 2. 在 "D1 database bindings" 部分添加：
    - **Variable name**: `DB`
-   - **D1 database**: 选择你创建的数据库
+   - **D1 database**: 选择你创建的 `cloudclipboard` 数据库
+
+**重要**: 这一步是必须的，因为 Pages 部署需要在仪表盘中手动绑定 D1 数据库，而不是通过 wrangler.toml 配置。
 
 ### 6. 初始化数据库
 
@@ -106,8 +101,8 @@ npm run deploy
 ### 常见问题
 
 1. **数据库连接失败**
-   - 检查D1数据库是否正确绑定
-   - 确认database_id是否正确
+   - 检查D1数据库是否在 Pages 设置中正确绑定
+   - 确认变量名称为 `DB`，数据库名称为 `cloudclipboard`
 
 2. **API请求失败**
    - 检查Functions是否正确部署

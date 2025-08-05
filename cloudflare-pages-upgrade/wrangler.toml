@@ -1,11 +1,7 @@
 name = "cloudclipboard-pages"
 compatibility_date = "2024-01-01"
 
-# D1 数据库绑定
-[[d1_databases]]
-binding = "DB"
-database_name = "cloudclipboard"
-database_id = "your-database-id-here"
+# D1 数据库绑定在 Cloudflare Pages 仪表盘中手动配置
 
 # 环境变量
 [vars]
