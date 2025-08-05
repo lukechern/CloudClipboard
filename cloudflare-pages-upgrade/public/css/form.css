@@ -11,7 +11,7 @@
     width: 100%;
     min-height: 120px;
     padding: 12px;
-    padding-right: 40px; /* 为清空按钮留出空间 */
+    padding-right: 35px; /* 为清空按钮留出空间 */
     border: 2px solid #e1e5e9;
     border-radius: 8px;
     font-size: 1rem;
@@ -30,34 +30,32 @@
 /* 清空按钮样式 */
 .clear-btn {
     position: absolute;
-    bottom: 10px;
-    right: 10px;
-    width: 26px;
-    height: 26px;
-    background: rgba(255, 255, 255, 0.95);
-    border: 1px solid #e1e5e9;
-    border-radius: 6px;
+    bottom: 8px;
+    right: 8px;
+    width: 20px;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid #ddd;
+    border-radius: 4px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     opacity: 0;
     visibility: hidden;
-    transform: scale(0.8);
     z-index: 10;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .clear-btn:hover {
     background: rgba(255, 255, 255, 1);
-    border-color: #dc3545;
-    transform: scale(1.05);
-    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.2);
+    border-color: #999;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
 .clear-btn:active {
-    transform: scale(0.95);
+    transform: scale(0.9);
 }
 
 .clear-btn img {
@@ -72,29 +70,32 @@
 
 /* 当textarea有内容时显示清空按钮 */
 .textarea-container.has-content .clear-btn {
-    opacity: 1;
+    opacity: 0.7;
     visibility: visible;
-    transform: scale(1);
 }
 
 /* 当textarea获得焦点时也显示清空按钮 */
 .textarea-container:focus-within .clear-btn {
-    opacity: 1;
+    opacity: 0.8;
     visibility: visible;
-    transform: scale(1);
+}
+
+/* 悬停时完全显示 */
+.clear-btn:hover {
+    opacity: 1 !important;
 }
 
 /* 移动端优化 */
 @media (max-width: 768px) {
     .clear-btn {
-        width: 28px;
-        height: 28px;
-        bottom: 8px;
-        right: 8px;
+        width: 24px;
+        height: 24px;
+        bottom: 6px;
+        right: 6px;
     }
     
     .input-section textarea {
-        padding-right: 44px; /* 为移动端的清空按钮留出更多空间 */
+        padding-right: 38px; /* 为移动端的清空按钮留出空间 */
     }
 }
 
@@ -110,7 +111,7 @@
     }
 }
 
-.input-section button {
+.input-section button[type="submit"] {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     border: none;
@@ -124,23 +125,23 @@
     transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.input-section button:hover {
+.input-section button[type="submit"]:hover {
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
 }
 
-.input-section button:active {
+.input-section button[type="submit"]:active {
     transform: translateY(0);
 }
 
-.input-section button:disabled {
+.input-section button[type="submit"]:disabled {
     background: #ccc;
     cursor: not-allowed;
     transform: none;
     box-shadow: none;
 }
 
-.input-section button .spinner {
+.input-section button[type="submit"] .spinner {
     display: inline-block;
     width: 16px;
     height: 16px;

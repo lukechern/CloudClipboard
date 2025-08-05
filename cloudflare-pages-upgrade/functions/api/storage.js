@@ -37,8 +37,8 @@ export async function onRequestGet(context) {
 
     try {
         const storageInfo = {
-            type: 'Cloudflare D1 数据库',
-            location: 'Cloudflare 云端',
+            type: 'Cloudflare',
+            location: 'D1数据库',
             table_name: env.TABLE_NAME || 'cloudclipboard',
             status: '已配置',
             description: 'Cloudflare (云端 D1 数据库)'

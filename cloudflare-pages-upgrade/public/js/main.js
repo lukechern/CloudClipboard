@@ -101,10 +101,8 @@ document.addEventListener('DOMContentLoaded', function () {
             updateBatchToolbarCount();
         }
     });
-});
-
-// 处理清空按钮功能
-document.addEventListener('DOMContentLoaded', function() {
+    
+    // 处理清空按钮功能
     const textarea = document.getElementById('content-input');
     const clearBtn = document.getElementById('clearBtn');
     const textareaContainer = document.querySelector('.textarea-container');
@@ -122,37 +120,15 @@ document.addEventListener('DOMContentLoaded', function() {
         // 监听输入事件
         textarea.addEventListener('input', updateClearButtonVisibility);
         textarea.addEventListener('paste', function() {
-            // 粘贴后稍微延迟检查，确保内容已经粘贴完成
             setTimeout(updateClearButtonVisibility, 10);
         });
         
         // 清空内容的函数
         function clearTextarea() {
-            const content = textarea.value.trim();
-            
-            // 如果内容较长（超过100个字符），显示确认对话框
-            if (content.length > 100) {
-                if (typeof showConfirm === 'function') {
-                    showConfirm('确认清空', '您确定要清空当前输入的内容吗？', function() {
-                        textarea.value = '';
-                        updateClearButtonVisibility();
-                        textarea.focus();
-                        showNotification('内容已清空');
-                    });
-                } else {
-                    // 如果showConfirm函数不可用，使用原生confirm
-                    if (confirm('您确定要清空当前输入的内容吗？')) {
-                        textarea.value = '';
-                        updateClearButtonVisibility();
-                        textarea.focus();
-                        showNotification('内容已清空');
-                    }
-                }
-            } else {
-                // 内容较短，直接清空
-                textarea.value = '';
-                updateClearButtonVisibility();
-                textarea.focus();
+            textarea.value = '';
+            updateClearButtonVisibility();
+            textarea.focus();
+            if (typeof showNotification === 'function') {
                 showNotification('内容已清空');
             }
         }
@@ -164,7 +140,7 @@ document.addEventListener('DOMContentLoaded', function() {
             clearTextarea();
         });
         
-        // 键盘快捷键支持 (Ctrl+Delete 或 Cmd+Delete)
+        // 键盘快捷键支持
         textarea.addEventListener('keydown', function(e) {
             if ((e.ctrlKey || e.metaKey) && e.key === 'Delete') {
                 e.preventDefault();
@@ -176,6 +152,7 @@ document.addEventListener('DOMContentLoaded', function() {
         updateClearButtonVisibility();
     }
 });
+
 
 // 处理表单提交
 document.addEventListener('DOMContentLoaded', function () {

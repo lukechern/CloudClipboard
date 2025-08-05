@@ -1,4 +1,10 @@
-<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.3"/>
-  <path d="M8 8L16 16M16 8L8 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 刷子柄 -->
+  <path d="M14 14L20 20" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- 刷子头主体 -->
+  <path d="M4 4L14 14L10 18L6 14L4 4Z" fill="currentColor" opacity="0.7"/>
+  <!-- 刷子头边框 -->
+  <path d="M4 4L14 14L10 18L6 14L4 4Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+  <!-- 刷毛 -->
+  <path d="M6 8L8 10M7 7L9 9M8 8L10 10" stroke="white" stroke-width="1" stroke-linecap="round"/>
 </svg>
