@@ -103,6 +103,80 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
+// 处理清空按钮功能
+document.addEventListener('DOMContentLoaded', function() {
+    const textarea = document.getElementById('content-input');
+    const clearBtn = document.getElementById('clearBtn');
+    const textareaContainer = document.querySelector('.textarea-container');
+    
+    if (textarea && clearBtn && textareaContainer) {
+        // 监听textarea内容变化
+        function updateClearButtonVisibility() {
+            if (textarea.value.trim().length > 0) {
+                textareaContainer.classList.add('has-content');
+            } else {
+                textareaContainer.classList.remove('has-content');
+            }
+        }
+        
+        // 监听输入事件
+        textarea.addEventListener('input', updateClearButtonVisibility);
+        textarea.addEventListener('paste', function() {
+            // 粘贴后稍微延迟检查，确保内容已经粘贴完成
+            setTimeout(updateClearButtonVisibility, 10);
+        });
+        
+        // 清空内容的函数
+        function clearTextarea() {
+            const content = textarea.value.trim();
+            
+            // 如果内容较长（超过100个字符），显示确认对话框
+            if (content.length > 100) {
+                if (typeof showConfirm === 'function') {
+                    showConfirm('确认清空', '您确定要清空当前输入的内容吗？', function() {
+                        textarea.value = '';
+                        updateClearButtonVisibility();
+                        textarea.focus();
+                        showNotification('内容已清空');
+                    });
+                } else {
+                    // 如果showConfirm函数不可用，使用原生confirm
+                    if (confirm('您确定要清空当前输入的内容吗？')) {
+                        textarea.value = '';
+                        updateClearButtonVisibility();
+                        textarea.focus();
+                        showNotification('内容已清空');
+                    }
+                }
+            } else {
+                // 内容较短，直接清空
+                textarea.value = '';
+                updateClearButtonVisibility();
+                textarea.focus();
+                showNotification('内容已清空');
+            }
+        }
+        
+        // 清空按钮点击事件
+        clearBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            clearTextarea();
+        });
+        
+        // 键盘快捷键支持 (Ctrl+Delete 或 Cmd+Delete)
+        textarea.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Delete') {
+                e.preventDefault();
+                clearTextarea();
+            }
+        });
+        
+        // 初始化时检查内容
+        updateClearButtonVisibility();
+    }
+});
+
 // 处理表单提交
 document.addEventListener('DOMContentLoaded', function () {
     const form = document.querySelector('.input-section form');
@@ -151,6 +225,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     // 清空并重新启用表单
                     textarea.value = '';
+                    
+                    // 更新清空按钮状态
+                    const textareaContainer = document.querySelector('.textarea-container');
+                    if (textareaContainer) {
+                        textareaContainer.classList.remove('has-content');
+                    }
 
                     if (submitBtn) {
                         restoreButtonState(submitBtn);

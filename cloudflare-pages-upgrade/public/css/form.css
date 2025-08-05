@@ -2,22 +2,112 @@
     margin-bottom: 30px;
 }
 
+.textarea-container {
+    position: relative;
+    display: block;
+}
+
 .input-section textarea {
     width: 100%;
     min-height: 120px;
     padding: 12px;
+    padding-right: 40px; /* 为清空按钮留出空间 */
     border: 2px solid #e1e5e9;
     border-radius: 8px;
     font-size: 1rem;
     font-family: inherit;
     resize: vertical;
     transition: border-color 0.3s;
+    box-sizing: border-box;
 }
 
 .input-section textarea:focus {
     outline: none;
     border-color: #667eea;
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* 清空按钮样式 */
+.clear-btn {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    width: 26px;
+    height: 26px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid #e1e5e9;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.8);
+    z-index: 10;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.clear-btn:hover {
+    background: rgba(255, 255, 255, 1);
+    border-color: #dc3545;
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.2);
+}
+
+.clear-btn:active {
+    transform: scale(0.95);
+}
+
+.clear-btn img {
+    color: #666;
+    transition: color 0.2s ease;
+    filter: none;
+}
+
+.clear-btn:hover img {
+    color: #dc3545;
+}
+
+/* 当textarea有内容时显示清空按钮 */
+.textarea-container.has-content .clear-btn {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1);
+}
+
+/* 当textarea获得焦点时也显示清空按钮 */
+.textarea-container:focus-within .clear-btn {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1);
+}
+
+/* 移动端优化 */
+@media (max-width: 768px) {
+    .clear-btn {
+        width: 28px;
+        height: 28px;
+        bottom: 8px;
+        right: 8px;
+    }
+    
+    .input-section textarea {
+        padding-right: 44px; /* 为移动端的清空按钮留出更多空间 */
+    }
+}
+
+/* 触摸设备优化 */
+@media (hover: none) and (pointer: coarse) {
+    .clear-btn {
+        opacity: 0.7;
+        visibility: visible;
+    }
+    
+    .textarea-container.has-content .clear-btn {
+        opacity: 1;
+    }
 }
 
 .input-section button {
