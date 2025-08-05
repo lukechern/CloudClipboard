@@ -207,14 +207,13 @@ function displayStorageInfo(storageInfo) {
 
     container.innerHTML = html;
 }
-/
-    / 自动读取剪贴板功能（仅限Cloudflare部署环境）
+// 自动读取剪贴板功能（仅限https部署环境）
 function autoReadClipboard() {
     // 检查是否为Cloudflare部署环境
     const isCloudflareDeployment = window.location.protocol === 'https:' && window.location.hostname !== 'localhost';
 
     if (!isCloudflareDeployment) {
-        console.log('非Cloudflare部署环境，跳过自动读取剪贴板');
+        console.log('非https部署环境，跳过自动读取剪贴板');
         return;
     }
 
