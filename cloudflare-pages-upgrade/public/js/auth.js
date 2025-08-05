@@ -272,7 +272,7 @@ class AuthManager {
         // 触发自定义事件
         window.dispatchEvent(new CustomEvent('authSuccess'));
         
-        // 如果页面已经加载完成，重新初始化应用
+        // 如果页面已经加载完成，初始化应用
         if (document.readyState === 'complete') {
             this.initializeApp();
         }
@@ -280,12 +280,17 @@ class AuthManager {
 
     // 初始化应用
     initializeApp() {
-        // 重新加载记录和存储信息
-        if (typeof loadRecords === 'function') {
-            loadRecords();
-        }
-        if (typeof loadStorageInfo === 'function') {
-            loadStorageInfo();
+        console.log('initializeApp() 被调用，initialDataLoaded:', window.initialDataLoaded);
+        // 只有在初始数据未加载时才加载
+        if (!window.initialDataLoaded) {
+            console.log('认证管理器初始化应用数据');
+            if (typeof loadRecords === 'function') {
+                loadRecords();
+            }
+            if (typeof loadStorageInfo === 'function') {
+                loadStorageInfo();
+            }
+            window.initialDataLoaded = true;
         }
     }
 

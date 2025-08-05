@@ -25,6 +25,8 @@ function toggleContent(id) {
 
 // 加载记录
 function loadRecords() {
+    console.log('loadRecords() 被调用');
+    
     // 显示加载状态
     const container = document.getElementById('records-container');
     const loadingElement = document.getElementById('records-loading');
