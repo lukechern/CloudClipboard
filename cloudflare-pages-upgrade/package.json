@@ -1,0 +1,12 @@
+{
+  "name": "cloudclipboard-pages",
+  "version": "2.0.0",
+  "description": "CloudClipboard for Cloudflare Pages",
+  "scripts": {
+    "dev": "wrangler pages dev public --compatibility-date=2024-01-01",
+    "deploy": "wrangler pages deploy public"
+  },
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  }
+}

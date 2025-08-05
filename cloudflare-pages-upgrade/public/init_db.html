@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>初始化数据库</title>
+    <link rel="stylesheet" href="css/init_db.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>数据库初始化</h1>
+            <p>云剪贴板数据库设置</p>
+        </div>
+        
+        <div class="content">
+            <div id="message-container"></div>
+            
+            <!-- 详细存储信息 -->
+            <div class="storage-details">
+                <h3>当前存储配置</h3>
+                <div id="storage-info-details">
+                    <!-- 存储信息将通过JavaScript动态加载 -->
+                </div>
+            </div>
+            
+            <div class="init-form">
+                <form id="init-form">
+                    <button type="submit" class="init-btn">创建数据库表</button>
+                </form>
+            </div>
+            
+            <div class="info">
+                <h3>说明</h3>
+                <p>请确保config/config.php中的配置信息正确无误。点击上方按钮创建或更新数据库表结构。</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 返回首页链接 -->
+    <div class="back-to-home">
+        <a href="./index.html">↩️ 返回云剪贴板首页</a>
+    </div>
+    
+    <script src="js/init_db.js"></script>
+</body>
+</html>

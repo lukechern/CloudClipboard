@@ -1,0 +1,49 @@
+@media (max-width: 768px) {
+    .container {
+        margin: 10px 0px;
+        border-radius: 10px;
+    }
+
+    .header {
+        padding: 20px;
+    }
+
+    .header h1 {
+        font-size: 2rem;
+    }
+
+    .content {
+        padding: 20px;
+    }
+
+    .record-item {
+        flex-direction: row; /* 改回row，使内容和操作按钮在同一行 */
+    }
+
+    .record-item.batch-mode .record-actions {
+        flex-direction: row;
+        margin-left: 10px;
+        margin-top: 0; /* 移除顶部边距 */
+        align-self: flex-start; /* 改为flex-start，使按钮与内容顶部对齐 */
+        gap: 6px;
+    }
+
+    .copy-btn, .delete-btn {
+        margin: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .header h1 {
+        font-size: 1.8rem;
+    }
+
+    .input-section textarea {
+        min-height: 120px;
+    }
+
+    .input-section button {
+        padding: 12px 20px;
+        font-size: 1rem;
+    }
+}

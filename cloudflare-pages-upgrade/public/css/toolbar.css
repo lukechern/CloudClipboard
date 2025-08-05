@@ -1,0 +1,165 @@
+/* 固定顶部标题栏样式 */
+.header-fixed {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 15px 30px;
+}
+
+.header-fixed h1 {
+    font-size: 1.5rem;
+    margin-bottom: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.header-fixed p {
+    display: none;
+}
+
+/* 回到顶部按钮样式 */
+.back-to-top {
+    position: fixed;
+    bottom: 100px;
+    right: 30px;
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    z-index: 999;
+    opacity: 0;
+    transition: opacity 0.3s, transform 0.2s;
+}
+
+.back-to-top::before {
+    content: "";
+    background: url('../img/arrow-up.svg') no-repeat center center;
+    background-size: 24px 24px;
+    width: 24px;
+    height: 24px;
+}
+
+.back-to-top.show {
+    opacity: 1;
+}
+
+.back-to-top:hover {
+    transform: scale(1.1);
+}
+
+/* 批量操作按钮样式 */
+.batch-operation {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    z-index: 999;
+    transition: transform 0.2s;
+}
+
+.batch-operation:hover {
+    transform: scale(1.1);
+}
+
+/* 批量操作工具栏 */
+.batch-toolbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 1000;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+    max-width: 800px;
+    margin: 0 auto;
+    width: calc(100% - 40px); /* 减去body的padding */
+}
+
+.batch-toolbar.show {
+    transform: translateY(0);
+}
+
+.batch-toolbar .count {
+    font-weight: bold;
+    color: #333;
+}
+
+.batch-toolbar .actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.batch-toolbar .delete-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: none;
+    border: none;
+    color: #9C3B21;
+    cursor: pointer;
+    font-weight: bold;
+    padding: 8px 12px;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+    white-space: nowrap; /* 防止文字换行 */
+    margin-right: 15px; /* 增加右边距 */
+}
+
+.batch-toolbar .delete-btn:hover {
+    background-color: #f8f9fa;
+}
+
+.batch-toolbar .delete-btn .icon {
+    filter: invert(27%) sepia(50%) saturate(1000%) hue-rotate(330deg) brightness(100%) contrast(100%);
+}
+
+.batch-toolbar .complete-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: none;
+    border: none;
+    color: #667eea;
+    cursor: pointer;
+    font-weight: bold;
+    padding: 8px 12px;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+    white-space: nowrap; /* 防止文字换行 */
+}
+
+.batch-toolbar .complete-btn:hover {
+    background-color: #f8f9fa;
+}
+
+.batch-toolbar .icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0; /* 防止图标被压缩 */
+}

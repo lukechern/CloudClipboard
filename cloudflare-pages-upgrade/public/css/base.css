@@ -1,0 +1,97 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 30px;
+    text-align: center;
+}
+
+.header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+.header p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+.content {
+    padding: 20px;
+}
+/* 存储信息样式 */
+.storage-info {
+    background: none;
+    padding: 15px 20px;
+    font-size: 0.9rem;
+    color: #f0f0f0;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.storage-info-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 8px;
+    gap: 10px;
+}
+
+.storage-info-item:last-child {
+    margin-bottom: 0;
+}
+
+.storage-info-label {
+    font-weight: 500;
+}
+
+.storage-info-value {
+    color: #495057;
+}
+
+.storage-info-value a {
+    color: #f0f0f0;
+    text-decoration: none;
+}
+
+.storage-info-value a:hover {
+    text-decoration: underline;
+}
+
+.storage-status {
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.storage-status.configured {
+    background: #d4edda;
+    color: #155724;
+}
+
+.storage-status.not-configured {
+    background: #f8d7da;
+    color: #721c24;
+}
