@@ -1,0 +1,158 @@
+/* 密码验证界面样式 */
+.auth-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.auth-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.auth-modal {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    max-width: 400px;
+    width: 90%;
+    transform: translateY(-20px);
+    transition: transform 0.3s ease;
+}
+
+.auth-overlay.show .auth-modal {
+    transform: translateY(0);
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.auth-header h2 {
+    color: #333;
+    margin: 0 0 0.5rem 0;
+    font-size: 1.5rem;
+}
+
+.auth-header p {
+    color: #666;
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.auth-form {
+    margin-bottom: 1rem;
+}
+
+.auth-input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #e1e5e9;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+    box-sizing: border-box;
+}
+
+.auth-input:focus {
+    outline: none;
+    border-color: #007bff;
+}
+
+.auth-input.error {
+    border-color: #dc3545;
+}
+
+.auth-button {
+    width: 100%;
+    padding: 0.75rem;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 1rem;
+}
+
+.auth-button:hover {
+    background: #0056b3;
+}
+
+.auth-button:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+}
+
+.auth-error {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    text-align: center;
+    display: none;
+}
+
+.auth-error.show {
+    display: block;
+}
+
+.auth-loading {
+    display: none;
+    text-align: center;
+    margin-top: 1rem;
+}
+
+.auth-loading.show {
+    display: block;
+}
+
+.auth-loading img {
+    width: 20px;
+    height: 20px;
+    margin-right: 0.5rem;
+}
+
+.auth-remember {
+    display: flex;
+    align-items: center;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.auth-remember input {
+    margin-right: 0.5rem;
+}
+
+/* 主内容被锁定时的样式 */
+.content-locked {
+    filter: blur(3px);
+    pointer-events: none;
+    user-select: none;
+}
+
+/* 响应式设计 */
+@media (max-width: 480px) {
+    .auth-modal {
+        padding: 1.5rem;
+        margin: 1rem;
+    }
+    
+    .auth-header h2 {
+        font-size: 1.25rem;
+    }
+}

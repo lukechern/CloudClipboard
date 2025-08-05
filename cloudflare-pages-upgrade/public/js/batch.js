@@ -13,9 +13,11 @@ function batchDeleteRecords(ids) {
         exitBatchMode();
         
         // 发送批量删除请求到服务器
+        const headers = window.authManager ? window.authManager.getAuthHeaders() : {};
         Promise.all(ids.map(id => 
             fetch(`/api/records?id=${id}`, {
-                method: 'DELETE'
+                method: 'DELETE',
+                headers
             })
         ))
         .then(responses => {

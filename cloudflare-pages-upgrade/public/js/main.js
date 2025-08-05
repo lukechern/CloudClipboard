@@ -129,6 +129,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // 发送请求
             fetch('/api/records', {
                 method: 'POST',
+                headers: window.authManager ? window.authManager.getAuthHeaders() : {},
                 body: formData
             })
             .then(response => {
@@ -169,7 +170,9 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 // 加载存储信息
 function loadStorageInfo() {
-    fetch('/api/storage')
+    const headers = window.authManager ? window.authManager.getAuthHeaders() : {};
+    
+    fetch('/api/storage', { headers })
         .then(response => response.json())
         .then(data => {
             displayStorageInfo(data);

@@ -43,7 +43,11 @@ cloudflare-pages-upgrade/
    - 设置构建命令: `npm install`
    - 设置输出目录: `public`
 
-3. **绑定D1数据库**
+3. **配置环境变量（可选）**
+   在Cloudflare Pages设置中添加：
+   - `ACCESS_PASSWORD`: 访问密码（不设置则无密码保护）
+
+4. **绑定D1数据库**
    在wrangler.toml中配置D1数据库绑定
 
 ## 主要改进
@@ -52,4 +56,5 @@ cloudflare-pages-upgrade/
 - ✅ 全球CDN加速
 - ✅ 更好的性能和可靠性
 - ✅ 简化的部署流程
+- ✅ 密码保护功能，控制访问权限
 - ✅ 保持原有功能不变

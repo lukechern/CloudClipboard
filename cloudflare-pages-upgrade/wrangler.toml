@@ -9,4 +9,5 @@ database_id = "your-database-id-here"
 
 # 环境变量
 [vars]
-TABLE_NAME = "799e56cb-fb70-49a5-a4a1-84747d0ac01d"
+TABLE_NAME = "cloudclipboard"
+# ACCESS_PASSWORD = "your-password-here"  # 在Cloudflare Pages设置中配置

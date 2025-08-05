@@ -53,7 +53,15 @@ npm install
 npm run deploy
 ```
 
-### 4. 绑定D1数据库
+### 4. 配置环境变量
+
+在Cloudflare Pages项目设置中：
+
+1. 进入 "Settings" → "Environment variables"
+2. 添加以下环境变量：
+   - **ACCESS_PASSWORD**: 设置访问密码（可选，不设置则无密码保护）
+
+### 5. 绑定D1数据库
 
 在Cloudflare Pages项目设置中：
 
@@ -62,26 +70,36 @@ npm run deploy
    - **Variable name**: `DB`
    - **D1 database**: 选择你创建的数据库
 
-### 5. 初始化数据库
+### 6. 初始化数据库
 
 部署完成后：
 
 1. 访问 `https://your-domain.pages.dev/init_db.html`
-2. 点击 "创建数据库表" 按钮
-3. 确认表创建成功
+2. 如果设置了密码，输入访问密码
+3. 点击 "创建数据库表" 按钮
+4. 确认表创建成功
 
-### 6. 测试功能
+### 7. 测试功能
 
 1. 访问主页 `https://your-domain.pages.dev`
-2. 测试保存文本内容
-3. 测试查看历史记录
-4. 测试复制和删除功能
+2. 如果设置了密码，首次访问需要输入密码
+3. 测试保存文本内容
+4. 测试查看历史记录
+5. 测试复制和删除功能
 
 ## 环境变量配置
 
-如果需要自定义配置，可以在Cloudflare Pages设置中添加环境变量：
+可以在Cloudflare Pages设置中添加以下环境变量：
 
 - `TABLE_NAME`: 数据库表名（默认：cloudclipboard）
+- `ACCESS_PASSWORD`: 访问密码（可选，不设置则无密码保护）
+
+### 密码保护功能
+
+- **启用密码保护**: 在环境变量中设置 `ACCESS_PASSWORD`
+- **密码存储**: 用户输入正确密码后，会加密保存在浏览器本地存储中
+- **自动登录**: 7天内无需重复输入密码
+- **安全性**: 密码使用Base64编码存储，并在每次API请求中验证
 
 ## 故障排除
 

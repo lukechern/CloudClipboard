@@ -38,8 +38,10 @@ document.addEventListener('DOMContentLoaded', function() {
             button.disabled = true;
             
             // 发送请求
+            const headers = window.authManager ? window.authManager.getAuthHeaders() : {};
             fetch('/api/init', {
-                method: 'POST'
+                method: 'POST',
+                headers
             })
             .then(response => response.json())
             .then(data => {
@@ -69,7 +71,8 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 // 加载详细存储信息
 function loadStorageDetails() {
-    fetch('/api/storage')
+    const headers = window.authManager ? window.authManager.getAuthHeaders() : {};
+    fetch('/api/storage', { headers })
         .then(response => response.json())
         .then(data => {
             displayStorageDetails(data);
@@ -152,7 +155,8 @@ function displayStorageDetails(storageInfo) {
 }
 // 检查表是否存在
 function checkTableExists() {
-    fetch('/api/init')
+    const headers = window.authManager ? window.authManager.getAuthHeaders() : {};
+    fetch('/api/init', { headers })
         .then(response => response.json())
         .then(data => {
             // 检查表是否存在
