@@ -253,10 +253,13 @@ class AuthManager {
     // 隐藏认证模态框
     hideAuthModal() {
         const overlay = document.getElementById('authOverlay');
+        
         if (overlay) {
             overlay.classList.remove('show');
             setTimeout(() => {
-                document.body.removeChild(overlay);
+                if (overlay.parentNode) {
+                    document.body.removeChild(overlay);
+                }
                 document.body.classList.remove('content-locked');
             }, 300);
         }

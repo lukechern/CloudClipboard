@@ -5,12 +5,11 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(5px);
+    background: rgba(0, 0, 0, 0.85);
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 9999;
+    z-index: 999999;
     opacity: 0;
     visibility: hidden;
     transition: all 0.3s ease;
@@ -25,11 +24,13 @@
     background: white;
     border-radius: 12px;
     padding: 2rem;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
     max-width: 400px;
     width: 90%;
     transform: translateY(-20px);
     transition: transform 0.3s ease;
+    position: relative;
+    z-index: 1000000;
 }
 
 .auth-overlay.show .auth-modal {
@@ -140,9 +141,18 @@
 
 /* 主内容被锁定时的样式 */
 .content-locked {
-    filter: blur(3px);
     pointer-events: none;
     user-select: none;
+    overflow: hidden;
+}
+
+/* 确保认证相关元素可以正常交互 */
+.auth-overlay,
+.auth-modal,
+.auth-overlay *,
+.auth-modal * {
+    pointer-events: auto !important;
+    user-select: auto !important;
 }
 
 /* 响应式设计 */
