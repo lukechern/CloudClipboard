@@ -30,8 +30,8 @@
 /* 清空按钮样式 */
 .clear-btn {
     position: absolute;
-    bottom: 8px;
-    right: 8px;
+    bottom: 16px;
+    right: 16px;
     width: 30px;
     height: 30px;
     background: rgba(255, 255, 255, 0.9);
@@ -45,13 +45,11 @@
     opacity: 0;
     visibility: hidden;
     z-index: 10;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .clear-btn:hover {
     background: rgba(255, 255, 255, 1);
-    border-color: #999;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+
 }
 
 .clear-btn:active {
