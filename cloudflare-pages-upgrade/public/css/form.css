@@ -156,3 +156,57 @@
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
 }
+
+/* 剪贴板按钮样式 */
+.clipboard-btn {
+    background: #f8f9fa !important;
+    border: 1px solid #dee2e6 !important;
+    color: #495057 !important;
+    padding: 8px 12px !important;
+    font-size: 0.875rem !important;
+    border-radius: 4px !important;
+    cursor: pointer !important;
+    margin-bottom: 10px !important;
+    transition: all 0.2s ease !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    width: auto !important;
+    margin-top: 0 !important;
+    font-weight: normal !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.clipboard-btn:hover {
+    background: #e9ecef !important;
+    border-color: #adb5bd !important;
+    transform: none !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+}
+
+.clipboard-btn:active {
+    transform: translateY(1px) !important;
+}
+
+.clipboard-btn:disabled {
+    background: #f8f9fa !important;
+    color: #6c757d !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+}
+
+/* 剪贴板提示样式 */
+.clipboard-tip {
+    background: #fff3cd !important;
+    border: 1px solid #ffeaa7 !important;
+    color: #856404 !important;
+    padding: 8px 12px !important;
+    font-size: 0.875rem !important;
+    border-radius: 4px !important;
+    margin-bottom: 8px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    line-height: 1.4 !important;
+}
