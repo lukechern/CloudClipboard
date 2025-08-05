@@ -88,8 +88,8 @@
     .clear-btn {
         width: 24px;
         height: 24px;
-        bottom: 8px;
-        right: 8px;
+        bottom: 16px;
+        right: 16px;
     }
     
     .input-section textarea {
