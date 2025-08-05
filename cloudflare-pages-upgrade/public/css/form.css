@@ -30,8 +30,8 @@
 /* 清空按钮样式 */
 .clear-btn {
     position: absolute;
-    bottom: 16px;
-    right: 16px;
+    bottom: 12px;
+    right: 12px;
     width: 30px;
     height: 30px;
     background: rgba(255, 255, 255, 0.9);
@@ -88,8 +88,8 @@
     .clear-btn {
         width: 24px;
         height: 24px;
-        bottom: 6px;
-        right: 6px;
+        bottom: 8px;
+        right: 8px;
     }
     
     .input-section textarea {
@@ -154,5 +154,3 @@
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
 }
-
-
