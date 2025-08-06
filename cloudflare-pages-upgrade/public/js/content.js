@@ -31,6 +31,18 @@ function loadRecords(filter = 'cache') {
     
     window.currentFilter = filter;
     
+    // 控制批量操作按钮的显示/隐藏
+    const batchOperationBtn = document.getElementById('batchOperation');
+    if (batchOperationBtn) {
+        if (filter === 'archived') {
+            // 存档模式下隐藏批量操作按钮
+            batchOperationBtn.style.display = 'none';
+        } else {
+            // 缓存模式下显示批量操作按钮
+            batchOperationBtn.style.display = 'flex';
+        }
+    }
+    
     // 显示加载状态
     const container = document.getElementById('records-container');
     const loadingElement = document.getElementById('records-loading');
@@ -71,6 +83,14 @@ function loadRecords(filter = 'cache') {
                         const contentClass = isLongContent ? 'record-content collapsed' : 'record-content';
                         const buttonText = isLongContent ? '展开' : '';
                         
+                        // 格式化时间，去掉秒
+                        const formatTime = (timestamp) => {
+                            if (timestamp.length >= 16) {
+                                return timestamp.substring(0, 16); // 只保留到分钟 YYYY-MM-DD HH:MM
+                            }
+                            return timestamp;
+                        };
+                        
                         // 存档状态 - 检查是否有archived字段
                         const hasArchivedField = record.hasOwnProperty('archived');
                         const isArchived = hasArchivedField && record.archived === 1;
@@ -85,8 +105,14 @@ function loadRecords(filter = 'cache') {
                                 trimmedContent + 
                                 '</div>' + 
                                 '<div class="record-meta">' + 
-                                '长度: ' + record.length + ' | ' + 
-                                '时间: ' + record.timestamp + 
+                                '<span class="meta-item">' +
+                                '<img src="img/length.svg" class="meta-icon" width="14" height="14" title="长度">' + 
+                                record.length + 
+                                '</span>' +
+                                '<span class="meta-item">' +
+                                '<img src="img/time.svg" class="meta-icon" width="14" height="14" title="时间">' + 
+                                formatTime(record.timestamp) + 
+                                '</span>' +
                                 (hasArchivedField ? 
                                     '<button class="archive-btn" onclick="toggleArchive(' + record.id + ', ' + (isArchived ? 'false' : 'true') + ')" title="' + starTitle + '">' + 
                                     '<img src="img/' + starIcon + '" class="icon archive-icon" width="16" height="16">' + 
@@ -205,6 +231,18 @@ document.addEventListener('DOMContentLoaded', function() {
             // 更新标签状态
             tabButtons.forEach(btn => btn.classList.remove('active'));
             this.classList.add('active');
+            
+            // 控制批量操作按钮的显示/隐藏
+            const batchOperationBtn = document.getElementById('batchOperation');
+            if (batchOperationBtn) {
+                if (filter === 'archived') {
+                    // 存档模式下隐藏批量操作按钮
+                    batchOperationBtn.style.display = 'none';
+                } else {
+                    // 缓存模式下显示批量操作按钮
+                    batchOperationBtn.style.display = 'flex';
+                }
+            }
             
             // 加载对应的记录
             loadRecords(filter);

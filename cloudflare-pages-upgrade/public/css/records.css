@@ -64,7 +64,8 @@
     word-break: break-word;
     white-space: pre-wrap;
     line-height: 1.4;
-    margin-bottom: 8px; /* 确保与meta区域有间距 */
+    margin-bottom: 8px;
+    /* 确保与meta区域有间距 */
 }
 
 .record-content.collapsed {
@@ -72,9 +73,12 @@
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    max-height: 4.2em; /* 3行的高度 */
-    line-clamp: 3; /* 标准属性 */
-    text-overflow: ellipsis; /* 添加省略号 */
+    max-height: 4.2em;
+    /* 3行的高度 */
+    line-clamp: 3;
+    /* 标准属性 */
+    text-overflow: ellipsis;
+    /* 添加省略号 */
 }
 
 .record-meta {
@@ -134,6 +138,7 @@
     font-size: 12px;
     font-weight: normal;
 }
+
 /* 标签切换样式 */
 .records-header {
     display: flex;
@@ -215,21 +220,35 @@
         /* 保持水平布局，不换行 */
         flex-wrap: nowrap;
     }
-    
+
     .records-header h2 {
         /* 标题可以压缩 */
         flex-shrink: 1;
         min-width: 0;
     }
-    
+
     .tab-container {
         /* tab容器不压缩，保持在右侧 */
         flex-shrink: 0;
         gap: 12px;
     }
-    
+
     .tab-btn {
         font-size: 13px;
         padding: 3px 6px;
     }
+}
+
+/* meta项目样
+式 */
+.meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-right: 12px;
+}
+
+.meta-icon {
+    color: #999;
+    flex-shrink: 0;
 }
