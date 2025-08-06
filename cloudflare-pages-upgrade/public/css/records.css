@@ -58,8 +58,6 @@
     flex-direction: column;
 }
 
-.record-content {
-
 .record-content.collapsed {
     display: -webkit-box;
     -webkit-line-clamp: 3;
