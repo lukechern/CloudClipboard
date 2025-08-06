@@ -9,8 +9,12 @@ document.addEventListener('DOMContentLoaded', function () {
         // 认证成功后，如果还没有进行初始数据加载，则加载数据
         if (!window.initialDataLoaded) {
             console.log('认证成功后加载数据');
-            loadRecords();
-            loadStorageInfo();
+            if (typeof loadRecords === 'function') {
+                loadRecords();
+            }
+            if (typeof loadStorageInfo === 'function') {
+                loadStorageInfo();
+            }
             window.initialDataLoaded = true;
         }
     });
@@ -25,8 +29,12 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!window.authManager || window.authManager.isAuthenticated) {
             if (!window.initialDataLoaded) {
                 console.log('页面加载时加载数据');
-                loadRecords();
-                loadStorageInfo();
+                if (typeof loadRecords === 'function') {
+                    loadRecords();
+                }
+                if (typeof loadStorageInfo === 'function') {
+                    loadStorageInfo();
+                }
                 window.initialDataLoaded = true;
             }
         }
@@ -249,7 +257,9 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
 
                     // 重新加载记录
-                    loadRecords();
+                    if (typeof loadRecords === 'function') {
+                        loadRecords();
+                    }
 
                     // 显示成功消息
                     showNotification('内容已保存到云端');

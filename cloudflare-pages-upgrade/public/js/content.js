@@ -79,7 +79,7 @@ function loadRecords() {
                                 '</div>' + 
                             '</div>' + 
                             '<div class="record-actions">' + 
-                            '<button class="copy-btn" onclick="copyToClipboard(' + record.id + ', \'\' + encodedContent + 
+                            '<button class="copy-btn" onclick="copyToClipboard(' + record.id + ', \'' + encodedContent + 
                             '\')" title="复制">' + 
                             '<img src="img/copy.svg" class="icon copy-icon">' + 
                             '<span class="copy-text">复制</span>' + 

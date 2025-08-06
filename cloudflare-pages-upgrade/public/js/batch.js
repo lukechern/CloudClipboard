@@ -1,5 +1,15 @@
 // 批量删除记录功能
 function batchDeleteRecords(ids) {
+    // 调试信息
+    console.log('批量删除开始，记录ID:', ids);
+    console.log('认证管理器状态:', {
+        exists: !!window.authManager,
+        isAuthenticated: window.authManager?.isAuthenticated,
+        usesCookies: window.authManager?.usesCookies,
+        hasCSRFToken: !!window.authManager?.csrfToken,
+        authHeaders: window.authManager?.getAuthHeaders()
+    });
+    
     showConfirm('确认删除', `确定要删除这 ${ids.length} 条记录吗？`, () => {
         // 立即从前端界面移除选中的记录条目
         ids.forEach(id => {
@@ -22,23 +32,35 @@ function batchDeleteRecords(ids) {
         
         Promise.all(ids.map(id => 
             fetch(`/api/records?id=${id}`, requestConfig)
+                .then(async response => {
+                    if (!response.ok) {
+                        const errorData = await response.json().catch(() => ({}));
+                        console.error(`删除记录 ${id} 失败:`, response.status, errorData);
+                        throw new Error(`删除记录 ${id} 失败: ${response.status} ${errorData.error || ''}`);
+                    }
+                    return response;
+                })
         ))
         .then(responses => {
             // 检查所有请求是否成功
             const allSuccessful = responses.every(response => response.ok);
             if (allSuccessful) {
                 // 重新加载记录以确保数据一致性
-                loadRecords();
+                if (typeof loadRecords === 'function') {
+                    loadRecords();
+                }
                 showNotification(`已删除 ${ids.length} 条记录`);
             } else {
                 throw new Error('部分删除失败');
             }
         })
         .catch(error => {
-            console.error('Error:', error);
-            showNotification('批量删除失败');
+            console.error('批量删除错误:', error);
+            showNotification('批量删除失败: ' + error.message);
             // 如果删除失败，重新加载记录以恢复界面
-            loadRecords();
+            if (typeof loadRecords === 'function') {
+                loadRecords();
+            }
         });
     });
 }

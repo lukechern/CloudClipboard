@@ -268,6 +268,16 @@ export async function verifyCSRFToken(request, env, sessionId) {
         }
     }
 
+    // 如果仍然没有找到，尝试从URL参数获取（用于DELETE等请求）
+    if (!csrfToken) {
+        try {
+            const url = new URL(request.url);
+            csrfToken = url.searchParams.get('csrf_token');
+        } catch (error) {
+            // 忽略URL解析错误
+        }
+    }
+
     if (!csrfToken) {
         return { valid: false, error: 'Missing CSRF token' };
     }
