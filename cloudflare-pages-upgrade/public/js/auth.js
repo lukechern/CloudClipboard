@@ -3,6 +3,8 @@ class AuthManager {
     constructor() {
         this.isAuthenticated = false;
         this.authToken = null;
+        this.csrfToken = null;
+        this.usesCookies = false;
         this.storageKey = 'cloudclipboard_auth';
         this.init();
     }
@@ -46,13 +48,11 @@ class AuthManager {
 
     // 验证存储的token
     async validateStoredToken() {
-        if (!this.authToken) return false;
-        
         try {
+            const headers = this.getAuthHeaders();
             const response = await fetch('/api/records', {
-                headers: {
-                    'Authorization': `Bearer ${this.authToken}`
-                }
+                headers: headers,
+                credentials: 'same-origin' // 确保发送Cookie
             });
             return response.ok;
         } catch (error) {
@@ -71,8 +71,19 @@ class AuthManager {
                 const expiry = authData.timestamp + (7 * 24 * 60 * 60 * 1000);
                 
                 if (now < expiry) {
-                    this.authToken = authData.token;
-                    this.isAuthenticated = true;
+                    if (authData.usesCookies) {
+                        // Cookie模式：只从localStorage获取CSRF token
+                        this.csrfToken = authData.csrfToken;
+                        this.usesCookies = true;
+                        this.isAuthenticated = true;
+                        // authToken将从Cookie中获取，这里不设置
+                    } else {
+                        // 传统模式：从localStorage获取完整信息
+                        this.authToken = authData.token;
+                        this.csrfToken = authData.csrfToken;
+                        this.usesCookies = false;
+                        this.isAuthenticated = true;
+                    }
                 } else {
                     this.clearStoredAuth();
                 }
@@ -84,15 +95,33 @@ class AuthManager {
     }
 
     // 保存认证信息到本地存储
-    saveAuth(token) {
+    saveAuth(token, csrfToken = null, usesCookies = false) {
         try {
             const authData = {
                 token: token,
+                csrfToken: csrfToken,
+                usesCookies: usesCookies,
                 timestamp: Date.now(),
                 type: 'jwt' // 标识为JWT token
             };
-            localStorage.setItem(this.storageKey, JSON.stringify(authData));
+            
+            // 如果使用Cookie模式，只保存CSRF token到localStorage
+            if (usesCookies) {
+                const cookieAuthData = {
+                    csrfToken: csrfToken,
+                    usesCookies: true,
+                    timestamp: Date.now(),
+                    type: 'jwt-cookie'
+                };
+                localStorage.setItem(this.storageKey, JSON.stringify(cookieAuthData));
+            } else {
+                // 传统模式，保存完整信息
+                localStorage.setItem(this.storageKey, JSON.stringify(authData));
+            }
+            
             this.authToken = token;
+            this.csrfToken = csrfToken;
+            this.usesCookies = usesCookies;
             this.isAuthenticated = true;
         } catch (error) {
             console.error('保存认证信息失败:', error);
@@ -195,13 +224,19 @@ class AuthManager {
                     // 设置token到实例变量
                     if (result.token) {
                         this.authToken = result.token;
-                        this.isAuthenticated = true;
                     }
+                    if (result.csrfToken) {
+                        this.csrfToken = result.csrfToken;
+                    }
+                    if (result.usesCookies) {
+                        this.usesCookies = true;
+                    }
+                    this.isAuthenticated = true;
                     
                     // 检查是否需要记住密码
                     const rememberAuth = document.getElementById('rememberAuth').checked;
-                    if (rememberAuth && result.token) {
-                        this.saveAuth(result.token);
+                    if (rememberAuth) {
+                        this.saveAuth(result.token, result.csrfToken, result.usesCookies);
                     }
                     
                     this.hideAuthModal();
@@ -249,19 +284,30 @@ class AuthManager {
 
         const response = await fetch('/api/auth', {
             method: 'POST',
-            body: formData
+            body: formData,
+            credentials: 'same-origin' // 确保发送Cookie
         });
 
         const data = await response.json();
         
-        // 如果验证成功且返回了token，保存token
-        if (data.success && data.token) {
-            this.authToken = data.token;
+        // 如果验证成功，保存相关信息
+        if (data.success) {
+            if (data.token) {
+                this.authToken = data.token;
+            }
+            if (data.csrfToken) {
+                this.csrfToken = data.csrfToken;
+            }
+            if (data.usesCookies) {
+                this.usesCookies = true;
+            }
         }
         
         return {
             success: data.success,
             token: data.token,
+            csrfToken: data.csrfToken,
+            usesCookies: data.usesCookies,
             error: data.error,
             blocked: data.blocked,
             remainingTime: data.remainingTime,
@@ -328,16 +374,6 @@ class AuthManager {
         }
     }
 
-    // 获取认证头
-    getAuthHeaders() {
-        if (this.authToken) {
-            return {
-                'Authorization': `Bearer ${this.authToken}`
-            };
-        }
-        return {};
-    }
-
     // 开始封锁倒计时
     startBlockCountdown(remainingSeconds, submitBtn) {
         let remaining = remainingSeconds;
@@ -398,16 +434,54 @@ class AuthManager {
 
     // 获取认证头
     getAuthHeaders() {
-        if (this.authToken) {
-            return {
-                'Authorization': `Bearer ${this.authToken}`
-            };
+        const headers = {};
+        
+        // 如果不使用Cookie模式，添加Authorization头
+        if (!this.usesCookies && this.authToken) {
+            headers['Authorization'] = `Bearer ${this.authToken}`;
         }
-        return {};
+        
+        // 添加CSRF token头（如果有）
+        if (this.csrfToken) {
+            headers['X-CSRF-Token'] = this.csrfToken;
+        }
+        
+        return headers;
+    }
+
+    // 获取请求配置（包括credentials）
+    getRequestConfig(options = {}) {
+        const config = {
+            ...options,
+            headers: {
+                ...this.getAuthHeaders(),
+                ...(options.headers || {})
+            }
+        };
+        
+        // 如果使用Cookie模式，确保发送Cookie
+        if (this.usesCookies) {
+            config.credentials = 'same-origin';
+        }
+        
+        return config;
     }
 
     // 注销
-    logout() {
+    async logout() {
+        try {
+            // 如果使用Cookie模式，调用服务器注销API
+            if (this.usesCookies) {
+                await fetch('/api/auth', {
+                    method: 'DELETE',
+                    credentials: 'same-origin'
+                });
+            }
+        } catch (error) {
+            console.error('服务器注销失败:', error);
+        }
+        
+        // 清除本地认证信息
         this.clearStoredAuth();
         location.reload();
     }

@@ -13,12 +13,15 @@ function batchDeleteRecords(ids) {
         exitBatchMode();
         
         // 发送批量删除请求到服务器
-        const headers = window.authManager ? window.authManager.getAuthHeaders() : {};
+        const requestConfig = window.authManager ? 
+            window.authManager.getRequestConfig({
+                method: 'DELETE'
+            }) : {
+                method: 'DELETE'
+            };
+        
         Promise.all(ids.map(id => 
-            fetch(`/api/records?id=${id}`, {
-                method: 'DELETE',
-                headers
-            })
+            fetch(`/api/records?id=${id}`, requestConfig)
         ))
         .then(responses => {
             // 检查所有请求是否成功

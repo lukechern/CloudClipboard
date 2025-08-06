@@ -34,8 +34,9 @@ function loadRecords() {
     loadingElement.style.display = 'flex';
     
     // 修复URL路径，确保相对于网站根目录
-    const headers = window.authManager ? window.authManager.getAuthHeaders() : {};
-    fetch('/api/records', { headers })
+    const requestConfig = window.authManager ? 
+        window.authManager.getRequestConfig() : {};
+    fetch('/api/records', requestConfig)
         .then(response => {
             // 检查响应是否成功
             if (!response.ok) {

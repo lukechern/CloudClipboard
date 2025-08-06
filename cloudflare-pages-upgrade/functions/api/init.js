@@ -1,14 +1,14 @@
-import { verifyAuthToken } from './auth.js';
+import { verifyAuthToken, verifyFullAuth } from './auth.js';
 
 // 验证访问权限
-async function checkAuth(request, env) {
+async function checkAuth(request, env, requireCSRF = false) {
     // 如果没有设置密码，允许访问
     if (!env.ACCESS_PASSWORD) {
         return { authorized: true };
     }
     
-    // 使用JWT验证
-    const authResult = await verifyAuthToken(request, env);
+    // 使用完整的认证验证
+    const authResult = await verifyFullAuth(request, env, requireCSRF);
     
     if (!authResult.valid) {
         return { 
@@ -31,8 +31,8 @@ async function checkAuth(request, env) {
 export async function onRequestPost(context) {
     const { request, env } = context;
     
-    // 验证访问权限
-    const authResult = await checkAuth(request, env);
+    // 验证访问权限（POST请求需要CSRF验证）
+    const authResult = await checkAuth(request, env, true);
     if (!authResult.authorized) {
         return new Response(JSON.stringify({ error: authResult.error }), {
             status: 401,
@@ -75,8 +75,8 @@ export async function onRequestPost(context) {
 export async function onRequestGet(context) {
     const { request, env } = context;
     
-    // 验证访问权限
-    const authResult = await checkAuth(request, env);
+    // 验证访问权限（GET请求不需要CSRF验证）
+    const authResult = await checkAuth(request, env, false);
     if (!authResult.authorized) {
         return new Response(JSON.stringify({ error: authResult.error }), {
             status: 401,

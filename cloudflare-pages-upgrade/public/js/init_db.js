@@ -48,11 +48,13 @@ document.addEventListener('DOMContentLoaded', function() {
             button.disabled = true;
             
             // 发送请求
-            const headers = window.authManager ? window.authManager.getAuthHeaders() : {};
-            fetch('/api/init', {
-                method: 'POST',
-                headers
-            })
+            const requestConfig = window.authManager ? 
+                window.authManager.getRequestConfig({
+                    method: 'POST'
+                }) : {
+                    method: 'POST'
+                };
+            fetch('/api/init', requestConfig)
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -89,8 +91,9 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 // 加载详细存储信息
 function loadStorageDetails() {
-    const headers = window.authManager ? window.authManager.getAuthHeaders() : {};
-    fetch('/api/storage', { headers })
+    const requestConfig = window.authManager ? 
+        window.authManager.getRequestConfig() : {};
+    fetch('/api/storage', requestConfig)
         .then(response => {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -188,8 +191,9 @@ function displayStorageDetails(storageInfo) {
 }
 // 检查表是否存在
 function checkTableExists() {
-    const headers = window.authManager ? window.authManager.getAuthHeaders() : {};
-    fetch('/api/init', { headers })
+    const requestConfig = window.authManager ? 
+        window.authManager.getRequestConfig() : {};
+    fetch('/api/init', requestConfig)
         .then(response => {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);

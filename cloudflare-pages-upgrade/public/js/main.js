@@ -213,11 +213,16 @@ document.addEventListener('DOMContentLoaded', function () {
             formData.append('content', content);
 
             // 发送请求
-            fetch('/api/records', {
-                method: 'POST',
-                headers: window.authManager ? window.authManager.getAuthHeaders() : {},
-                body: formData
-            })
+            const requestConfig = window.authManager ? 
+                window.authManager.getRequestConfig({
+                    method: 'POST',
+                    body: formData
+                }) : {
+                    method: 'POST',
+                    body: formData
+                };
+            
+            fetch('/api/records', requestConfig)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('网络响应失败');
@@ -262,9 +267,10 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 // 加载存储信息
 function loadStorageInfo() {
-    const headers = window.authManager ? window.authManager.getAuthHeaders() : {};
+    const requestConfig = window.authManager ? 
+        window.authManager.getRequestConfig() : {};
 
-    fetch('/api/storage', { headers })
+    fetch('/api/storage', requestConfig)
         .then(response => {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);

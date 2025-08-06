@@ -167,24 +167,38 @@ For any questions or suggestions, please visit our [GitHub repository](https://g
 ### 安全配置
 
 
-项目已升级到JWT认证系统，提供更高的安全性：
+项目已升级到企业级安全系统，提供多层安全防护：
 
+**第一阶段 ✅**:
 - **JWT认证**: 替代Base64编码，防止token伪造
 - **速率限制**: 防止暴力破解攻击
 - **增强体验**: 智能错误提示和倒计时功能
 
+**第二阶段 ✅**:
+- **HttpOnly Cookie**: JWT token安全存储，防止XSS攻击
+- **CSRF保护**: 防止跨站请求伪造攻击
+- **双重认证**: Cookie + CSRF Token双重验证
+
 详细配置方法请参考：
 - [安全升级指南](cloudflare-pages-upgrade/SECURITY_UPGRADE.md)
+- [第二阶段安全升级](cloudflare-pages-upgrade/SECURITY_PHASE2.md)
 - [安全配置指南](cloudflare-pages-upgrade/SECURITY_CONFIG.md)
 
 ### Security Configuration
 
-The project has been upgraded to JWT authentication system for enhanced security:
+The project has been upgraded to enterprise-level security system with multi-layer protection:
 
+**Phase 1 ✅**:
 - **JWT Authentication**: Replaces Base64 encoding, prevents token forgery
 - **Rate Limiting**: Prevents brute force attacks  
 - **Enhanced UX**: Smart error messages and countdown features
 
+**Phase 2 ✅**:
+- **HttpOnly Cookie**: Secure JWT token storage, prevents XSS attacks
+- **CSRF Protection**: Prevents cross-site request forgery attacks
+- **Dual Authentication**: Cookie + CSRF Token dual verification
+
 For detailed configuration instructions, see:
 - [Security Upgrade Guide](cloudflare-pages-upgrade/SECURITY_UPGRADE.md)
+- [Phase 2 Security Upgrade](cloudflare-pages-upgrade/SECURITY_PHASE2.md)
 - [Security Configuration Guide](cloudflare-pages-upgrade/SECURITY_CONFIG.md)
