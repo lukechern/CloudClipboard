@@ -17,7 +17,7 @@ function toggleContent(id) {
         // 收起内容
         contentElement.classList.add('collapsed');
         if (expandBtn) {
-            expandBtn.textContent = '...展开';
+            expandBtn.textContent = '展开';
         }
     }
 }
@@ -64,7 +64,7 @@ function loadRecords() {
                         // 检查内容是否超过3行（大约60个字符）
                         const isLongContent = trimmedContent.length > 60 || (trimmedContent.match(/\n/g) || []).length > 2;
                         const contentClass = isLongContent ? 'record-content collapsed' : 'record-content';
-                        const buttonText = isLongContent ? '...展开' : '';
+                        const buttonText = isLongContent ? '展开' : '';
                         
                         recordsHTML += '<li class="record-item">' + 
                             '<input type="checkbox" class="record-checkbox" data-id="' + record.id + '" style="display: none;">' + 
