@@ -27,7 +27,7 @@ window.currentFilter = 'cache';
 
 // 加载记录
 function loadRecords(filter = 'cache') {
-    console.log('loadRecords() 被调用，过滤器:', filter);
+    // console.log('loadRecords() 被调用，过滤器:', filter);
     
     window.currentFilter = filter;
     

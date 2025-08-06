@@ -5,7 +5,7 @@ window.initialDataLoaded = false;
 document.addEventListener('DOMContentLoaded', function () {
     // 监听认证成功事件
     window.addEventListener('authSuccess', function() {
-        console.log('认证成功事件触发，initialDataLoaded:', window.initialDataLoaded);
+        // console.log('认证成功事件触发，initialDataLoaded:', window.initialDataLoaded);
         // 认证成功后，如果还没有进行初始数据加载，则加载数据
         if (!window.initialDataLoaded) {
             console.log('认证成功后加载数据');
@@ -21,14 +21,14 @@ document.addEventListener('DOMContentLoaded', function () {
     
     // 延迟检查认证状态，避免与认证管理器初始化冲突
     setTimeout(() => {
-        console.log('检查认证状态，authManager存在:', !!window.authManager, 
-                   '已认证:', window.authManager?.isAuthenticated, 
-                   'initialDataLoaded:', window.initialDataLoaded);
+        // console.log('检查认证状态，authManager存在:', !!window.authManager, 
+        //            '已认证:', window.authManager?.isAuthenticated, 
+        //            'initialDataLoaded:', window.initialDataLoaded);
         
         // 如果没有认证管理器或者已经认证成功，直接加载数据
         if (!window.authManager || window.authManager.isAuthenticated) {
             if (!window.initialDataLoaded) {
-                console.log('页面加载时加载数据');
+                // console.log('页面加载时加载数据');
                 if (typeof loadRecords === 'function') {
                     loadRecords();
                 }
@@ -358,7 +358,7 @@ async function autoReadClipboard() {
         const text = await navigator.clipboard.readText();
         if (text && text.trim()) {
             contentInput.value = text.trim();
-            console.log('已自动读取剪贴板内容');
+            // console.log('已自动读取剪贴板内容');
 
             // 更新清空按钮状态
             const textareaContainer = document.querySelector('.textarea-container');
