@@ -81,23 +81,22 @@
     font-size: 0.8rem;
     color: #666;
     margin-top: 8px;
-    white-space: nowrap;
     position: relative;
-    padding-right: 60px; /* 为展开/收起按钮预留空间 */
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
 .record-meta .expand-btn {
-    position: absolute;
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
     background: none;
     color: #667eea;
     border: none;
-    padding: 0 5px;
+    padding: 2px 6px;
     cursor: pointer;
     font-weight: bold;
     font-size: 0.8rem;
+    margin-left: auto;
 }
 
 .record-actions {
@@ -153,29 +152,28 @@
 
 .tab-container {
     display: flex;
-    gap: 8px;
+    gap: 16px;
+    flex-shrink: 0;
 }
 
 .tab-btn {
-    background: #f8f9fa;
-    border: 1px solid #dee2e6;
-    border-radius: 6px;
-    padding: 8px 16px;
+    background: none;
+    border: none;
+    padding: 4px 8px;
     cursor: pointer;
     transition: all 0.3s;
     font-size: 14px;
-    color: #6c757d;
+    color: #333;
+    font-weight: normal;
 }
 
 .tab-btn:hover {
-    background: #e9ecef;
-    color: #495057;
+    color: #667eea;
 }
 
 .tab-btn.active {
-    background: #667eea;
-    border-color: #667eea;
-    color: white;
+    color: #667eea;
+    font-weight: bold;
 }
 
 /* 存档按钮样式 */
@@ -183,13 +181,12 @@
     background: none;
     border: none;
     cursor: pointer;
-    padding: 4px;
-    margin-left: 8px;
+    padding: 4px 6px;
     border-radius: 4px;
     transition: all 0.3s;
     display: inline-flex;
     align-items: center;
-    justify-content: center;
+    gap: 4px;
 }
 
 .archive-btn:hover {
@@ -199,27 +196,40 @@
 .archive-btn .archive-icon {
     color: #ffc107;
     transition: all 0.3s;
+    flex-shrink: 0;
 }
 
 .archive-btn:hover .archive-icon {
     transform: scale(1.1);
 }
 
+.archive-btn .archive-text {
+    font-size: 12px;
+    color: #666;
+    white-space: nowrap;
+}
+
 /* 响应式设计 */
 @media (max-width: 768px) {
     .records-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
+        /* 保持水平布局，不换行 */
+        flex-wrap: nowrap;
+    }
+    
+    .records-header h2 {
+        /* 标题可以压缩 */
+        flex-shrink: 1;
+        min-width: 0;
     }
     
     .tab-container {
-        width: 100%;
-        justify-content: center;
+        /* tab容器不压缩，保持在右侧 */
+        flex-shrink: 0;
+        gap: 12px;
     }
     
     .tab-btn {
-        flex: 1;
-        text-align: center;
+        font-size: 13px;
+        padding: 3px 6px;
     }
 }

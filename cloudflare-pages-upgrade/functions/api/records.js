@@ -225,7 +225,7 @@ export async function onRequestPut(context) {
         if (result.success) {
             return new Response(JSON.stringify({
                 success: true,
-                message: archived === '1' ? '已添加到存档' : '已从存档移除'
+                message: archived === '1' ? '已移入存档' : '已移出存档'
             }), {
                 headers: { 'Content-Type': 'application/json' }
             });

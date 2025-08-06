@@ -75,7 +75,8 @@ function loadRecords(filter = 'cache') {
                         const hasArchivedField = record.hasOwnProperty('archived');
                         const isArchived = hasArchivedField && record.archived === 1;
                         const starIcon = isArchived ? 'star-filled.svg' : 'star-outline.svg';
-                        const starTitle = isArchived ? '取消存档' : '添加到存档';
+                        const starTitle = isArchived ? '移出存档' : '移入存档';
+                        const starText = isArchived ? '移出存档' : '移入存档';
                         
                         recordsHTML += '<li class="record-item">' + 
                             '<input type="checkbox" class="record-checkbox" data-id="' + record.id + '" style="display: none;">' + 
@@ -89,6 +90,7 @@ function loadRecords(filter = 'cache') {
                                 (hasArchivedField ? 
                                     '<button class="archive-btn" onclick="toggleArchive(' + record.id + ', ' + (isArchived ? 'false' : 'true') + ')" title="' + starTitle + '">' + 
                                     '<img src="img/' + starIcon + '" class="icon archive-icon" width="16" height="16">' + 
+                                    '<span class="archive-text">' + starText + '</span>' +
                                     '</button>' : '') +
                                 (isLongContent ? '<button class="expand-btn" onclick="toggleContent(' + record.id + ')">' + buttonText + '</button>' : '') + 
                                 '</div>' + 
