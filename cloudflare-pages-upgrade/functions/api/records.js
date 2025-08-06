@@ -54,10 +54,26 @@ export async function onRequestPost(context) {
         const length = content.length;
         const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
 
+        // 检查表结构，看是否有archived字段
+        let hasArchivedColumn = false;
+        try {
+            const columns = await env.DB.prepare(`PRAGMA table_info(${env.TABLE_NAME})`).all();
+            hasArchivedColumn = columns.results.some(col => col.name === 'archived');
+        } catch (e) {
+            console.log('检查表结构失败:', e);
+        }
+        
         // 保存到D1数据库
-        const result = await env.DB.prepare(
-            `INSERT INTO ${env.TABLE_NAME} (content, length, timestamp, archived) VALUES (?, ?, ?, 0)`
-        ).bind(content, length, timestamp).run();
+        let result;
+        if (hasArchivedColumn) {
+            result = await env.DB.prepare(
+                `INSERT INTO ${env.TABLE_NAME} (content, length, timestamp, archived) VALUES (?, ?, ?, 0)`
+            ).bind(content, length, timestamp).run();
+        } else {
+            result = await env.DB.prepare(
+                `INSERT INTO ${env.TABLE_NAME} (content, length, timestamp) VALUES (?, ?, ?)`
+            ).bind(content, length, timestamp).run();
+        }
 
         if (result.success) {
             return new Response(JSON.stringify({
@@ -97,11 +113,34 @@ export async function onRequestGet(context) {
         const url = new URL(request.url);
         const filter = url.searchParams.get('filter') || 'cache'; // 默认显示缓存（非存档）
         
+        // 首先检查表结构，看是否有archived字段
+        let hasArchivedColumn = false;
+        try {
+            const columns = await env.DB.prepare(`PRAGMA table_info(${env.TABLE_NAME})`).all();
+            hasArchivedColumn = columns.results.some(col => col.name === 'archived');
+        } catch (e) {
+            console.log('检查表结构失败:', e);
+        }
+        
         let query;
-        if (filter === 'archived') {
-            query = `SELECT * FROM ${env.TABLE_NAME} WHERE archived = 1 ORDER BY timestamp DESC`;
+        if (hasArchivedColumn) {
+            // 如果有archived字段，按过滤器查询
+            if (filter === 'archived') {
+                query = `SELECT * FROM ${env.TABLE_NAME} WHERE archived = 1 ORDER BY timestamp DESC`;
+            } else {
+                query = `SELECT * FROM ${env.TABLE_NAME} WHERE archived = 0 OR archived IS NULL ORDER BY timestamp DESC`;
+            }
         } else {
-            query = `SELECT * FROM ${env.TABLE_NAME} WHERE archived = 0 ORDER BY timestamp DESC`;
+            // 如果没有archived字段，只在cache模式下显示所有记录
+            if (filter === 'archived') {
+                // 存档模式但没有archived字段，返回空数组
+                return new Response(JSON.stringify([]), {
+                    headers: { 'Content-Type': 'application/json' }
+                });
+            } else {
+                // 缓存模式，显示所有记录
+                query = `SELECT * FROM ${env.TABLE_NAME} ORDER BY timestamp DESC`;
+            }
         }
         
         // 从D1数据库获取记录
@@ -123,6 +162,7 @@ export async function onRequestGet(context) {
         }
 
     } catch (error) {
+        console.error('获取记录错误:', error);
         return new Response(JSON.stringify([]), {
             headers: { 'Content-Type': 'application/json' }
         });
@@ -148,6 +188,24 @@ export async function onRequestPut(context) {
 
         if (!id) {
             return new Response(JSON.stringify({ error: '缺少记录ID' }), {
+                status: 400,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+
+        // 检查表结构，看是否有archived字段
+        let hasArchivedColumn = false;
+        try {
+            const columns = await env.DB.prepare(`PRAGMA table_info(${env.TABLE_NAME})`).all();
+            hasArchivedColumn = columns.results.some(col => col.name === 'archived');
+        } catch (e) {
+            console.log('检查表结构失败:', e);
+        }
+
+        if (!hasArchivedColumn) {
+            return new Response(JSON.stringify({
+                error: '数据库表结构不支持存档功能，请先升级数据库'
+            }), {
                 status: 400,
                 headers: { 'Content-Type': 'application/json' }
             });

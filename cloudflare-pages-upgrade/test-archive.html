@@ -1,33 +1,54 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>存档功能测试</title>
     <style>
-        body { font-family: Arial, sans-serif; padding: 20px; }
-        .test-item { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
-        .archive-btn { background: none; border: none; cursor: pointer; padding: 4px; }
-        .archive-icon { color: #ffc107; width: 16px; height: 16px; }
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        .test-item {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+
+        .archive-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .archive-icon {
+            color: #ffc107;
+            width: 16px;
+            height: 16px;
+        }
     </style>
 </head>
+
 <body>
     <h1>存档功能测试</h1>
-    
+
     <div class="test-item">
         <p>测试记录 1 - 未存档状态</p>
         <button class="archive-btn" title="添加到存档">
             <img src="public/img/star-outline.svg" class="archive-icon" width="16" height="16">
         </button>
     </div>
-    
+
     <div class="test-item">
         <p>测试记录 2 - 已存档状态</p>
         <button class="archive-btn" title="取消存档">
             <img src="public/img/star-filled.svg" class="archive-icon" width="16" height="16">
         </button>
     </div>
-    
+
     <div class="test-item">
         <h3>标签切换测试</h3>
         <div class="tab-container">
@@ -35,11 +56,27 @@
             <button class="tab-btn" data-filter="archived">存档</button>
         </div>
     </div>
-    
+
     <style>
-        .tab-container { display: flex; gap: 8px; margin: 10px 0; }
-        .tab-btn { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; padding: 8px 16px; cursor: pointer; }
-        .tab-btn.active { background: #667eea; color: white; }
+        .tab-container {
+            display: flex;
+            gap: 8px;
+            margin: 10px 0;
+        }
+
+        .tab-btn {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 8px 16px;
+            cursor: pointer;
+        }
+
+        .tab-btn.active {
+            background: #667eea;
+            color: white;
+        }
     </style>
 </body>
+
 </html>

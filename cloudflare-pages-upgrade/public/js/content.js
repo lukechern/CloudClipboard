@@ -23,13 +23,13 @@ function toggleContent(id) {
 }
 
 // 当前过滤器状态
-let currentFilter = 'cache';
+window.currentFilter = 'cache';
 
 // 加载记录
 function loadRecords(filter = 'cache') {
     console.log('loadRecords() 被调用，过滤器:', filter);
     
-    currentFilter = filter;
+    window.currentFilter = filter;
     
     // 显示加载状态
     const container = document.getElementById('records-container');
@@ -71,8 +71,9 @@ function loadRecords(filter = 'cache') {
                         const contentClass = isLongContent ? 'record-content collapsed' : 'record-content';
                         const buttonText = isLongContent ? '展开' : '';
                         
-                        // 存档状态
-                        const isArchived = record.archived === 1;
+                        // 存档状态 - 检查是否有archived字段
+                        const hasArchivedField = record.hasOwnProperty('archived');
+                        const isArchived = hasArchivedField && record.archived === 1;
                         const starIcon = isArchived ? 'star-filled.svg' : 'star-outline.svg';
                         const starTitle = isArchived ? '取消存档' : '添加到存档';
                         
@@ -85,9 +86,10 @@ function loadRecords(filter = 'cache') {
                                 '<div class="record-meta">' + 
                                 '长度: ' + record.length + ' | ' + 
                                 '时间: ' + record.timestamp + 
-                                '<button class="archive-btn" onclick="toggleArchive(' + record.id + ', ' + (isArchived ? 'false' : 'true') + ')" title="' + starTitle + '">' + 
-                                '<img src="img/' + starIcon + '" class="icon archive-icon" width="16" height="16">' + 
-                                '</button>' +
+                                (hasArchivedField ? 
+                                    '<button class="archive-btn" onclick="toggleArchive(' + record.id + ', ' + (isArchived ? 'false' : 'true') + ')" title="' + starTitle + '">' + 
+                                    '<img src="img/' + starIcon + '" class="icon archive-icon" width="16" height="16">' + 
+                                    '</button>' : '') +
                                 (isLongContent ? '<button class="expand-btn" onclick="toggleContent(' + record.id + ')">' + buttonText + '</button>' : '') + 
                                 '</div>' + 
                             '</div>' + 
@@ -114,7 +116,13 @@ function loadRecords(filter = 'cache') {
                 container.innerHTML = '<p style="text-align: center; color: #666; padding: 40px 0;">加载记录失败: 数据格式错误</p>';
             }
         })
-
+        .catch(error => {
+            console.error('加载记录失败:', error);
+            // 隐藏加载状态
+            loadingElement.style.display = 'none';
+            container.style.display = 'block';
+            container.innerHTML = '<p style="text-align: center; color: #666; padding: 40px 0;">加载记录失败: ' + error.message + '</p>';
+        });
 }
 
 // 切换存档状态
@@ -150,12 +158,36 @@ function toggleArchive(id, archive) {
             }
             
             // 重新加载当前过滤器的记录
-            loadRecords(currentFilter);
+            loadRecords(window.currentFilter);
         })
         .catch(error => {
             console.error('Error:', error);
             if (typeof showNotification === 'function') {
                 showNotification('操作失败: ' + (error.message || '未知错误'));
+            }
+        });
+}
+
+// 检查是否支持存档功能
+function checkArchiveSupport() {
+    const requestConfig = window.authManager ? 
+        window.authManager.getRequestConfig() : {};
+    
+    fetch('/api/records?filter=archived', requestConfig)
+        .then(response => response.json())
+        .then(data => {
+            // 如果存档查询成功，说明支持存档功能
+            const archivedTab = document.querySelector('.tab-btn[data-filter="archived"]');
+            if (archivedTab) {
+                archivedTab.style.display = 'inline-block';
+            }
+        })
+        .catch(error => {
+            console.log('不支持存档功能或数据库未升级');
+            // 隐藏存档标签
+            const archivedTab = document.querySelector('.tab-btn[data-filter="archived"]');
+            if (archivedTab) {
+                archivedTab.style.display = 'none';
             }
         });
 }
@@ -176,4 +208,9 @@ document.addEventListener('DOMContentLoaded', function() {
             loadRecords(filter);
         });
     });
+    
+    // 检查存档功能支持
+    setTimeout(() => {
+        checkArchiveSupport();
+    }, 1000);
 });

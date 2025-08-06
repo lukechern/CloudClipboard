@@ -27,6 +27,8 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('无需认证或已认证，直接加载数据');
             loadStorageDetails();
             checkTableExists();
+        } else {
+            console.log('等待认证完成...');
         }
     }, 200);
     
@@ -54,6 +56,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 }) : {
                     method: 'POST'
                 };
+            
+            console.log('创建请求配置:', requestConfig);
+            console.log('认证管理器状态:', {
+                exists: !!window.authManager,
+                isAuthenticated: window.authManager?.isAuthenticated,
+                hasCSRF: !!window.authManager?.csrfToken,
+                usesCookies: window.authManager?.usesCookies
+            });
+            
             fetch('/api/init', requestConfig)
             .then(response => {
                 if (!response.ok) {
@@ -114,6 +125,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     method: 'POST',
                     body: formData
                 };
+            
+            console.log('升级请求配置:', requestConfig);
+            console.log('认证管理器状态:', {
+                exists: !!window.authManager,
+                isAuthenticated: window.authManager?.isAuthenticated,
+                hasCSRF: !!window.authManager?.csrfToken,
+                usesCookies: window.authManager?.usesCookies
+            });
+            
             fetch('/api/init', requestConfig)
             .then(response => {
                 if (!response.ok) {
@@ -313,4 +333,62 @@ function checkTableExists() {
                 </div>
             `;
         });
+}// 调试函数
+
+function debugAuth() {
+    const debugResult = document.getElementById('debug-result');
+    const authInfo = {
+        authManagerExists: !!window.authManager,
+        isAuthenticated: window.authManager?.isAuthenticated,
+        hasToken: !!window.authManager?.authToken,
+        hasCSRF: !!window.authManager?.csrfToken,
+        usesCookies: window.authManager?.usesCookies
+    };
+    debugResult.innerHTML = '<h5>认证状态:</h5><pre>' + JSON.stringify(authInfo, null, 2) + '</pre>';
 }
+
+async function debugUpgrade() {
+    const debugResult = document.getElementById('debug-result');
+    debugResult.innerHTML = '测试升级中...';
+    
+    try {
+        const formData = new FormData();
+        formData.append('action', 'upgrade');
+        
+        const requestConfig = window.authManager ? 
+            window.authManager.getRequestConfig({
+                method: 'POST',
+                body: formData
+            }) : {
+                method: 'POST',
+                body: formData
+            };
+        
+        console.log('调试升级请求配置:', requestConfig);
+        
+        const response = await fetch('/api/init', requestConfig);
+        const data = await response.json();
+        
+        if (response.ok) {
+            debugResult.innerHTML = '<h5>升级成功:</h5><pre style="color: green;">' + JSON.stringify(data, null, 2) + '</pre>';
+            // 重新检查数据库状态
+            checkTableExists();
+        } else {
+            debugResult.innerHTML = '<h5>升级失败 (' + response.status + '):</h5><pre style="color: red;">' + JSON.stringify(data, null, 2) + '</pre>';
+        }
+    } catch (error) {
+        debugResult.innerHTML = '<h5>升级错误:</h5><pre style="color: red;">' + error.message + '</pre>';
+    }
+}
+
+// 显示调试区域（如果需要）
+document.addEventListener('DOMContentLoaded', function() {
+    // 如果URL包含debug参数，显示调试区域
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('debug')) {
+        const debugSection = document.getElementById('debug-section');
+        if (debugSection) {
+            debugSection.style.display = 'block';
+        }
+    }
+});
