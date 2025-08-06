@@ -54,19 +54,11 @@
 .record-content-wrapper {
     flex: 1;
     margin-right: 10px;
+    display: flex;
+    flex-direction: column;
 }
 
 .record-content {
-    flex: 1;
-    word-break: break-all;
-    white-space: pre-wrap;
-    font-size: 0.95rem;
-    line-height: 1.4;
-    color: #333;
-    text-align: left;
-    position: relative;
-    overflow: hidden;
-}
 
 .record-content.collapsed {
     display: -webkit-box;

@@ -69,13 +69,15 @@ function loadRecords() {
                         
                         recordsHTML += '<li class="record-item">' +
                             '<input type="checkbox" class="record-checkbox" data-id="' + record.id + '" style="display: none;">' +
-                            '<div class="' + contentClass + '" data-id="' + record.id + '">' +
-                            trimmedContent +
-                            '</div>' +
-                            '<div class="record-meta">' +
-                            '长度: ' + record.length + ' | ' +
-                            '时间: ' + record.timestamp +
-                            (isLongContent ? '<button class="expand-btn" onclick="toggleContent(' + record.id + ')">' + buttonText + '</button>' : '') +
+                            '<div class="record-content-wrapper">' +
+                                '<div class="' + contentClass + '" data-id="' + record.id + '">' +
+                                trimmedContent +
+                                '</div>' +
+                                '<div class="record-meta">' +
+                                '长度: ' + record.length + ' | ' +
+                                '时间: ' + record.timestamp +
+                                (isLongContent ? '<button class="expand-btn" onclick="toggleContent(' + record.id + ')">' + buttonText + '</button>' : '') +
+                                '</div>' +
                             '</div>' +
                             '<div class="record-actions">' +
                             '<button class="copy-btn" onclick="copyToClipboard(' + record.id + ', \'' + encodedContent + '\')" title="复制">' +
