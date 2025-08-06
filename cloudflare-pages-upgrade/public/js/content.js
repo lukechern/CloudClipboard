@@ -2,23 +2,22 @@
 function toggleContent(id) {
     const contentElement = document.querySelector(`.record-content[data-id="${id}"]`);
     if (!contentElement) return;
-    
+
+    const wrapper = contentElement.parentElement;
+    const expandBtn = wrapper.querySelector('.expand-btn');
     const isCollapsed = contentElement.classList.contains('collapsed');
-    const expandBtn = contentElement.nextElementSibling.querySelector('.expand-btn');
-    
+
     if (isCollapsed) {
         // 展开内容
         contentElement.classList.remove('collapsed');
         if (expandBtn) {
             expandBtn.textContent = '收起';
-            expandBtn.onclick = function() { toggleContent(id); };
         }
     } else {
         // 收起内容
         contentElement.classList.add('collapsed');
         if (expandBtn) {
             expandBtn.textContent = '...展开';
-            expandBtn.onclick = function() { toggleContent(id); };
         }
     }
 }
@@ -67,24 +66,25 @@ function loadRecords() {
                         const contentClass = isLongContent ? 'record-content collapsed' : 'record-content';
                         const buttonText = isLongContent ? '...展开' : '';
                         
-                        recordsHTML += '<li class="record-item">' +
-                            '<input type="checkbox" class="record-checkbox" data-id="' + record.id + '" style="display: none;">' +
-                            '<div class="record-content-wrapper">' +
-                                '<div class="' + contentClass + '" data-id="' + record.id + '">' +
-                                trimmedContent +
-                                '</div>' +
-                                '<div class="record-meta">' +
-                                '长度: ' + record.length + ' | ' +
-                                '时间: ' + record.timestamp +
-                                (isLongContent ? '<button class="expand-btn" onclick="toggleContent(' + record.id + ')">' + buttonText + '</button>' : '') +
-                                '</div>' +
-                            '</div>' +
-                            '<div class="record-actions">' +
-                            '<button class="copy-btn" onclick="copyToClipboard(' + record.id + ', \'' + encodedContent + '\')" title="复制">' +
-                            '<img src="img/copy.svg" class="icon copy-icon">' +
-                            '<span class="copy-text">复制</span>' +
-                            '</button>' +
-                            '</div>' +
+                        recordsHTML += '<li class="record-item">' + 
+                            '<input type="checkbox" class="record-checkbox" data-id="' + record.id + '" style="display: none;">' + 
+                            '<div class="record-content-wrapper">' + 
+                                '<div class="' + contentClass + '" data-id="' + record.id + '">' + 
+                                trimmedContent + 
+                                '</div>' + 
+                                '<div class="record-meta">' + 
+                                '长度: ' + record.length + ' | ' + 
+                                '时间: ' + record.timestamp + 
+                                (isLongContent ? '<button class="expand-btn" onclick="toggleContent(' + record.id + ')">' + buttonText + '</button>' : '') + 
+                                '</div>' + 
+                            '</div>' + 
+                            '<div class="record-actions">' + 
+                            '<button class="copy-btn" onclick="copyToClipboard(' + record.id + ', \'\' + encodedContent + 
+                            '\')" title="复制">' + 
+                            '<img src="img/copy.svg" class="icon copy-icon">' + 
+                            '<span class="copy-text">复制</span>' + 
+                            '</button>' + 
+                            '</div>' + 
                             '</li>';
                     });
                     recordsHTML += '</ul>';
@@ -101,12 +101,5 @@ function loadRecords() {
                 container.innerHTML = '<p style="text-align: center; color: #666; padding: 40px 0;">加载记录失败: 数据格式错误</p>';
             }
         })
-        .catch(error => {
-            // 隐藏加载状态
-            loadingElement.style.display = 'none';
-            container.style.display = 'block';
-            
-            console.error('Error:', error);
-            container.innerHTML = '<p style="text-align: center; color: #666; padding: 40px 0;">加载记录失败: ' + error.message + '</p>';
-        });
+
 }
