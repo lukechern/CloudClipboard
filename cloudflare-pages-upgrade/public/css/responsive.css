@@ -17,6 +17,7 @@
     }
 
     .record-item {
+        position: relative; /* 添加相对定位 */
         flex-direction: row; /* 改回row，使内容和操作按钮在同一行 */
     }
 
@@ -28,8 +29,19 @@
         gap: 6px;
     }
 
+    .record-actions {
+        position: absolute; /* 使用绝对定位 */
+        right: 15px; /* 距离右边15px */
+        top: 15px; /* 距离顶部15px */
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
     .copy-btn, .delete-btn {
         margin: 0;
+        width: 50px; /* 调整按钮宽度 */
+        height: 50px; /* 调整按钮高度 */
     }
 }
 
@@ -45,5 +57,10 @@
     .input-section button {
         padding: 12px 20px;
         font-size: 1rem;
+    }
+    
+    .record-actions {
+        right: 10px; /* 在更小的屏幕上调整右边距 */
+        top: 10px; /* 在更小的屏幕上调整顶部边距 */
     }
 }

@@ -9,7 +9,7 @@
 ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-2.2-blue.svg?style=for-the-badge)](https://github.com/your-username/cloudclipboard)
+[![Version](https://img.shields.io/badge/version-2.3-blue.svg?style=for-the-badge)](https://github.com/your-username/cloudclipboard)
 
 </div>
 
@@ -35,14 +35,17 @@
 1. Fork 本项目到你的 GitHub 账户
 2. 在 Cloudflare Pages 控制台中连接你的 GitHub 账户
 3. 选择本项目仓库进行部署
-4. 在 Pages 项目设置中配置环境变量：
-   - `CF_ACCOUNT_ID`: Cloudflare 账户 ID
-   - `CF_DATABASE_ID`: D1 数据库 ID
-   - `CF_API_TOKEN`: Cloudflare API 令牌
-   - `TABLE_NAME`: 数据库表名（默认为 clipboard）
-   - `JWT_SECRET`: JWT签名密钥（32位以上随机字符串）
+4. 在 Cloudflare Pages 项目设置中绑定 D1 数据库：
+   - 进入项目设置 -> Functions -> D1 database bindings
+   - 添加绑定，变量名设置为 `DB`，选择你的 D1 数据库
+5. 在 Pages 项目设置中配置环境变量：
+   - `JWT_SECRET`: JWT签名密钥（32位以上随机字符串，必需）
    - `ACCESS_PASSWORD`: 访问密码（可选）
-5. 部署完成后访问你的应用 URL
+   - `CSRF_SECRET`: CSRF密钥（可选，默认使用JWT_SECRET）
+6. （可选）配置速率限制：
+   - 在Cloudflare Dashboard中创建KV命名空间
+   - 在Pages项目Functions设置中绑定KV命名空间为 `RATE_LIMIT_KV`
+7. 部署完成后访问你的应用 URL
 
 #### 本地部署
 1. 复制 [config/config.default.php](file:///config/config.default.php) 文件为 [config/config.php](file:///config/config.php)：
@@ -110,14 +113,17 @@ An online clipboard tool based on Cloudflare D1 database for storing and managin
 1. Fork this repository to your GitHub account
 2. Connect your GitHub account in the Cloudflare Pages dashboard
 3. Select this repository for deployment
-4. Configure environment variables in the Pages project settings:
-   - `CF_ACCOUNT_ID`: Cloudflare Account ID
-   - `CF_DATABASE_ID`: D1 Database ID
-   - `CF_API_TOKEN`: Cloudflare API Token
-   - `TABLE_NAME`: Database table name (default: clipboard)
-   - `JWT_SECRET`: JWT signing key (32+ character random string)
+4. Bind D1 database in Cloudflare Pages project settings:
+   - Go to project settings -> Functions -> D1 database bindings
+   - Add binding with variable name `DB` and select your D1 database
+5. Configure environment variables in the Pages project settings:
+   - `JWT_SECRET`: JWT signing key (32+ character random string, required)
    - `ACCESS_PASSWORD`: Access password (optional)
-5. Access your application URL after deployment
+   - `CSRF_SECRET`: CSRF secret key (optional, defaults to JWT_SECRET)
+6. (Optional) Configure rate limiting:
+   - Create a KV namespace in Cloudflare Dashboard
+   - Bind the KV namespace as `RATE_LIMIT_KV` in Pages project Functions settings
+7. Access your application URL after deployment
 
 #### Local Deployment
 1. Copy [config/config.default.php](file:///config/config.default.php) to [config/config.php](file:///config/config.php):
