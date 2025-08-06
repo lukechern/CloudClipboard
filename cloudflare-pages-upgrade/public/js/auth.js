@@ -192,6 +192,12 @@ class AuthManager {
                 const result = await this.verifyPassword(password);
                 
                 if (result.success) {
+                    // 设置token到实例变量
+                    if (result.token) {
+                        this.authToken = result.token;
+                        this.isAuthenticated = true;
+                    }
+                    
                     // 检查是否需要记住密码
                     const rememberAuth = document.getElementById('rememberAuth').checked;
                     if (rememberAuth && result.token) {
@@ -388,6 +394,16 @@ class AuthManager {
         } catch (error) {
             console.error('检查token过期时间失败:', error);
         }
+    }
+
+    // 获取认证头
+    getAuthHeaders() {
+        if (this.authToken) {
+            return {
+                'Authorization': `Bearer ${this.authToken}`
+            };
+        }
+        return {};
     }
 
     // 注销

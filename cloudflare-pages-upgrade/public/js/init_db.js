@@ -14,11 +14,21 @@ function showMessage(msg, isSuccess) {
 
 // 页面加载完成后的处理
 document.addEventListener('DOMContentLoaded', function() {
-    // 加载详细存储信息
-    loadStorageDetails();
+    // 监听认证成功事件
+    window.addEventListener('authSuccess', function() {
+        console.log('认证成功，加载初始化页面数据');
+        loadStorageDetails();
+        checkTableExists();
+    });
     
-    // 检查表是否存在
-    checkTableExists();
+    // 延迟检查认证状态
+    setTimeout(() => {
+        if (!window.authManager || window.authManager.isAuthenticated) {
+            console.log('无需认证或已认证，直接加载数据');
+            loadStorageDetails();
+            checkTableExists();
+        }
+    }, 200);
     
     // 检查是否有消息需要显示
     if (typeof message !== 'undefined' && typeof success !== 'undefined' && message !== null) {
@@ -43,8 +53,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 method: 'POST',
                 headers
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
             .then(data => {
+                if (data.error) {
+                    throw new Error(data.error);
+                }
                 // 恢复按钮状态
                 button.textContent = originalText;
                 button.disabled = false;
@@ -73,16 +91,25 @@ document.addEventListener('DOMContentLoaded', function() {
 function loadStorageDetails() {
     const headers = window.authManager ? window.authManager.getAuthHeaders() : {};
     fetch('/api/storage', { headers })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
+            if (data.error) {
+                throw new Error(data.error);
+            }
             displayStorageDetails(data);
         })
         .catch(error => {
             console.error('加载存储信息失败:', error);
             // 如果加载失败，显示默认信息
             displayStorageDetails({
-                type: '未知',
-                location: '未知',
+                type: 'Cloudflare',
+                location: 'D1数据库',
+                table_name: 'cloudclipboard',
                 status: '获取失败'
             });
         });
@@ -93,24 +120,30 @@ function displayStorageDetails(storageInfo) {
     const container = document.getElementById('storage-info-details');
     if (!container) return;
     
-    const statusClass = storageInfo.status === '已配置' ? 'configured' : 'not-configured';
+    // 处理可能的undefined值
+    const type = storageInfo.type || 'Cloudflare';
+    const location = storageInfo.location || 'D1数据库';
+    const tableName = storageInfo.table_name || 'cloudclipboard';
+    const status = storageInfo.status || '已配置';
+    
+    const statusClass = status === '已配置' ? 'configured' : 'not-configured';
     
     let html = `
         <div class="storage-info-item">
             <span class="storage-info-label">存储类型:</span>
-            <span class="storage-info-value">${storageInfo.type}</span>
+            <span class="storage-info-value">${type}</span>
         </div>
         <div class="storage-info-item">
             <span class="storage-info-label">存储位置:</span>
-            <span class="storage-info-value">${storageInfo.location}</span>
+            <span class="storage-info-value">${location}</span>
         </div>
         <div class="storage-info-item">
             <span class="storage-info-label">表名:</span>
-            <span class="storage-info-value">${storageInfo.table_name || '未知'}</span>
+            <span class="storage-info-value">${tableName}</span>
         </div>
         <div class="storage-info-item">
             <span class="storage-info-label">配置状态:</span>
-            <span class="storage-status ${statusClass}">${storageInfo.status}</span>
+            <span class="storage-status ${statusClass}">${status}</span>
         </div>
     `;
     
@@ -157,8 +190,17 @@ function displayStorageDetails(storageInfo) {
 function checkTableExists() {
     const headers = window.authManager ? window.authManager.getAuthHeaders() : {};
     fetch('/api/init', { headers })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
+            if (data.error) {
+                throw new Error(data.error);
+            }
+            
             // 检查表是否存在
             const form = document.querySelector('.init-form form');
             if (form && data.table_exists) {
@@ -170,6 +212,7 @@ function checkTableExists() {
             }
         })
         .catch(error => {
+            console.error('检查表状态失败:', error);
             // 如果获取记录失败，可能表不存在，保持表单显示
             console.log('表可能不存在，保持创建按钮可见');
         });

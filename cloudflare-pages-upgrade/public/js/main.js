@@ -265,16 +265,26 @@ function loadStorageInfo() {
     const headers = window.authManager ? window.authManager.getAuthHeaders() : {};
 
     fetch('/api/storage', { headers })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
+            // 检查是否有错误信息
+            if (data.error) {
+                throw new Error(data.error);
+            }
             displayStorageInfo(data);
         })
         .catch(error => {
             console.error('加载存储信息失败:', error);
             // 如果加载失败，显示默认信息
             displayStorageInfo({
-                type: '未知',
-                location: '未知',
+                type: 'Cloudflare',
+                location: 'D1数据库',
+                description: 'Cloudflare (云端 D1 数据库)',
                 status: '获取失败'
             });
         });
@@ -285,10 +295,15 @@ function displayStorageInfo(storageInfo) {
     const container = document.getElementById('storage-info-container');
     if (!container) return;
 
+    // 处理可能的undefined值
+    const type = storageInfo.type || 'Cloudflare';
+    const location = storageInfo.location || 'D1数据库';
+    const description = storageInfo.description || `${type} (${location})`;
+
     const html = `
         <div class="storage-info-item">
             <span class="storage-info-label">数据存储位置:</span>
-            <span class="storage-info-value"><a href="./init_db.html" target="_blank">${storageInfo.type} (${storageInfo.location})</a></span>
+            <span class="storage-info-value"><a href="./init_db.html" target="_blank">${description}</a></span>
         </div>
     `;
 
