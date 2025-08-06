@@ -83,10 +83,18 @@ function loadRecords(filter = 'cache') {
                         const contentClass = isLongContent ? 'record-content collapsed' : 'record-content';
                         const buttonText = isLongContent ? '展开' : '';
                         
-                        // 格式化时间，去掉秒
+                        // 格式化时间，根据屏幕宽度调整格式
                         const formatTime = (timestamp) => {
                             if (timestamp.length >= 16) {
-                                return timestamp.substring(0, 16); // 只保留到分钟 YYYY-MM-DD HH:MM
+                                const isMobile = window.innerWidth <= 768;
+                                if (isMobile) {
+                                    // 手机端：只显示 MM-DD HH:MM
+                                    const fullTime = timestamp.substring(0, 16); // YYYY-MM-DD HH:MM
+                                    return fullTime.substring(5); // 去掉年份，保留 MM-DD HH:MM
+                                } else {
+                                    // 桌面端：显示完整时间 YYYY-MM-DD HH:MM
+                                    return timestamp.substring(0, 16);
+                                }
                             }
                             return timestamp;
                         };

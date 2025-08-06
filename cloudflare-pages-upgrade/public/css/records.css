@@ -179,6 +179,8 @@
 .tab-btn.active {
     color: #667eea;
     font-weight: bold;
+    border-color: #667eea;
+    background-color: #FFFFFF;
 }
 
 /* 存档按钮样式 */
@@ -191,6 +193,8 @@
     transition: all 0.3s;
     display: inline-flex;
     align-items: center;
+    border: 1px solid #cfcfcf;
+    border-radius: 5px;
     gap: 4px;
 }
 
@@ -236,6 +240,36 @@
     .tab-btn {
         font-size: 13px;
         padding: 3px 6px;
+    }
+
+    /* 手机端优化record-meta布局 */
+    .record-meta {
+        font-size: 0.75rem;
+        gap: 6px;
+    }
+
+    .meta-item {
+        margin-right: 8px;
+        gap: 3px;
+    }
+
+    .meta-icon {
+        width: 12px;
+        height: 12px;
+    }
+
+    .archive-btn {
+        padding: 3px 5px;
+        font-size: 11px;
+    }
+
+    .archive-btn .archive-text {
+        font-size: 11px;
+    }
+
+    .expand-btn {
+        font-size: 0.75rem;
+        padding: 2px 5px;
     }
 }
 
