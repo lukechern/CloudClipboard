@@ -1,15 +1,5 @@
 // 批量删除记录功能
 function batchDeleteRecords(ids) {
-    // 调试信息
-    console.log('批量删除开始，记录ID:', ids);
-    console.log('认证管理器状态:', {
-        exists: !!window.authManager,
-        isAuthenticated: window.authManager?.isAuthenticated,
-        usesCookies: window.authManager?.usesCookies,
-        hasCSRFToken: !!window.authManager?.csrfToken,
-        authHeaders: window.authManager?.getAuthHeaders()
-    });
-    
     showConfirm('确认删除', `确定要删除这 ${ids.length} 条记录吗？`, () => {
         // 立即从前端界面移除选中的记录条目
         ids.forEach(id => {
@@ -30,21 +20,8 @@ function batchDeleteRecords(ids) {
                 method: 'DELETE'
             };
         
-        // 调试：检查请求配置
-        console.log('批量删除请求配置:', {
-            hasAuthManager: !!window.authManager,
-            isAuthenticated: window.authManager?.isAuthenticated,
-            usesCookies: window.authManager?.usesCookies,
-            hasCSRFToken: !!window.authManager?.csrfToken,
-            csrfTokenPreview: window.authManager?.csrfToken?.substring(0, 20) + '...',
-            requestHeaders: requestConfig.headers,
-            credentials: requestConfig.credentials
-        });
-        
         // 如果没有CSRF token，尝试从多个来源恢复
         if (!window.authManager?.csrfToken && window.authManager?.usesCookies) {
-            console.log('尝试恢复CSRF token...');
-            
             // 1. 尝试从localStorage重新加载
             try {
                 const stored = localStorage.getItem('cloudclipboard_auth');
@@ -52,7 +29,6 @@ function batchDeleteRecords(ids) {
                     const authData = JSON.parse(stored);
                     if (authData.csrfToken) {
                         window.authManager.csrfToken = authData.csrfToken;
-                        console.log('CSRF token已从localStorage恢复');
                     }
                 }
             } catch (error) {
@@ -67,7 +43,6 @@ function batchDeleteRecords(ids) {
                     if (csrfCookie) {
                         const csrfToken = decodeURIComponent(csrfCookie.split('=')[1]);
                         window.authManager.csrfToken = csrfToken;
-                        console.log('CSRF token已从Cookie恢复');
                     }
                 } catch (error) {
                     console.error('从Cookie恢复CSRF token失败:', error);
@@ -80,9 +55,6 @@ function batchDeleteRecords(ids) {
                     method: 'DELETE'
                 });
                 Object.assign(requestConfig, updatedConfig);
-                console.log('请求配置已更新，CSRF token:', !!requestConfig.headers['X-CSRF-Token']);
-            } else {
-                console.error('无法恢复CSRF token，批量删除可能失败');
             }
         }
         
@@ -91,7 +63,6 @@ function batchDeleteRecords(ids) {
                 .then(async response => {
                     if (!response.ok) {
                         const errorData = await response.json().catch(() => ({}));
-                        console.error(`删除记录 ${id} 失败:`, response.status, errorData);
                         throw new Error(`删除记录 ${id} 失败: ${response.status} ${errorData.error || ''}`);
                     }
                     return response;
@@ -111,7 +82,6 @@ function batchDeleteRecords(ids) {
             }
         })
         .catch(error => {
-            console.error('批量删除错误:', error);
             showNotification('批量删除失败: ' + error.message);
             // 如果删除失败，重新加载记录以恢复界面
             if (typeof loadRecords === 'function') {

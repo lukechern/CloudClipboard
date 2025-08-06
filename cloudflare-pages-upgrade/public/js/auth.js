@@ -64,16 +64,9 @@ class AuthManager {
     loadStoredAuth() {
         try {
             const stored = localStorage.getItem(this.storageKey);
-            console.log('加载存储的认证信息:', stored ? '存在' : '不存在');
             
             if (stored) {
                 const authData = JSON.parse(stored);
-                console.log('认证数据:', {
-                    type: authData.type,
-                    usesCookies: authData.usesCookies,
-                    hasCSRFToken: !!authData.csrfToken,
-                    timestamp: new Date(authData.timestamp)
-                });
                 
                 // 检查是否过期（7天）
                 const now = Date.now();
@@ -85,7 +78,6 @@ class AuthManager {
                         this.csrfToken = authData.csrfToken;
                         this.usesCookies = true;
                         this.isAuthenticated = true;
-                        console.log('Cookie模式认证已恢复，CSRF token:', !!this.csrfToken);
                         // authToken将从Cookie中获取，这里不设置
                     } else {
                         // 传统模式：从localStorage获取完整信息
@@ -93,10 +85,8 @@ class AuthManager {
                         this.csrfToken = authData.csrfToken;
                         this.usesCookies = false;
                         this.isAuthenticated = true;
-                        console.log('传统模式认证已恢复');
                     }
                 } else {
-                    console.log('认证信息已过期，清除');
                     this.clearStoredAuth();
                 }
             }
