@@ -4,7 +4,7 @@ function toggleContent(id) {
     if (!contentElement) return;
     
     const isCollapsed = contentElement.classList.contains('collapsed');
-    const expandBtn = contentElement.querySelector('.record-meta .expand-btn');
+    const expandBtn = contentElement.nextElementSibling.querySelector('.expand-btn');
     
     if (isCollapsed) {
         // 展开内容
@@ -71,11 +71,11 @@ function loadRecords() {
                             '<input type="checkbox" class="record-checkbox" data-id="' + record.id + '" style="display: none;">' +
                             '<div class="' + contentClass + '" data-id="' + record.id + '">' +
                             trimmedContent +
+                            '</div>' +
                             '<div class="record-meta">' +
                             '长度: ' + record.length + ' | ' +
                             '时间: ' + record.timestamp +
                             (isLongContent ? '<button class="expand-btn" onclick="toggleContent(' + record.id + ')">' + buttonText + '</button>' : '') +
-                            '</div>' +
                             '</div>' +
                             '<div class="record-actions">' +
                             '<button class="copy-btn" onclick="copyToClipboard(' + record.id + ', \'' + encodedContent + '\')" title="复制">' +
