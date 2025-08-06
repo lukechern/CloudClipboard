@@ -1,25 +1,30 @@
+import { verifyAuthToken } from './auth.js';
+
 // 验证访问权限
-function checkAuth(request, env) {
+async function checkAuth(request, env) {
     // 如果没有设置密码，允许访问
     if (!env.ACCESS_PASSWORD) {
         return { authorized: true };
     }
     
-    // 检查请求头中的授权信息
-    const authHeader = request.headers.get('Authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return { authorized: false, error: '需要密码验证' };
+    // 使用JWT验证
+    const authResult = await verifyAuthToken(request, env);
+    
+    if (!authResult.valid) {
+        return { 
+            authorized: false, 
+            error: '访问权限验证失败: ' + authResult.error 
+        };
     }
     
-    const token = authHeader.substring(7);
-    // 简单的token验证（实际应用中应该使用更安全的方式）
-    const expectedToken = btoa(env.ACCESS_PASSWORD);
-    
-    if (token !== expectedToken) {
-        return { authorized: false, error: '访问权限验证失败' };
+    if (!authResult.authenticated) {
+        return { 
+            authorized: false, 
+            error: '未经授权的访问' 
+        };
     }
     
-    return { authorized: true };
+    return { authorized: true, payload: authResult.payload };
 }
 
 // API处理记录相关操作
@@ -27,7 +32,7 @@ export async function onRequestPost(context) {
     const { request, env } = context;
     
     // 验证访问权限
-    const authResult = checkAuth(request, env);
+    const authResult = await checkAuth(request, env);
     if (!authResult.authorized) {
         return new Response(JSON.stringify({ error: authResult.error }), {
             status: 401,
@@ -80,7 +85,7 @@ export async function onRequestGet(context) {
     const { request, env } = context;
     
     // 验证访问权限
-    const authResult = checkAuth(request, env);
+    const authResult = await checkAuth(request, env);
     if (!authResult.authorized) {
         return new Response(JSON.stringify({ error: authResult.error }), {
             status: 401,
@@ -119,7 +124,7 @@ export async function onRequestDelete(context) {
     const { request, env } = context;
     
     // 验证访问权限
-    const authResult = checkAuth(request, env);
+    const authResult = await checkAuth(request, env);
     if (!authResult.authorized) {
         return new Response(JSON.stringify({ error: authResult.error }), {
             status: 401,

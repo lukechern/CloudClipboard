@@ -40,6 +40,8 @@
    - `CF_DATABASE_ID`: D1 数据库 ID
    - `CF_API_TOKEN`: Cloudflare API 令牌
    - `TABLE_NAME`: 数据库表名（默认为 clipboard）
+   - `JWT_SECRET`: JWT签名密钥（32位以上随机字符串）
+   - `ACCESS_PASSWORD`: 访问密码（可选）
 5. 部署完成后访问你的应用 URL
 
 #### 本地部署
@@ -113,6 +115,8 @@ An online clipboard tool based on Cloudflare D1 database for storing and managin
    - `CF_DATABASE_ID`: D1 Database ID
    - `CF_API_TOKEN`: Cloudflare API Token
    - `TABLE_NAME`: Database table name (default: clipboard)
+   - `JWT_SECRET`: JWT signing key (32+ character random string)
+   - `ACCESS_PASSWORD`: Access password (optional)
 5. Access your application URL after deployment
 
 #### Local Deployment
@@ -160,3 +164,27 @@ Thanks to the following tools and platforms for their support:
 ### Contact Us
 
 For any questions or suggestions, please visit our [GitHub repository](https://github.com/lukechern/CloudClipboard) to submit Issues or Pull Requests.
+### 安全配置
+
+
+项目已升级到JWT认证系统，提供更高的安全性：
+
+- **JWT认证**: 替代Base64编码，防止token伪造
+- **速率限制**: 防止暴力破解攻击
+- **增强体验**: 智能错误提示和倒计时功能
+
+详细配置方法请参考：
+- [安全升级指南](cloudflare-pages-upgrade/SECURITY_UPGRADE.md)
+- [安全配置指南](cloudflare-pages-upgrade/SECURITY_CONFIG.md)
+
+### Security Configuration
+
+The project has been upgraded to JWT authentication system for enhanced security:
+
+- **JWT Authentication**: Replaces Base64 encoding, prevents token forgery
+- **Rate Limiting**: Prevents brute force attacks  
+- **Enhanced UX**: Smart error messages and countdown features
+
+For detailed configuration instructions, see:
+- [Security Upgrade Guide](cloudflare-pages-upgrade/SECURITY_UPGRADE.md)
+- [Security Configuration Guide](cloudflare-pages-upgrade/SECURITY_CONFIG.md)

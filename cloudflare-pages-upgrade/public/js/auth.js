@@ -84,12 +84,12 @@ class AuthManager {
     }
 
     // 保存认证信息到本地存储
-    saveAuth(password) {
+    saveAuth(token) {
         try {
-            const token = btoa(password);
             const authData = {
                 token: token,
-                timestamp: Date.now()
+                timestamp: Date.now(),
+                type: 'jwt' // 标识为JWT token
             };
             localStorage.setItem(this.storageKey, JSON.stringify(authData));
             this.authToken = token;
@@ -189,26 +189,41 @@ class AuthManager {
             errorDiv.classList.remove('show');
 
             try {
-                const success = await this.verifyPassword(password);
+                const result = await this.verifyPassword(password);
                 
-                if (success) {
+                if (result.success) {
                     // 检查是否需要记住密码
                     const rememberAuth = document.getElementById('rememberAuth').checked;
-                    if (rememberAuth) {
-                        this.saveAuth(password);
+                    if (rememberAuth && result.token) {
+                        this.saveAuth(result.token);
                     }
                     
                     this.hideAuthModal();
                     this.onAuthSuccess();
+                } else if (result.blocked) {
+                    // 处理速率限制
+                    const minutes = Math.ceil(result.remainingTime / 60);
+                    this.showAuthError(`访问被暂时限制，请在 ${minutes} 分钟后重试`);
+                    submitBtn.disabled = true;
+                    
+                    // 倒计时显示
+                    this.startBlockCountdown(result.remainingTime, submitBtn);
                 } else {
-                    this.showAuthError('密码错误，请重试');
+                    // 显示剩余尝试次数
+                    let errorMsg = result.error || '密码错误，请重试';
+                    if (result.remaining !== undefined && result.remaining >= 0) {
+                        errorMsg += ` (剩余尝试次数: ${result.remaining})`;
+                    }
+                    this.showAuthError(errorMsg);
                     passwordInput.value = '';
                     passwordInput.focus();
                 }
             } catch (error) {
                 this.showAuthError('验证失败: ' + error.message);
             } finally {
-                submitBtn.disabled = false;
+                if (!submitBtn.disabled) {
+                    submitBtn.disabled = false;
+                }
                 loadingDiv.classList.remove('show');
             }
         });
@@ -232,7 +247,20 @@ class AuthManager {
         });
 
         const data = await response.json();
-        return data.success;
+        
+        // 如果验证成功且返回了token，保存token
+        if (data.success && data.token) {
+            this.authToken = data.token;
+        }
+        
+        return {
+            success: data.success,
+            token: data.token,
+            error: data.error,
+            blocked: data.blocked,
+            remainingTime: data.remainingTime,
+            remaining: data.remaining
+        };
     }
 
     // 显示认证错误
@@ -304,6 +332,64 @@ class AuthManager {
         return {};
     }
 
+    // 开始封锁倒计时
+    startBlockCountdown(remainingSeconds, submitBtn) {
+        let remaining = remainingSeconds;
+        
+        const updateButton = () => {
+            const minutes = Math.floor(remaining / 60);
+            const seconds = remaining % 60;
+            submitBtn.textContent = `请等待 ${minutes}:${seconds.toString().padStart(2, '0')}`;
+        };
+        
+        updateButton();
+        
+        const countdown = setInterval(() => {
+            remaining--;
+            
+            if (remaining <= 0) {
+                clearInterval(countdown);
+                submitBtn.disabled = false;
+                submitBtn.textContent = '验证访问权限';
+                
+                // 清除错误信息
+                const errorDiv = document.getElementById('authError');
+                if (errorDiv) {
+                    errorDiv.classList.remove('show');
+                }
+            } else {
+                updateButton();
+            }
+        }, 1000);
+    }
+
+    // 检查token是否即将过期并刷新
+    async checkTokenExpiration() {
+        if (!this.authToken) return;
+        
+        try {
+            // 解析JWT payload（简单解析，不验证签名）
+            const parts = this.authToken.split('.');
+            if (parts.length !== 3) return;
+            
+            const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+            const now = Math.floor(Date.now() / 1000);
+            
+            // 如果token在1小时内过期，尝试刷新
+            if (payload.exp && payload.exp - now < 3600) {
+                console.log('Token即将过期，尝试刷新...');
+                // 这里可以实现token刷新逻辑
+                // 目前简单地清除认证信息，让用户重新登录
+                this.clearStoredAuth();
+                if (await this.checkAuthRequired()) {
+                    this.showAuthModal();
+                }
+            }
+        } catch (error) {
+            console.error('检查token过期时间失败:', error);
+        }
+    }
+
     // 注销
     logout() {
         this.clearStoredAuth();
@@ -313,3 +399,10 @@ class AuthManager {
 
 // 创建全局认证管理器实例
 window.authManager = new AuthManager();
+
+// 定期检查token过期时间
+setInterval(() => {
+    if (window.authManager && window.authManager.isAuthenticated) {
+        window.authManager.checkTokenExpiration();
+    }
+}, 5 * 60 * 1000); // 每5分钟检查一次
