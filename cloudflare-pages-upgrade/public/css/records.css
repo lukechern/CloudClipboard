@@ -58,33 +58,23 @@
     flex-direction: column;
 }
 
+.record-content {
+    position: relative;
+    word-wrap: break-word;
+    word-break: break-word;
+    white-space: pre-wrap;
+    line-height: 1.4;
+    margin-bottom: 8px; /* 确保与meta区域有间距 */
+}
+
 .record-content.collapsed {
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
+    overflow: hidden;
     max-height: 4.2em; /* 3行的高度 */
-}
-
-.record-content .expand-btn {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    background: linear-gradient(to right, transparent, rgba(255, 255, 255) 30%);
-    color: #667eea;
-    border: none;
-    padding: 0 10px 0 50px;
-    cursor: pointer;
-    font-weight: bold;
-    height: 1.4em;
-}
-
-.record-content:not(.collapsed) .expand-btn {
-    position: static;
-    background: none;
-    padding: 5px 0;
-    margin-top: 5px;
-    text-align: right;
-    width: 100%;
+    line-clamp: 3; /* 标准属性 */
+    text-overflow: ellipsis; /* 添加省略号 */
 }
 
 .record-meta {

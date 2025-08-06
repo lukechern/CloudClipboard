@@ -30,6 +30,62 @@ function batchDeleteRecords(ids) {
                 method: 'DELETE'
             };
         
+        // 调试：检查请求配置
+        console.log('批量删除请求配置:', {
+            hasAuthManager: !!window.authManager,
+            isAuthenticated: window.authManager?.isAuthenticated,
+            usesCookies: window.authManager?.usesCookies,
+            hasCSRFToken: !!window.authManager?.csrfToken,
+            csrfTokenPreview: window.authManager?.csrfToken?.substring(0, 20) + '...',
+            requestHeaders: requestConfig.headers,
+            credentials: requestConfig.credentials
+        });
+        
+        // 如果没有CSRF token，尝试从多个来源恢复
+        if (!window.authManager?.csrfToken && window.authManager?.usesCookies) {
+            console.log('尝试恢复CSRF token...');
+            
+            // 1. 尝试从localStorage重新加载
+            try {
+                const stored = localStorage.getItem('cloudclipboard_auth');
+                if (stored) {
+                    const authData = JSON.parse(stored);
+                    if (authData.csrfToken) {
+                        window.authManager.csrfToken = authData.csrfToken;
+                        console.log('CSRF token已从localStorage恢复');
+                    }
+                }
+            } catch (error) {
+                console.error('从localStorage恢复CSRF token失败:', error);
+            }
+            
+            // 2. 尝试从CSRF Cookie获取
+            if (!window.authManager.csrfToken) {
+                try {
+                    const cookies = document.cookie.split(';').map(c => c.trim());
+                    const csrfCookie = cookies.find(c => c.startsWith('cc_csrf_token='));
+                    if (csrfCookie) {
+                        const csrfToken = decodeURIComponent(csrfCookie.split('=')[1]);
+                        window.authManager.csrfToken = csrfToken;
+                        console.log('CSRF token已从Cookie恢复');
+                    }
+                } catch (error) {
+                    console.error('从Cookie恢复CSRF token失败:', error);
+                }
+            }
+            
+            // 如果成功恢复了token，重新获取请求配置
+            if (window.authManager.csrfToken) {
+                const updatedConfig = window.authManager.getRequestConfig({
+                    method: 'DELETE'
+                });
+                Object.assign(requestConfig, updatedConfig);
+                console.log('请求配置已更新，CSRF token:', !!requestConfig.headers['X-CSRF-Token']);
+            } else {
+                console.error('无法恢复CSRF token，批量删除可能失败');
+            }
+        }
+        
         Promise.all(ids.map(id => 
             fetch(`/api/records?id=${id}`, requestConfig)
                 .then(async response => {
