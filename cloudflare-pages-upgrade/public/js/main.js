@@ -256,9 +256,9 @@ document.addEventListener('DOMContentLoaded', function () {
                         restoreButtonState(submitBtn);
                     }
 
-                    // 重新加载记录
+                    // 重新加载当前过滤器的记录
                     if (typeof loadRecords === 'function') {
-                        loadRecords();
+                        loadRecords(window.currentFilter || 'cache');
                     }
 
                     // 显示成功消息

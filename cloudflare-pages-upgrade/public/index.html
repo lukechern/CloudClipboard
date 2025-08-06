@@ -35,7 +35,13 @@
             </div>
 
             <div class="records-section">
-                <h2>历史记录</h2>
+                <div class="records-header">
+                    <h2>历史记录</h2>
+                    <div class="tab-container">
+                        <button class="tab-btn active" data-filter="cache">缓存</button>
+                        <button class="tab-btn" data-filter="archived">存档</button>
+                    </div>
+                </div>
                 <div id="records-loading" class="records-loading" style="display: none;">
                     <img src="img/spinner.svg" class="spinner" alt="Loading">
                     <span>载入中...</span>

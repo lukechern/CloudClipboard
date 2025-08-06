@@ -13,7 +13,8 @@ body {
     align-items: center;
     justify-content: flex-start;
     padding: 20px;
-    padding-top: 50px; /* 为顶部留出一些空间 */
+    padding-top: 50px;
+    /* 为顶部留出一些空间 */
 }
 
 .container {
@@ -107,6 +108,7 @@ body {
 .info li {
     margin-bottom: 8px;
 }
+
 /* 详细存储信息样式 */
 .storage-details {
     background: #f8f9fa;
@@ -171,7 +173,8 @@ body {
 }
 
 .back-to-home a {
-    color: #e0e0e0; /* 灰白色 */
+    color: #e0e0e0;
+    /* 灰白色 */
     text-decoration: none;
     font-weight: 500;
     font-size: 1rem;
@@ -179,6 +182,82 @@ body {
 }
 
 .back-to-home a:hover {
-    color: #ffffff; /* 悬停时更亮的白色 */
+    color: #ffffff;
+    /* 悬停时更亮的白色 */
     text-decoration: underline;
+}
+
+/ * 数据库状态显示样式 */ .db-status {
+    margin: 20px 0;
+}
+
+.status-info {
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.status-info h4 {
+    margin-bottom: 8px;
+    font-size: 1.1rem;
+}
+
+.status-info p {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.status-info.success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.status-info.warning {
+    background: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeaa7;
+}
+
+.status-info.info {
+    background: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+.status-info.error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* 升级按钮样式 */
+.upgrade-btn {
+    background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    font-size: 1.1rem;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.upgrade-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(243, 156, 18, 0.3);
+}
+
+.upgrade-btn:active {
+    transform: translateY(0);
+}
+
+.upgrade-btn:disabled,
+.init-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
 }

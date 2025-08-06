@@ -41,30 +41,57 @@ export async function onRequestPost(context) {
     }
     
     try {
-        // 创建数据库表
-        const result = await env.DB.prepare(`
-            CREATE TABLE IF NOT EXISTS ${env.TABLE_NAME} (
-                id INTEGER PRIMARY KEY,
-                content TEXT NOT NULL,
-                length INTEGER NOT NULL,
-                timestamp TEXT DEFAULT CURRENT_TIMESTAMP
-            )
-        `).run();
+        const formData = await request.formData();
+        const action = formData.get('action') || 'create';
         
-        if (result.success) {
+        if (action === 'upgrade') {
+            // 升级数据库结构
+            const columns = await env.DB.prepare(`
+                PRAGMA table_info(${env.TABLE_NAME})
+            `).all();
+            
+            const columnNames = columns.results.map(col => col.name);
+            
+            // 添加缺失的archived字段
+            if (!columnNames.includes('archived')) {
+                await env.DB.prepare(`
+                    ALTER TABLE ${env.TABLE_NAME} ADD COLUMN archived INTEGER DEFAULT 0
+                `).run();
+            }
+            
             return new Response(JSON.stringify({ 
                 success: true, 
-                message: '数据库表创建成功' 
+                message: '数据库表结构升级成功' 
             }), {
                 headers: { 'Content-Type': 'application/json' }
             });
         } else {
-            throw new Error('创建表失败');
+            // 创建数据库表
+            const result = await env.DB.prepare(`
+                CREATE TABLE IF NOT EXISTS ${env.TABLE_NAME} (
+                    id INTEGER PRIMARY KEY,
+                    content TEXT NOT NULL,
+                    length INTEGER NOT NULL,
+                    timestamp TEXT DEFAULT CURRENT_TIMESTAMP,
+                    archived INTEGER DEFAULT 0
+                )
+            `).run();
+            
+            if (result.success) {
+                return new Response(JSON.stringify({ 
+                    success: true, 
+                    message: '数据库表创建成功' 
+                }), {
+                    headers: { 'Content-Type': 'application/json' }
+                });
+            } else {
+                throw new Error('创建表失败');
+            }
         }
         
     } catch (error) {
         return new Response(JSON.stringify({ 
-            error: '数据库初始化失败: ' + error.message 
+            error: '数据库操作失败: ' + error.message 
         }), {
             status: 500,
             headers: { 'Content-Type': 'application/json' }
@@ -92,11 +119,30 @@ export async function onRequestGet(context) {
         `).first();
         
         const tableExists = !!result;
+        let needsUpgrade = false;
+        let missingColumns = [];
+        
+        if (tableExists) {
+            // 检查表结构是否完整
+            const columns = await env.DB.prepare(`
+                PRAGMA table_info(${env.TABLE_NAME})
+            `).all();
+            
+            const columnNames = columns.results.map(col => col.name);
+            const requiredColumns = ['id', 'content', 'length', 'timestamp', 'archived'];
+            
+            missingColumns = requiredColumns.filter(col => !columnNames.includes(col));
+            needsUpgrade = missingColumns.length > 0;
+        }
         
         return new Response(JSON.stringify({ 
             table_exists: tableExists,
             table_name: env.TABLE_NAME,
-            message: tableExists ? '数据库表已存在' : '数据库表不存在，需要初始化'
+            needs_upgrade: needsUpgrade,
+            missing_columns: missingColumns,
+            message: tableExists ? 
+                (needsUpgrade ? '数据库表结构不完整，需要升级' : '数据库表已存在且结构完整') : 
+                '数据库表不存在，需要初始化'
         }), {
             headers: { 'Content-Type': 'application/json' }
         });

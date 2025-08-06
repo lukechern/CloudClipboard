@@ -26,8 +26,14 @@
             </div>
             
             <div class="init-form">
+                <div id="db-status" class="db-status">
+                    <!-- 数据库状态将通过JavaScript动态加载 -->
+                </div>
                 <form id="init-form">
                     <button type="submit" class="init-btn">创建数据库表</button>
+                </form>
+                <form id="upgrade-form" style="display: none;">
+                    <button type="submit" class="upgrade-btn">升级数据库结构</button>
                 </form>
             </div>
             

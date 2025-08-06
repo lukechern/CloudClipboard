@@ -22,9 +22,14 @@ function toggleContent(id) {
     }
 }
 
+// 当前过滤器状态
+let currentFilter = 'cache';
+
 // 加载记录
-function loadRecords() {
-    console.log('loadRecords() 被调用');
+function loadRecords(filter = 'cache') {
+    console.log('loadRecords() 被调用，过滤器:', filter);
+    
+    currentFilter = filter;
     
     // 显示加载状态
     const container = document.getElementById('records-container');
@@ -35,7 +40,7 @@ function loadRecords() {
     // 修复URL路径，确保相对于网站根目录
     const requestConfig = window.authManager ? 
         window.authManager.getRequestConfig() : {};
-    fetch('/api/records', requestConfig)
+    fetch(`/api/records?filter=${filter}`, requestConfig)
         .then(response => {
             // 检查响应是否成功
             if (!response.ok) {
@@ -66,6 +71,11 @@ function loadRecords() {
                         const contentClass = isLongContent ? 'record-content collapsed' : 'record-content';
                         const buttonText = isLongContent ? '展开' : '';
                         
+                        // 存档状态
+                        const isArchived = record.archived === 1;
+                        const starIcon = isArchived ? 'star-filled.svg' : 'star-outline.svg';
+                        const starTitle = isArchived ? '取消存档' : '添加到存档';
+                        
                         recordsHTML += '<li class="record-item">' + 
                             '<input type="checkbox" class="record-checkbox" data-id="' + record.id + '" style="display: none;">' + 
                             '<div class="record-content-wrapper">' + 
@@ -75,6 +85,9 @@ function loadRecords() {
                                 '<div class="record-meta">' + 
                                 '长度: ' + record.length + ' | ' + 
                                 '时间: ' + record.timestamp + 
+                                '<button class="archive-btn" onclick="toggleArchive(' + record.id + ', ' + (isArchived ? 'false' : 'true') + ')" title="' + starTitle + '">' + 
+                                '<img src="img/' + starIcon + '" class="icon archive-icon" width="16" height="16">' + 
+                                '</button>' +
                                 (isLongContent ? '<button class="expand-btn" onclick="toggleContent(' + record.id + ')">' + buttonText + '</button>' : '') + 
                                 '</div>' + 
                             '</div>' + 
@@ -103,3 +116,64 @@ function loadRecords() {
         })
 
 }
+
+// 切换存档状态
+function toggleArchive(id, archive) {
+    const formData = new FormData();
+    formData.append('id', id);
+    formData.append('archived', archive ? '1' : '0');
+    
+    const requestConfig = window.authManager ? 
+        window.authManager.getRequestConfig({
+            method: 'PUT',
+            body: formData
+        }) : {
+            method: 'PUT',
+            body: formData
+        };
+    
+    fetch('/api/records', requestConfig)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('网络响应失败');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.error) {
+                throw new Error(data.error);
+            }
+            
+            // 显示成功消息
+            if (typeof showNotification === 'function') {
+                showNotification(data.message);
+            }
+            
+            // 重新加载当前过滤器的记录
+            loadRecords(currentFilter);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            if (typeof showNotification === 'function') {
+                showNotification('操作失败: ' + (error.message || '未知错误'));
+            }
+        });
+}
+
+// 初始化标签切换功能
+document.addEventListener('DOMContentLoaded', function() {
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    
+    tabButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const filter = this.dataset.filter;
+            
+            // 更新标签状态
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            
+            // 加载对应的记录
+            loadRecords(filter);
+        });
+    });
+});

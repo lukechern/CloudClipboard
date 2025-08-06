@@ -56,7 +56,7 @@ export async function onRequestPost(context) {
 
         // 保存到D1数据库
         const result = await env.DB.prepare(
-            `INSERT INTO ${env.TABLE_NAME} (content, length, timestamp) VALUES (?, ?, ?)`
+            `INSERT INTO ${env.TABLE_NAME} (content, length, timestamp, archived) VALUES (?, ?, ?, 0)`
         ).bind(content, length, timestamp).run();
 
         if (result.success) {
@@ -94,16 +94,25 @@ export async function onRequestGet(context) {
     }
 
     try {
+        const url = new URL(request.url);
+        const filter = url.searchParams.get('filter') || 'cache'; // 默认显示缓存（非存档）
+        
+        let query;
+        if (filter === 'archived') {
+            query = `SELECT * FROM ${env.TABLE_NAME} WHERE archived = 1 ORDER BY timestamp DESC`;
+        } else {
+            query = `SELECT * FROM ${env.TABLE_NAME} WHERE archived = 0 ORDER BY timestamp DESC`;
+        }
+        
         // 从D1数据库获取记录
-        const result = await env.DB.prepare(
-            `SELECT * FROM ${env.TABLE_NAME} ORDER BY timestamp DESC`
-        ).all();
+        const result = await env.DB.prepare(query).all();
 
         if (result.success) {
             // 清理记录内容
             const records = result.results.map(record => ({
                 ...record,
-                content: record.content.trim()
+                content: record.content.trim(),
+                archived: record.archived || 0
             }));
 
             return new Response(JSON.stringify(records), {
@@ -115,6 +124,56 @@ export async function onRequestGet(context) {
 
     } catch (error) {
         return new Response(JSON.stringify([]), {
+            headers: { 'Content-Type': 'application/json' }
+        });
+    }
+}
+
+export async function onRequestPut(context) {
+    const { request, env } = context;
+    
+    // 验证访问权限（PUT请求需要CSRF验证）
+    const authResult = await checkAuth(request, env, true);
+    if (!authResult.authorized) {
+        return new Response(JSON.stringify({ error: authResult.error }), {
+            status: 401,
+            headers: { 'Content-Type': 'application/json' }
+        });
+    }
+
+    try {
+        const formData = await request.formData();
+        const id = formData.get('id');
+        const archived = formData.get('archived');
+
+        if (!id) {
+            return new Response(JSON.stringify({ error: '缺少记录ID' }), {
+                status: 400,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+
+        // 更新存档状态
+        const result = await env.DB.prepare(
+            `UPDATE ${env.TABLE_NAME} SET archived = ? WHERE id = ?`
+        ).bind(archived === '1' ? 1 : 0, id).run();
+
+        if (result.success) {
+            return new Response(JSON.stringify({
+                success: true,
+                message: archived === '1' ? '已添加到存档' : '已从存档移除'
+            }), {
+                headers: { 'Content-Type': 'application/json' }
+            });
+        } else {
+            throw new Error('更新失败');
+        }
+
+    } catch (error) {
+        return new Response(JSON.stringify({
+            error: '更新存档状态失败: ' + error.message
+        }), {
+            status: 500,
             headers: { 'Content-Type': 'application/json' }
         });
     }

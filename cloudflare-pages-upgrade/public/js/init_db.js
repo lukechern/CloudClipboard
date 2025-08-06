@@ -35,14 +35,14 @@ document.addEventListener('DOMContentLoaded', function() {
         showMessage(message, success);
     }
 
-    // 处理表单提交
-    const form = document.querySelector('.init-form form');
-    if (form) {
-        form.addEventListener('submit', function(e) {
+    // 处理创建表单提交
+    const initForm = document.getElementById('init-form');
+    if (initForm) {
+        initForm.addEventListener('submit', function(e) {
             e.preventDefault();
             
             // 显示加载状态
-            const button = form.querySelector('.init-btn');
+            const button = initForm.querySelector('.init-btn');
             const originalText = button.textContent;
             button.textContent = '正在创建...';
             button.disabled = true;
@@ -72,8 +72,68 @@ document.addEventListener('DOMContentLoaded', function() {
                 // 显示结果
                 if (data.success) {
                     showMessage(data.message, true);
-                    // 如果创建成功，隐藏表单
-                    form.style.display = 'none';
+                    // 重新检查数据库状态
+                    checkTableExists();
+                } else {
+                    showMessage(data.message, false);
+                }
+            })
+            .catch(error => {
+                // 恢复按钮状态
+                button.textContent = originalText;
+                button.disabled = false;
+                
+                // 显示错误
+                showMessage('请求失败: ' + error.message, false);
+            });
+        });
+    }
+    
+    // 处理升级表单提交
+    const upgradeForm = document.getElementById('upgrade-form');
+    if (upgradeForm) {
+        upgradeForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // 显示加载状态
+            const button = upgradeForm.querySelector('.upgrade-btn');
+            const originalText = button.textContent;
+            button.textContent = '正在升级...';
+            button.disabled = true;
+            
+            // 创建表单数据
+            const formData = new FormData();
+            formData.append('action', 'upgrade');
+            
+            // 发送请求
+            const requestConfig = window.authManager ? 
+                window.authManager.getRequestConfig({
+                    method: 'POST',
+                    body: formData
+                }) : {
+                    method: 'POST',
+                    body: formData
+                };
+            fetch('/api/init', requestConfig)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                // 恢复按钮状态
+                button.textContent = originalText;
+                button.disabled = false;
+                
+                // 显示结果
+                if (data.success) {
+                    showMessage(data.message, true);
+                    // 重新检查数据库状态
+                    checkTableExists();
                 } else {
                     showMessage(data.message, false);
                 }
@@ -189,7 +249,7 @@ function displayStorageDetails(storageInfo) {
     
     container.innerHTML = html;
 }
-// 检查表是否存在
+// 检查表是否存在和结构完整性
 function checkTableExists() {
     const requestConfig = window.authManager ? 
         window.authManager.getRequestConfig() : {};
@@ -205,19 +265,52 @@ function checkTableExists() {
                 throw new Error(data.error);
             }
             
-            // 检查表是否存在
-            const form = document.querySelector('.init-form form');
-            if (form && data.table_exists) {
-                // 隐藏表单
-                form.style.display = 'none';
-                
-                // 显示消息
-                showMessage('数据表已存在，无需创建', true);
+            const statusContainer = document.getElementById('db-status');
+            const initForm = document.getElementById('init-form');
+            const upgradeForm = document.getElementById('upgrade-form');
+            
+            if (data.table_exists) {
+                if (data.needs_upgrade) {
+                    // 表存在但结构不完整
+                    statusContainer.innerHTML = `
+                        <div class="status-info warning">
+                            <h4>数据库结构需要升级</h4>
+                            <p>表已存在，但缺少以下字段：${data.missing_columns.join(', ')}</p>
+                        </div>
+                    `;
+                    initForm.style.display = 'none';
+                    upgradeForm.style.display = 'block';
+                } else {
+                    // 表存在且结构完整
+                    statusContainer.innerHTML = `
+                        <div class="status-info success">
+                            <h4>数据库状态正常</h4>
+                            <p>数据表已存在且结构完整，无需操作</p>
+                        </div>
+                    `;
+                    initForm.style.display = 'none';
+                    upgradeForm.style.display = 'none';
+                }
+            } else {
+                // 表不存在
+                statusContainer.innerHTML = `
+                    <div class="status-info info">
+                        <h4>数据库未初始化</h4>
+                        <p>数据表不存在，需要创建</p>
+                    </div>
+                `;
+                initForm.style.display = 'block';
+                upgradeForm.style.display = 'none';
             }
         })
         .catch(error => {
             console.error('检查表状态失败:', error);
-            // 如果获取记录失败，可能表不存在，保持表单显示
-            console.log('表可能不存在，保持创建按钮可见');
+            const statusContainer = document.getElementById('db-status');
+            statusContainer.innerHTML = `
+                <div class="status-info error">
+                    <h4>检查数据库状态失败</h4>
+                    <p>${error.message}</p>
+                </div>
+            `;
         });
 }
