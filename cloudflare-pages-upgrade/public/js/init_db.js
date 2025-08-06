@@ -16,7 +16,7 @@ function showMessage(msg, isSuccess) {
 document.addEventListener('DOMContentLoaded', function() {
     // 监听认证成功事件
     window.addEventListener('authSuccess', function() {
-        console.log('认证成功，加载初始化页面数据');
+        // console.log('认证成功，加载初始化页面数据');
         loadStorageDetails();
         checkTableExists();
     });
@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // 延迟检查认证状态
     setTimeout(() => {
         if (!window.authManager || window.authManager.isAuthenticated) {
-            console.log('无需认证或已认证，直接加载数据');
+            // console.log('无需认证或已认证，直接加载数据');
             loadStorageDetails();
             checkTableExists();
         } else {

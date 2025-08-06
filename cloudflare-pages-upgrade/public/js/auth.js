@@ -366,7 +366,7 @@ class AuthManager {
 
     // 初始化应用
     initializeApp() {
-        console.log('initializeApp() 被调用，initialDataLoaded:', window.initialDataLoaded);
+        // console.log('initializeApp() 被调用，initialDataLoaded:', window.initialDataLoaded);
         // 只有在初始数据未加载时才加载
         if (!window.initialDataLoaded) {
             console.log('认证管理器初始化应用数据');

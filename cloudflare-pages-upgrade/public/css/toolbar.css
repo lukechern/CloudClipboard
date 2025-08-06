@@ -128,7 +128,7 @@
     border-radius: 4px;
     transition: background-color 0.3s;
     white-space: nowrap; /* 防止文字换行 */
-    margin-right: 15px; /* 增加右边距 */
+    margin-right: 10px; /* 添加右边距 */
 }
 
 .batch-toolbar .delete-btn:hover {
@@ -152,6 +152,7 @@
     border-radius: 4px;
     transition: background-color 0.3s;
     white-space: nowrap; /* 防止文字换行 */
+    margin-left: 10px; /* 添加左边距 */
 }
 
 .batch-toolbar .complete-btn:hover {
