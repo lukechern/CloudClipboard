@@ -2,18 +2,13 @@ import { verifyAuthToken, verifyFullAuth } from './auth.js';
 
 // 验证访问权限
 async function checkAuth(request, env, requireCSRF = false) {
-    console.log('checkAuth called with requireCSRF:', requireCSRF);
-    console.log('ACCESS_PASSWORD exists:', !!env.ACCESS_PASSWORD);
-    
     // 如果没有设置密码，允许访问
     if (!env.ACCESS_PASSWORD) {
-        console.log('No ACCESS_PASSWORD set, allowing access');
         return { authorized: true };
     }
     
     // 使用完整的认证验证
     const authResult = await verifyFullAuth(request, env, requireCSRF);
-    console.log('Auth result:', authResult);
     
     if (!authResult.valid) {
         return { 
@@ -48,7 +43,6 @@ export async function onRequestPost(context) {
     
     // 如果是升级操作且认证失败，尝试不带CSRF验证
     if (!authResult.authorized && action === 'upgrade') {
-        console.log('升级操作认证失败，尝试不带CSRF验证');
         authResult = await checkAuth(request, env, false);
     }
     
