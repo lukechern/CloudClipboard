@@ -78,6 +78,89 @@
     <script src="js/content.js"></script>
     <script src="js/batch.js"></script>
     <script src="js/main.js"></script>
+
+    <!-- Layout Debug Script -->
+    <script>
+        function debugToolbarLayout() {
+            const batchToolbar = document.getElementById('batchToolbar');
+            if (!batchToolbar || !batchToolbar.classList.contains('show')) {
+                console.error("错误：批量操作工具栏 (batchToolbar) 不可见。");
+                return;
+            }
+
+            const actionsContainers = batchToolbar.querySelectorAll('.actions');
+            const leftActions = actionsContainers[0];
+            const rightActions = actionsContainers[1];
+            const deleteButton = rightActions ? rightActions.querySelector('.delete-btn') : null;
+
+            if (!leftActions || !rightActions || !deleteButton) {
+                console.error("错误：无法找到一个或多个关键子元素 (.actions, .delete-btn)。");
+                return;
+            }
+
+            const toolbarRect = batchToolbar.getBoundingClientRect();
+            const rightActionsRect = rightActions.getBoundingClientRect();
+            const deleteButtonRect = deleteButton.getBoundingClientRect();
+            const windowWidth = window.innerWidth;
+
+            const toolbarStyles = window.getComputedStyle(batchToolbar);
+
+            console.clear();
+            console.log("%c--- Layout Debug Info ---", "color: blue; font-weight: bold;");
+            console.log(`Window Width: ${windowWidth}px`);
+            console.log("--- 1. Toolbar (#batchToolbar) ---");
+            console.log(`X: ${toolbarRect.x.toFixed(2)}px`);
+            console.log(`Right: ${toolbarRect.right.toFixed(2)}px`);
+            console.log(`Width: ${toolbarRect.width.toFixed(2)}px`);
+            console.log(`CSS 'width': ${toolbarStyles.width}`);
+            console.log(`CSS 'padding-left': ${toolbarStyles.paddingLeft}`);
+            console.log(`CSS 'padding-right': ${toolbarStyles.paddingRight}`);
+            console.log("--- 2. Right Actions Container ---");
+            console.log(`X: ${rightActionsRect.x.toFixed(2)}px`);
+            console.log(`Right: ${rightActionsRect.right.toFixed(2)}px`);
+            console.log(`Width: ${rightActionsRect.width.toFixed(2)}px`);
+            console.log("--- 3. Delete Button (.delete-btn) ---");
+            console.log(`X: ${deleteButtonRect.x.toFixed(2)}px`);
+            console.log(`Right: ${deleteButtonRect.right.toFixed(2)}px`);
+            console.log(`Width: ${deleteButtonRect.width.toFixed(2)}px`);
+            console.log("%c--- Analysis ---", "color: blue; font-weight: bold;");
+
+            const effectiveToolbarRightEdge = toolbarRect.right - parseFloat(toolbarStyles.paddingRight);
+            const overflow = rightActionsRect.right - effectiveToolbarRightEdge;
+
+            console.log(`Toolbar's effective right edge (Right - padding-right): ~${effectiveToolbarRightEdge.toFixed(2)}px`);
+            console.log(`Right Actions container's right edge is at: ${rightActionsRect.right.toFixed(2)}px`);
+
+            if (Math.abs(overflow) < 1) {
+                console.log("✅ [Conclusion 1] The right actions container aligns with its parent's right padding edge, as expected with 'space-between'.");
+            } else {
+                console.error(`❌ [Conclusion 1] The right actions container overflows its parent's padding box by ${overflow.toFixed(2)}px.`);
+            }
+
+            const spaceBetweenToolbarAndWindow = windowWidth - toolbarRect.right;
+            console.log(`[Info] Space between toolbar's right edge and window's right edge: ${spaceBetweenToolbarAndWindow.toFixed(2)}px.`);
+            console.log("This space is the expected blank margin created by the toolbar's 'width' and 'margin: auto'.");
+        }
+
+        const observerTarget = document.body;
+        const observer = new MutationObserver((mutationsList, observer) => {
+            for(const mutation of mutationsList) {
+                if (mutation.type === 'childList') {
+                    for (const node of mutation.addedNodes) {
+                        if (node.id === 'batchToolbar') {
+                            const toolbarObserver = new MutationObserver(() => {
+                                if (node.classList.contains('show')) {
+                                    debugToolbarLayout();
+                                }
+                            });
+                            toolbarObserver.observe(node, { attributes: true, attributeFilter: ['class'] });
+                        }
+                    }
+                }
+            }
+        });
+        observer.observe(observerTarget, { childList: true });
+    </script>
 </body>
 
 </html>
