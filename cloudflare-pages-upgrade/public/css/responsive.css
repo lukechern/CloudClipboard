@@ -43,6 +43,27 @@
         width: 50px; /* 调整按钮宽度 */
         height: 50px; /* 调整按钮高度 */
     }
+    
+    /* 批量操作工具栏在小屏幕上的样式调整 */
+    .batch-toolbar {
+        padding: 10px 15px; /* 减小内边距 */
+        justify-content: center; /* 居中布局 */
+        gap: 20px; /* 添加间距 */
+    }
+    
+    .batch-toolbar .actions {
+        gap: 10px; /* 减小按钮间距 */
+    }
+    
+    .batch-toolbar .delete-btn,
+    .batch-toolbar .complete-btn {
+        padding: 6px 10px; /* 减小按钮内边距 */
+        font-size: 0.9rem; /* 调整字体大小 */
+    }
+    
+    .batch-toolbar .count {
+        font-size: 0.9rem; /* 调整计数文本字体大小 */
+    }
 }
 
 @media (max-width: 480px) {
