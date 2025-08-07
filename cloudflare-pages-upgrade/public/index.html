@@ -136,6 +136,44 @@
             console.log(`删除按钮右内边距: ${deleteButtonStyles.paddingRight}`);
             console.log(`删除按钮边框: ${deleteButtonStyles.border}`);
 
+            // 检测按钮内部元素
+            const deleteButtonIcon = deleteButton.querySelector('.icon');
+            const deleteButtonText = deleteButton.childNodes;
+            let textContent = '';
+            deleteButtonText.forEach(node => {
+                if (node.nodeType === Node.TEXT_NODE) {
+                    textContent += node.textContent.trim();
+                }
+            });
+
+            console.log(`删除按钮文字内容: "${textContent}"`);
+            console.log(`删除按钮字体: ${deleteButtonStyles.fontFamily}`);
+            console.log(`删除按钮字体大小: ${deleteButtonStyles.fontSize}`);
+            console.log(`删除按钮字体粗细: ${deleteButtonStyles.fontWeight}`);
+
+            if (deleteButtonIcon) {
+                const iconRect = deleteButtonIcon.getBoundingClientRect();
+                console.log(`删除按钮图标宽度: ${iconRect.width.toFixed(2)}px`);
+                console.log(`删除按钮图标右边缘: ${iconRect.right.toFixed(2)}px`);
+            }
+
+            // 测量文字实际宽度
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.font = `${deleteButtonStyles.fontWeight} ${deleteButtonStyles.fontSize} ${deleteButtonStyles.fontFamily}`;
+            const textWidth = ctx.measureText(textContent).width;
+            console.log(`文字实际测量宽度: ${textWidth.toFixed(2)}px`);
+
+            // 计算按钮内容的理论宽度
+            const iconWidth = deleteButtonIcon ? deleteButtonIcon.getBoundingClientRect().width : 0;
+            const gap = parseFloat(deleteButtonStyles.gap) || 5; // 默认gap
+            const theoreticalContentWidth = iconWidth + gap + textWidth;
+            const availableContentWidth = deleteButtonRect.width - parseFloat(deleteButtonStyles.paddingLeft) - parseFloat(deleteButtonStyles.paddingRight);
+
+            console.log(`按钮内容理论宽度: ${theoreticalContentWidth.toFixed(2)}px (图标${iconWidth}px + 间距${gap}px + 文字${textWidth.toFixed(2)}px)`);
+            console.log(`按钮可用内容宽度: ${availableContentWidth.toFixed(2)}px`);
+            console.log(`内容是否溢出按钮: ${theoreticalContentWidth > availableContentWidth ? '是' : '否'} (溢出${(theoreticalContentWidth - availableContentWidth).toFixed(2)}px)`);
+
             // 溢出检测
             console.log(`%c--- 溢出检测 ---`, "color: #e67e22; font-weight: bold;");
             const toolbarContentRight = toolbarRect.right - parseFloat(toolbarStyles.paddingRight);
