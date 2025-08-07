@@ -117,8 +117,8 @@
     display: flex;
     align-items: center;
     gap: 15px;
-    flex-shrink: 1;
-    /* 允许容器被压缩 */
+    flex-shrink: 0;
+    /* 防止容器被压缩 */
     min-width: 0;
     /* 允许内容自然换行 */
 }
@@ -137,6 +137,10 @@
     transition: background-color 0.3s;
     white-space: nowrap;
     /* 防止文字换行 */
+    min-width: fit-content;
+    /* 确保按钮能容纳内容 */
+    flex-shrink: 0;
+    /* 防止按钮被压缩 */
 }
 
 .batch-toolbar .delete-btn:hover {
@@ -177,21 +181,24 @@
 /* 手机端批量操作工具栏优化 */
 @media (max-width: 768px) {
     .batch-toolbar {
-        padding: 12px 18px; /* 稍微增加内边距以提供更好的平衡 */
-        width: calc(100% - 36px); /* 对应padding的调整 */
+        padding: 12px 18px;
+        /* 稍微增加内边距以提供更好的平衡 */
+        width: calc(100% - 36px);
+        /* 对应padding的调整 */
     }
 
     .batch-toolbar .actions {
         gap: 10px;
     }
-    
+
     /* 确保左侧actions容器适当限制宽度 */
     .batch-toolbar .actions:first-child {
         flex: 1 1 auto;
-        max-width: 65%; /* 限制左侧容器最大宽度 */
+        max-width: 65%;
+        /* 限制左侧容器最大宽度 */
         min-width: 0;
     }
-    
+
     /* 确保右侧actions容器紧凑 */
     .batch-toolbar .actions:last-child {
         flex: 0 0 auto;
@@ -200,8 +207,12 @@
 
     .batch-toolbar .complete-btn,
     .batch-toolbar .delete-btn {
-        padding: 6px 10px;
-        font-size: 14px;
+        padding: 6px 8px;
+        /* 减小内边距以节省空间 */
+        font-size: 13px;
+        /* 稍微减小字体 */
+        gap: 4px;
+        /* 减小图标和文字间距 */
     }
 
     .batch-toolbar .count {
@@ -217,14 +228,16 @@
 /* 超小屏幕优化 */
 @media (max-width: 480px) {
     .batch-toolbar {
-        padding: 10px 16px; /* 增加内边距以提供更好的平衡 */
-        width: calc(100% - 32px); /* 对应padding的调整 */
+        padding: 10px 16px;
+        /* 增加内边距以提供更好的平衡 */
+        width: calc(100% - 32px);
+        /* 对应padding的调整 */
     }
 
     .batch-toolbar .actions {
         gap: 8px;
     }
-    
+
     /* 超小屏幕下进一步限制左侧容器宽度 */
     .batch-toolbar .actions:first-child {
         max-width: 60%;
@@ -232,8 +245,12 @@
 
     .batch-toolbar .complete-btn,
     .batch-toolbar .delete-btn {
-        padding: 5px 8px;
-        font-size: 13px;
+        padding: 4px 6px;
+        /* 进一步减小内边距 */
+        font-size: 12px;
+        /* 减小字体以节省空间 */
+        gap: 3px;
+        /* 减小间距 */
     }
 
     .batch-toolbar .count {
