@@ -62,21 +62,20 @@ document.addEventListener('DOMContentLoaded', function () {
     const batchToolbar = document.createElement('div');
     batchToolbar.id = 'batchToolbar';
     batchToolbar.className = 'batch-toolbar';
-    batchToolbar.innerHTML = `
-        <div class="actions">
-            <button class="complete-btn">
-                <img src="img/complete.svg" class="icon" alt="完成" width="16" height="16">
-                完成
-            </button>
-            <span class="count">已选择 0 项</span>
-        </div>
-        <div class="actions">
-            <button class="delete-btn" disabled>
-                <img src="img/delete.svg" class="icon" alt="删除" width="16" height="16">
-                批量删除
-            </button>
-        </div>
-    `;
+    batchToolbar.innerHTML = 
+        '<div class="actions">' +
+            '<button class="complete-btn">' +
+                '<img src="img/complete.svg" class="icon" alt="完成" width="16" height="16">' +
+                '完成' +
+            '</button>' +
+            '<span class="count">已选择 0 项</span>' +
+        '</div>' +
+        '<div class="actions">' +
+            '<button class="delete-btn" disabled>' +
+                '<img src="img/delete.svg" class="icon" alt="删除" width="16" height="16">' +
+                '批量删除' +
+            '</button>' +
+        '</div>';
     document.body.appendChild(batchToolbar);
 
     // 监听滚动事件
