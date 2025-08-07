@@ -137,8 +137,6 @@
     transition: background-color 0.3s;
     white-space: nowrap;
     /* 防止文字换行 */
-    margin-right: 10px;
-    /* 添加右边距 */
 }
 
 .batch-toolbar .delete-btn:hover {
@@ -176,16 +174,28 @@
     /* 防止图标被压缩 */
 }
 
-/* 手机端批
-量操作工具栏优化 */
+/* 手机端批量操作工具栏优化 */
 @media (max-width: 768px) {
     .batch-toolbar {
-        padding: 12px 15px;
-        width: calc(100% - 30px);
+        padding: 12px 18px; /* 稍微增加内边距以提供更好的平衡 */
+        width: calc(100% - 36px); /* 对应padding的调整 */
     }
 
     .batch-toolbar .actions {
         gap: 10px;
+    }
+    
+    /* 确保左侧actions容器适当限制宽度 */
+    .batch-toolbar .actions:first-child {
+        flex: 1 1 auto;
+        max-width: 65%; /* 限制左侧容器最大宽度 */
+        min-width: 0;
+    }
+    
+    /* 确保右侧actions容器紧凑 */
+    .batch-toolbar .actions:last-child {
+        flex: 0 0 auto;
+        justify-content: flex-end;
     }
 
     .batch-toolbar .complete-btn,
@@ -207,12 +217,17 @@
 /* 超小屏幕优化 */
 @media (max-width: 480px) {
     .batch-toolbar {
-        padding: 10px 12px;
-        width: calc(100% - 24px);
+        padding: 10px 16px; /* 增加内边距以提供更好的平衡 */
+        width: calc(100% - 32px); /* 对应padding的调整 */
     }
 
     .batch-toolbar .actions {
         gap: 8px;
+    }
+    
+    /* 超小屏幕下进一步限制左侧容器宽度 */
+    .batch-toolbar .actions:first-child {
+        max-width: 60%;
     }
 
     .batch-toolbar .complete-btn,

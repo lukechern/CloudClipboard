@@ -17,52 +17,44 @@
     }
 
     .record-item {
-        position: relative; /* 添加相对定位 */
-        flex-direction: row; /* 改回row，使内容和操作按钮在同一行 */
+        position: relative;
+        /* 添加相对定位 */
+        flex-direction: row;
+        /* 改回row，使内容和操作按钮在同一行 */
     }
 
     .record-item.batch-mode .record-actions {
         flex-direction: row;
         margin-left: 10px;
-        margin-top: 0; /* 移除顶部边距 */
-        align-self: flex-start; /* 改为flex-start，使按钮与内容顶部对齐 */
+        margin-top: 0;
+        /* 移除顶部边距 */
+        align-self: flex-start;
+        /* 改为flex-start，使按钮与内容顶部对齐 */
         gap: 6px;
     }
 
     .record-actions {
-        position: absolute; /* 使用绝对定位 */
-        right: 15px; /* 距离右边15px */
-        top: 15px; /* 距离顶部15px */
+        position: absolute;
+        /* 使用绝对定位 */
+        right: 15px;
+        /* 距离右边15px */
+        top: 15px;
+        /* 距离顶部15px */
         display: flex;
         flex-direction: column;
         gap: 6px;
     }
 
-    .copy-btn, .delete-btn {
+    .copy-btn,
+    .delete-btn {
         margin: 0;
-        width: 50px; /* 调整按钮宽度 */
-        height: 50px; /* 调整按钮高度 */
+        width: 50px;
+        /* 调整按钮宽度 */
+        height: 50px;
+        /* 调整按钮高度 */
     }
-    
-    /* 批量操作工具栏在小屏幕上的样式调整 */
-    .batch-toolbar {
-        padding: 10px 15px; /* 减小内边距 */
-        gap: 20px; /* 添加间距 */
-    }
-    
-    .batch-toolbar .actions {
-        gap: 10px; /* 减小按钮间距 */
-    }
-    
-    .batch-toolbar .delete-btn,
-    .batch-toolbar .complete-btn {
-        padding: 6px 10px; /* 减小按钮内边距 */
-        font-size: 0.9rem; /* 调整字体大小 */
-    }
-    
-    .batch-toolbar .count {
-        font-size: 0.9rem; /* 调整计数文本字体大小 */
-    }
+
+    /* 批量操作工具栏样式已移至toolbar.css，避免重复定义 */
 }
 
 @media (max-width: 480px) {
@@ -78,9 +70,11 @@
         padding: 12px 20px;
         font-size: 1rem;
     }
-    
+
     .record-actions {
-        right: 10px; /* 在更小的屏幕上调整右边距 */
-        top: 10px; /* 在更小的屏幕上调整顶部边距 */
+        right: 10px;
+        /* 在更小的屏幕上调整右边距 */
+        top: 10px;
+        /* 在更小的屏幕上调整顶部边距 */
     }
 }
