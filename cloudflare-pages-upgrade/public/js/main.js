@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // console.log('认证成功事件触发，initialDataLoaded:', window.initialDataLoaded);
         // 认证成功后，如果还没有进行初始数据加载，则加载数据
         if (!window.initialDataLoaded) {
-            console.log('认证成功后加载数据');
+            // console.log('认证成功后加载数据');
             if (typeof loadRecords === 'function') {
                 loadRecords();
             }
