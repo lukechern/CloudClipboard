@@ -117,8 +117,8 @@
     display: flex;
     align-items: center;
     gap: 15px;
-    flex-shrink: 0;
-    /* 防止容器被压缩 */
+    flex-shrink: 1;
+    /* 允许容器被压缩 */
     min-width: 0;
     /* 允许内容自然换行 */
 }
