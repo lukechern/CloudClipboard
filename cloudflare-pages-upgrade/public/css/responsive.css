@@ -47,7 +47,6 @@
     /* 批量操作工具栏在小屏幕上的样式调整 */
     .batch-toolbar {
         padding: 10px 15px; /* 减小内边距 */
-        justify-content: center; /* 居中布局 */
         gap: 20px; /* 添加间距 */
     }
     
