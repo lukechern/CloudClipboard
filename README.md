@@ -9,7 +9,7 @@
 ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-2.4-blue.svg?style=for-the-badge)](https://github.com/your-username/cloudclipboard)
+[![Version](https://img.shields.io/badge/version-2.5-blue.svg?style=for-the-badge)](https://github.com/your-username/cloudclipboard)
 
 </div>
 
