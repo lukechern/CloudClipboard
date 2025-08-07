@@ -104,27 +104,51 @@
             const rightActionsRect = rightActions.getBoundingClientRect();
             const deleteButtonRect = deleteButton.getBoundingClientRect();
 
+            // 获取工具条的计算样式
+            const toolbarStyles = window.getComputedStyle(batchToolbar);
+            const deleteButtonStyles = window.getComputedStyle(deleteButton);
+
             console.clear();
             console.log("%c=== 底部工具条布局调试信息 ===", "color: #667eea; font-weight: bold; font-size: 14px;");
 
-            // 1. 底部工具条实际视觉宽度
+            // 基础信息
+            console.log(`窗口宽度: ${window.innerWidth}px`);
             console.log(`1. 底部工具条实际视觉宽度: ${toolbarRect.width.toFixed(2)}px`);
-
-            // 2. 底部工具条实际视觉左上角x轴坐标，实际视觉右上角x轴坐标
             console.log(`2. 底部工具条左上角x轴: ${toolbarRect.left.toFixed(2)}px, 右上角x轴: ${toolbarRect.right.toFixed(2)}px`);
 
-            // 3. 工具条内部两个actions的实际视觉宽度
+            // 工具条内边距信息
+            console.log(`%c--- 工具条内边距信息 ---`, "color: #f39c12; font-weight: bold;");
+            console.log(`工具条左内边距: ${toolbarStyles.paddingLeft}`);
+            console.log(`工具条右内边距: ${toolbarStyles.paddingRight}`);
+            console.log(`工具条有效内容区域右边缘: ${(toolbarRect.right - parseFloat(toolbarStyles.paddingRight)).toFixed(2)}px`);
+
+            // Actions容器信息
+            console.log(`%c--- Actions容器信息 ---`, "color: #e74c3c; font-weight: bold;");
             console.log(`3. 第一个actions容器宽度: ${leftActionsRect.width.toFixed(2)}px`);
             console.log(`   第二个actions容器宽度: ${rightActionsRect.width.toFixed(2)}px`);
-
-            // 4. 第一个actions的坐标
             console.log(`4. 第一个actions左上角x轴: ${leftActionsRect.left.toFixed(2)}px, 右上角x轴: ${leftActionsRect.right.toFixed(2)}px`);
-
-            // 5. 第二个actions的坐标
             console.log(`5. 第二个actions左上角x轴: ${rightActionsRect.left.toFixed(2)}px, 右上角x轴: ${rightActionsRect.right.toFixed(2)}px`);
 
-            // 6. 删除按钮的宽度和右上角坐标
+            // 删除按钮详细信息
+            console.log(`%c--- 删除按钮详细信息 ---`, "color: #9b59b6; font-weight: bold;");
             console.log(`6. 删除按钮宽度: ${deleteButtonRect.width.toFixed(2)}px, 右上角x轴: ${deleteButtonRect.right.toFixed(2)}px`);
+            console.log(`删除按钮左内边距: ${deleteButtonStyles.paddingLeft}`);
+            console.log(`删除按钮右内边距: ${deleteButtonStyles.paddingRight}`);
+            console.log(`删除按钮边框: ${deleteButtonStyles.border}`);
+
+            // 溢出检测
+            console.log(`%c--- 溢出检测 ---`, "color: #e67e22; font-weight: bold;");
+            const toolbarContentRight = toolbarRect.right - parseFloat(toolbarStyles.paddingRight);
+            const deleteButtonOverflow = deleteButtonRect.right - toolbarContentRight;
+            const rightActionsOverflow = rightActionsRect.right - toolbarContentRight;
+
+            console.log(`删除按钮是否溢出: ${deleteButtonOverflow > 0 ? '是' : '否'} (溢出${deleteButtonOverflow.toFixed(2)}px)`);
+            console.log(`右侧Actions容器是否溢出: ${rightActionsOverflow > 0 ? '是' : '否'} (溢出${rightActionsOverflow.toFixed(2)}px)`);
+
+            // 间距分析
+            console.log(`%c--- 间距分析 ---`, "color: #27ae60; font-weight: bold;");
+            console.log(`左右Actions容器间距: ${(rightActionsRect.left - leftActionsRect.right).toFixed(2)}px`);
+            console.log(`工具条右边缘到屏幕右边缘距离: ${(window.innerWidth - toolbarRect.right).toFixed(2)}px`);
 
             console.log("%c=== 调试信息结束 ===", "color: #667eea; font-weight: bold;");
         }
