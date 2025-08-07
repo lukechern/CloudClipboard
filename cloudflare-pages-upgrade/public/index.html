@@ -79,72 +79,60 @@
     <script src="js/batch.js"></script>
     <script src="js/main.js"></script>
 
-    <!-- Layout Debug Script -->
+    <!-- 底部工具条布局调试脚本 -->
     <script>
         function debugToolbarLayout() {
             const batchToolbar = document.getElementById('batchToolbar');
             if (!batchToolbar || !batchToolbar.classList.contains('show')) {
-                console.error("错误：批量操作工具栏 (batchToolbar) 不可见。");
+                console.error("错误：批量操作工具栏不可见");
                 return;
             }
 
             const actionsContainers = batchToolbar.querySelectorAll('.actions');
-            const leftActions = actionsContainers[0];
-            const rightActions = actionsContainers[1];
+            const leftActions = actionsContainers[0];  // 选择信息显示div
+            const rightActions = actionsContainers[1]; // 删除按钮div
             const deleteButton = rightActions ? rightActions.querySelector('.delete-btn') : null;
 
             if (!leftActions || !rightActions || !deleteButton) {
-                console.error("错误：无法找到一个或多个关键子元素 (.actions, .delete-btn)。");
+                console.error("错误：无法找到关键元素");
                 return;
             }
 
+            // 获取各元素的位置和尺寸信息
             const toolbarRect = batchToolbar.getBoundingClientRect();
+            const leftActionsRect = leftActions.getBoundingClientRect();
             const rightActionsRect = rightActions.getBoundingClientRect();
             const deleteButtonRect = deleteButton.getBoundingClientRect();
-            const windowWidth = window.innerWidth;
-
-            const toolbarStyles = window.getComputedStyle(batchToolbar);
 
             console.clear();
-            console.log("%c--- Layout Debug Info ---", "color: blue; font-weight: bold;");
-            console.log(`Window Width: ${windowWidth}px`);
-            console.log("--- 1. Toolbar (#batchToolbar) ---");
-            console.log(`X: ${toolbarRect.x.toFixed(2)}px`);
-            console.log(`Right: ${toolbarRect.right.toFixed(2)}px`);
-            console.log(`Width: ${toolbarRect.width.toFixed(2)}px`);
-            console.log(`CSS 'width': ${toolbarStyles.width}`);
-            console.log(`CSS 'padding-left': ${toolbarStyles.paddingLeft}`);
-            console.log(`CSS 'padding-right': ${toolbarStyles.paddingRight}`);
-            console.log("--- 2. Right Actions Container ---");
-            console.log(`X: ${rightActionsRect.x.toFixed(2)}px`);
-            console.log(`Right: ${rightActionsRect.right.toFixed(2)}px`);
-            console.log(`Width: ${rightActionsRect.width.toFixed(2)}px`);
-            console.log("--- 3. Delete Button (.delete-btn) ---");
-            console.log(`X: ${deleteButtonRect.x.toFixed(2)}px`);
-            console.log(`Right: ${deleteButtonRect.right.toFixed(2)}px`);
-            console.log(`Width: ${deleteButtonRect.width.toFixed(2)}px`);
-            console.log("%c--- Analysis ---", "color: blue; font-weight: bold;");
+            console.log("%c=== 底部工具条布局调试信息 ===", "color: #667eea; font-weight: bold; font-size: 14px;");
 
-            const effectiveToolbarRightEdge = toolbarRect.right - parseFloat(toolbarStyles.paddingRight);
-            const overflow = rightActionsRect.right - effectiveToolbarRightEdge;
+            // 1. 底部工具条实际视觉宽度
+            console.log(`1. 底部工具条实际视觉宽度: ${toolbarRect.width.toFixed(2)}px`);
 
-            console.log(`Toolbar's effective right edge (Right - padding-right): ~${effectiveToolbarRightEdge.toFixed(2)}px`);
-            console.log(`Right Actions container's right edge is at: ${rightActionsRect.right.toFixed(2)}px`);
+            // 2. 底部工具条实际视觉左上角x轴坐标，实际视觉右上角x轴坐标
+            console.log(`2. 底部工具条左上角x轴: ${toolbarRect.left.toFixed(2)}px, 右上角x轴: ${toolbarRect.right.toFixed(2)}px`);
 
-            if (Math.abs(overflow) < 1) {
-                console.log("✅ [Conclusion 1] The right actions container aligns with its parent's right padding edge, as expected with 'space-between'.");
-            } else {
-                console.error(`❌ [Conclusion 1] The right actions container overflows its parent's padding box by ${overflow.toFixed(2)}px.`);
-            }
+            // 3. 工具条内部两个actions的实际视觉宽度
+            console.log(`3. 第一个actions容器宽度: ${leftActionsRect.width.toFixed(2)}px`);
+            console.log(`   第二个actions容器宽度: ${rightActionsRect.width.toFixed(2)}px`);
 
-            const spaceBetweenToolbarAndWindow = windowWidth - toolbarRect.right;
-            console.log(`[Info] Space between toolbar's right edge and window's right edge: ${spaceBetweenToolbarAndWindow.toFixed(2)}px.`);
-            console.log("This space is the expected blank margin created by the toolbar's 'width' and 'margin: auto'.");
+            // 4. 第一个actions的坐标
+            console.log(`4. 第一个actions左上角x轴: ${leftActionsRect.left.toFixed(2)}px, 右上角x轴: ${leftActionsRect.right.toFixed(2)}px`);
+
+            // 5. 第二个actions的坐标
+            console.log(`5. 第二个actions左上角x轴: ${rightActionsRect.left.toFixed(2)}px, 右上角x轴: ${rightActionsRect.right.toFixed(2)}px`);
+
+            // 6. 删除按钮的宽度和右上角坐标
+            console.log(`6. 删除按钮宽度: ${deleteButtonRect.width.toFixed(2)}px, 右上角x轴: ${deleteButtonRect.right.toFixed(2)}px`);
+
+            console.log("%c=== 调试信息结束 ===", "color: #667eea; font-weight: bold;");
         }
 
+        // 监听工具栏显示状态变化
         const observerTarget = document.body;
         const observer = new MutationObserver((mutationsList, observer) => {
-            for(const mutation of mutationsList) {
+            for (const mutation of mutationsList) {
                 if (mutation.type === 'childList') {
                     for (const node of mutation.addedNodes) {
                         if (node.id === 'batchToolbar') {
