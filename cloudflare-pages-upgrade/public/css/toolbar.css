@@ -97,7 +97,11 @@
     transition: transform 0.3s ease;
     max-width: 800px;
     margin: 0 auto;
-    width: calc(100% - 40px); /* 减去body的padding */
+    width: calc(100% - 40px);
+    /* 减去body的padding */
+    min-height: 60px;
+    /* 确保最小高度 */
+    box-sizing: border-box;
 }
 
 .batch-toolbar.show {
@@ -113,6 +117,10 @@
     display: flex;
     align-items: center;
     gap: 15px;
+    flex-shrink: 0;
+    /* 防止容器被压缩 */
+    min-width: 0;
+    /* 允许内容自然换行 */
 }
 
 .batch-toolbar .delete-btn {
@@ -127,8 +135,10 @@
     padding: 8px 12px;
     border-radius: 4px;
     transition: background-color 0.3s;
-    white-space: nowrap; /* 防止文字换行 */
-    margin-right: 10px; /* 添加右边距 */
+    white-space: nowrap;
+    /* 防止文字换行 */
+    margin-right: 10px;
+    /* 添加右边距 */
 }
 
 .batch-toolbar .delete-btn:hover {
@@ -151,8 +161,10 @@
     padding: 8px 12px;
     border-radius: 4px;
     transition: background-color 0.3s;
-    white-space: nowrap; /* 防止文字换行 */
-    margin-left: 10px; /* 添加左边距 */
+    white-space: nowrap;
+    /* 防止文字换行 */
+    margin-left: 10px;
+    /* 添加左边距 */
 }
 
 .batch-toolbar .complete-btn:hover {
@@ -162,5 +174,56 @@
 .batch-toolbar .icon {
     width: 16px;
     height: 16px;
-    flex-shrink: 0; /* 防止图标被压缩 */
+    flex-shrink: 0;
+    /* 防止图标被压缩 */
+}
+
+/* 手机端批
+量操作工具栏优化 */
+@media (max-width: 768px) {
+    .batch-toolbar {
+        padding: 12px 15px;
+        width: calc(100% - 30px);
+    }
+
+    .batch-toolbar .actions {
+        gap: 10px;
+    }
+
+    .batch-toolbar .complete-btn,
+    .batch-toolbar .delete-btn {
+        padding: 6px 10px;
+        font-size: 14px;
+    }
+
+    .batch-toolbar .count {
+        font-size: 14px;
+    }
+
+    .batch-toolbar .icon {
+        width: 14px;
+        height: 14px;
+    }
+}
+
+/* 超小屏幕优化 */
+@media (max-width: 480px) {
+    .batch-toolbar {
+        padding: 10px 12px;
+        width: calc(100% - 24px);
+    }
+
+    .batch-toolbar .actions {
+        gap: 8px;
+    }
+
+    .batch-toolbar .complete-btn,
+    .batch-toolbar .delete-btn {
+        padding: 5px 8px;
+        font-size: 13px;
+    }
+
+    .batch-toolbar .count {
+        font-size: 13px;
+    }
 }
