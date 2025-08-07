@@ -163,8 +163,6 @@
     transition: background-color 0.3s;
     white-space: nowrap;
     /* 防止文字换行 */
-    margin-left: 10px;
-    /* 添加左边距 */
 }
 
 .batch-toolbar .complete-btn:hover {
