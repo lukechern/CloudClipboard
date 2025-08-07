@@ -205,12 +205,32 @@ class AuthManager {
         const errorDiv = document.getElementById('authError');
         const loadingDiv = document.getElementById('authLoading');
 
+        // 监听密码输入，实时验证长度
+        passwordInput.addEventListener('input', () => {
+            const password = passwordInput.value.trim();
+            if (password.length > 0 && password.length < 8) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = '密码至少需要8位字符';
+                submitBtn.classList.add('disabled');
+            } else {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '验证访问权限';
+                submitBtn.classList.remove('disabled');
+            }
+        });
+
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             
             const password = passwordInput.value.trim();
             if (!password) {
                 this.showAuthError('请输入密码');
+                return;
+            }
+
+            // 验证密码长度
+            if (password.length < 8) {
+                this.showAuthError('密码至少需要8位字符');
                 return;
             }
 
@@ -264,13 +284,19 @@ class AuthManager {
                     this.showAuthError(errorMsg);
                     passwordInput.value = '';
                     passwordInput.focus();
+                    
+                    // 重置提交按钮状态，允许继续提交
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '验证访问权限';
+                    submitBtn.classList.remove('disabled');
                 }
             } catch (error) {
                 this.showAuthError('验证失败: ' + error.message);
+                // 重置提交按钮状态
+                submitBtn.disabled = false;
+                submitBtn.textContent = '验证访问权限';
+                submitBtn.classList.remove('disabled');
             } finally {
-                if (!submitBtn.disabled) {
-                    submitBtn.disabled = false;
-                }
                 loadingDiv.classList.remove('show');
             }
         });
