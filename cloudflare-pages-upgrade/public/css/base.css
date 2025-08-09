@@ -79,6 +79,30 @@ body {
     text-decoration: underline;
 }
 
+/* 退出链接样式 */
+.logout-section {
+    margin-top: 15px;
+    text-align: center;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.logout-link {
+    color: #dc3545;
+    text-decoration: none;
+    font-size: 0.9rem;
+    padding: 5px 15px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    display: inline-block;
+}
+
+.logout-link:hover {
+    background: rgba(220, 53, 69, 0.1);
+    text-decoration: none;
+    color: #ff6b7a;
+}
+
 .storage-status {
     padding: 2px 8px;
     border-radius: 12px;

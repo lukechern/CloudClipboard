@@ -253,6 +253,7 @@ export async function verifyCSRFToken(request, env, sessionId) {
 
     // 从请求头获取CSRF token
     let csrfToken = request.headers.get('X-CSRF-Token');
+    console.log('从请求头获取CSRF token:', csrfToken ? csrfToken.substring(0, 20) + '...' : 'null');
 
     // 如果请求头中没有，尝试从表单数据获取
     if (!csrfToken && request.method === 'POST') {
@@ -262,9 +263,10 @@ export async function verifyCSRFToken(request, env, sessionId) {
                 contentType.includes('application/x-www-form-urlencoded')) {
                 const formData = await request.formData();
                 csrfToken = formData.get('csrf_token');
+                console.log('从表单数据获取CSRF token:', csrfToken ? csrfToken.substring(0, 20) + '...' : 'null');
             }
         } catch (error) {
-            // 忽略解析错误，继续使用其他方式
+            console.log('解析表单数据失败:', error.message);
         }
     }
 
@@ -273,16 +275,22 @@ export async function verifyCSRFToken(request, env, sessionId) {
         try {
             const url = new URL(request.url);
             csrfToken = url.searchParams.get('csrf_token');
+            console.log('从URL参数获取CSRF token:', csrfToken ? csrfToken.substring(0, 20) + '...' : 'null');
         } catch (error) {
-            // 忽略URL解析错误
+            console.log('解析URL参数失败:', error.message);
         }
     }
 
     if (!csrfToken) {
+        console.log('CSRF验证失败: 未找到CSRF token');
         return { valid: false, error: 'Missing CSRF token' };
     }
 
-    return await csrfProtection.verifyCSRFToken(csrfToken, sessionId);
+    console.log('验证CSRF token，会话ID:', sessionId);
+    const result = await csrfProtection.verifyCSRFToken(csrfToken, sessionId);
+    console.log('CSRF验证结果:', result.valid ? '成功' : '失败 - ' + result.error);
+    
+    return result;
 }
 
 // 完整的认证和CSRF验证

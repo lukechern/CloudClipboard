@@ -26,7 +26,7 @@ class CSRFProtection {
     }
 
     // 验证CSRF token
-    async verifyCSRFToken(token, sessionId = null, maxAge = 3600000) { // 1小时有效期
+    async verifyCSRFToken(token, sessionId = null, maxAge = 4 * 3600000) { // 4小时有效期
         try {
             if (!token || typeof token !== 'string') {
                 throw new Error('Invalid token format');

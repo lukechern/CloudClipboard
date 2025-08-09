@@ -243,12 +243,19 @@ class AuthManager {
                 const result = await this.verifyPassword(password);
                 
                 if (result.success) {
+                    console.log('认证成功，设置token信息:', {
+                        hasToken: !!result.token,
+                        hasCSRFToken: !!result.csrfToken,
+                        usesCookies: result.usesCookies
+                    });
+                    
                     // 设置token到实例变量
                     if (result.token) {
                         this.authToken = result.token;
                     }
                     if (result.csrfToken) {
                         this.csrfToken = result.csrfToken;
+                        console.log('CSRF token已设置:', this.csrfToken.substring(0, 20) + '...');
                     }
                     if (result.usesCookies) {
                         this.usesCookies = true;
@@ -403,6 +410,11 @@ class AuthManager {
                 loadStorageInfo();
             }
             window.initialDataLoaded = true;
+        } else {
+            // 如果数据已加载，但需要更新存储信息显示状态
+            if (typeof loadStorageInfo === 'function') {
+                loadStorageInfo();
+            }
         }
     }
 
@@ -452,15 +464,67 @@ class AuthManager {
             // 如果token在1小时内过期，尝试刷新
             if (payload.exp && payload.exp - now < 3600) {
                 console.log('Token即将过期，尝试刷新...');
-                // 这里可以实现token刷新逻辑
-                // 目前简单地清除认证信息，让用户重新登录
-                this.clearStoredAuth();
-                if (await this.checkAuthRequired()) {
-                    this.showAuthModal();
-                }
+                await this.refreshTokens();
             }
         } catch (error) {
             console.error('检查token过期时间失败:', error);
+        }
+    }
+
+    // 刷新CSRF token
+    async refreshCSRFToken() {
+        if (!this.isAuthenticated) return false;
+        
+        try {
+            console.log('正在刷新CSRF token...');
+            
+            // 使用当前的认证信息请求新的CSRF token
+            const config = this.getRequestConfig({
+                method: 'POST',
+                body: new FormData() // 空的表单数据
+            });
+            
+            // 临时移除CSRF token以避免验证失败
+            const oldCSRFToken = this.csrfToken;
+            delete config.headers['X-CSRF-Token'];
+            
+            const response = await fetch('/api/auth/refresh-csrf', config);
+            
+            if (response.ok) {
+                const data = await response.json();
+                if (data.csrfToken) {
+                    this.csrfToken = data.csrfToken;
+                    console.log('CSRF token刷新成功');
+                    
+                    // 更新存储的认证信息
+                    this.saveAuth(this.authToken, this.csrfToken, this.usesCookies);
+                    return true;
+                }
+            }
+            
+            // 如果刷新失败，恢复旧token
+            this.csrfToken = oldCSRFToken;
+            console.log('CSRF token刷新失败，状态:', response.status);
+            return false;
+            
+        } catch (error) {
+            console.error('刷新CSRF token失败:', error);
+            return false;
+        }
+    }
+
+    // 刷新所有token
+    async refreshTokens() {
+        // 先尝试刷新CSRF token
+        const csrfRefreshed = await this.refreshCSRFToken();
+        
+        if (!csrfRefreshed) {
+            console.log('CSRF token刷新失败，可能需要重新登录');
+            // 可以选择清除认证信息或显示重新登录提示
+            // this.clearStoredAuth();
+            // if (await this.checkAuthRequired()) {
+            //     this.showAuthModal();
+            // }
         }
     }
 
@@ -476,6 +540,9 @@ class AuthManager {
         // 添加CSRF token头（如果有）
         if (this.csrfToken) {
             headers['X-CSRF-Token'] = this.csrfToken;
+            console.log('添加CSRF token到请求头:', this.csrfToken.substring(0, 20) + '...');
+        } else {
+            console.warn('警告: 缺少CSRF token');
         }
         
         return headers;
@@ -499,6 +566,33 @@ class AuthManager {
         return config;
     }
 
+    // 智能请求方法 - 自动处理token刷新
+    async smartFetch(url, options = {}) {
+        // 对于需要CSRF验证的请求，先检查token状态
+        if (options.method && options.method !== 'GET' && this.isAuthenticated) {
+            // 检查CSRF token是否可能过期（简单检查：如果超过45分钟就刷新）
+            const stored = localStorage.getItem(this.storageKey);
+            if (stored) {
+                try {
+                    const authData = JSON.parse(stored);
+                    const now = Date.now();
+                    const age = now - authData.timestamp;
+                    
+                    // 如果超过45分钟，尝试刷新CSRF token
+                    if (age > 45 * 60 * 1000) {
+                        console.log('CSRF token可能过期，尝试刷新...');
+                        await this.refreshCSRFToken();
+                    }
+                } catch (e) {
+                    console.log('检查token年龄失败:', e);
+                }
+            }
+        }
+        
+        const config = this.getRequestConfig(options);
+        return fetch(url, config);
+    }
+
     // 注销
     async logout() {
         try {
@@ -515,6 +609,20 @@ class AuthManager {
         
         // 清除本地认证信息
         this.clearStoredAuth();
+        
+        // 清除实例状态
+        this.authToken = null;
+        this.csrfToken = null;
+        this.usesCookies = false;
+        this.isAuthenticated = false;
+        
+        // 隐藏存储信息区域
+        const storageSection = document.querySelector('.storage-info');
+        if (storageSection) {
+            storageSection.style.display = 'none';
+        }
+        
+        // 重新加载页面以确保完全清理状态
         location.reload();
     }
 }

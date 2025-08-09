@@ -37,6 +37,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
                 window.initialDataLoaded = true;
             }
+        } else {
+            // 如果需要认证但还未认证，隐藏存储信息
+            const storageSection = document.querySelector('.storage-info');
+            if (storageSection) {
+                storageSection.style.display = 'none';
+            }
         }
         // 如果需要认证但还未认证，等待认证成功事件
     }, 200);
@@ -219,24 +225,40 @@ document.addEventListener('DOMContentLoaded', function () {
             const formData = new FormData();
             formData.append('content', content);
 
-            // 发送请求
-            const requestConfig = window.authManager ? 
-                window.authManager.getRequestConfig({
+            // 发送请求 - 使用智能fetch自动处理token刷新
+            const fetchPromise = window.authManager ? 
+                window.authManager.smartFetch('/api/records', {
                     method: 'POST',
                     body: formData
-                }) : {
+                }) : 
+                fetch('/api/records', {
                     method: 'POST',
                     body: formData
-                };
+                });
             
-            fetch('/api/records', requestConfig)
-                .then(response => {
+            fetchPromise
+                .then(async response => {
+                    console.log('保存请求响应状态:', response.status);
+                    
                     if (!response.ok) {
-                        throw new Error('网络响应失败');
+                        // 尝试获取详细错误信息
+                        let errorMessage = '网络响应失败';
+                        try {
+                            const errorData = await response.json();
+                            if (errorData.error) {
+                                errorMessage = errorData.error;
+                            }
+                        } catch (e) {
+                            // 如果无法解析JSON，使用状态码信息
+                            errorMessage = `网络响应失败 (状态码: ${response.status})`;
+                        }
+                        throw new Error(errorMessage);
                     }
                     return response.json();
                 })
                 .then(data => {
+                    console.log('保存响应数据:', data);
+                    
                     // 检查服务器返回的是否是错误信息
                     if (data.error) {
                         throw new Error(data.error);
@@ -264,7 +286,14 @@ document.addEventListener('DOMContentLoaded', function () {
                     showNotification('内容已保存到云端');
                 })
                 .catch(error => {
-                    console.error('Error:', error);
+                    console.error('保存错误详情:', error);
+                    console.error('认证管理器状态:', {
+                        isAuthenticated: window.authManager?.isAuthenticated,
+                        hasAuthToken: !!window.authManager?.authToken,
+                        hasCSRFToken: !!window.authManager?.csrfToken,
+                        usesCookies: window.authManager?.usesCookies
+                    });
+                    
                     showNotification('保存失败: ' + (error.message || '未知错误'));
 
                     if (submitBtn) {
@@ -308,7 +337,19 @@ function loadStorageInfo() {
 // 显示存储信息（简化版，只显示存储位置）
 function displayStorageInfo(storageInfo) {
     const container = document.getElementById('storage-info-container');
-    if (!container) return;
+    const storageSection = document.querySelector('.storage-info');
+    
+    if (!container || !storageSection) return;
+
+    // 检查是否已登录
+    if (!window.authManager || !window.authManager.isAuthenticated) {
+        // 未登录时隐藏整个存储信息区域
+        storageSection.style.display = 'none';
+        return;
+    }
+
+    // 已登录时显示存储信息
+    storageSection.style.display = 'block';
 
     // 处理可能的undefined值
     const type = storageInfo.type || 'Cloudflare';
@@ -320,9 +361,30 @@ function displayStorageInfo(storageInfo) {
             <span class="storage-info-label">数据存储位置:</span>
             <span class="storage-info-value"><a href="./init_db.html" target="_blank">${description}</a></span>
         </div>
+        <div class="logout-section">
+            <a href="#" id="logoutLink" class="logout-link">退出</a>
+        </div>
     `;
 
     container.innerHTML = html;
+    
+    // 绑定退出链接事件
+    const logoutLink = document.getElementById('logoutLink');
+    if (logoutLink) {
+        logoutLink.addEventListener('click', handleLogout);
+    }
+}
+
+// 处理退出登录
+function handleLogout(e) {
+    e.preventDefault();
+    
+    if (window.authManager) {
+        // 显示确认对话框
+        if (confirm('确定要退出登录吗？这将清除所有本地认证信息。')) {
+            window.authManager.logout();
+        }
+    }
 }
 
 
