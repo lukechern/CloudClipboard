@@ -86,6 +86,7 @@
         <div id="saveTests"></div>
         <button onclick="testSave()">测试保存</button>
         <button onclick="testLoadRecords()">测试加载记录</button>
+        <button onclick="testBatchDelete()">测试批量删除</button>
     </div>
 
     <div class="debug-section">
@@ -96,6 +97,7 @@
 
     <script src="js/auth.js"></script>
     <script src="js/utils.js"></script>
+    <script src="js/batch.js"></script>
     <script>
         function log(section, message, type = 'info') {
             const element = document.getElementById(section);
@@ -301,6 +303,56 @@
                     
             } catch (error) {
                 log('saveTests', `加载记录测试失败: ${error.message}`, 'error');
+            }
+        }
+
+        async function testBatchDelete() {
+            clearSection('saveTests');
+            
+            if (!window.authManager || !window.authManager.isAuthenticated) {
+                log('saveTests', '❌ 请先登录', 'error');
+                return;
+            }
+
+            try {
+                log('saveTests', '🔄 正在获取记录列表...', 'info');
+                
+                // 先获取记录列表
+                const response = await window.authManager.smartFetch('/api/records?filter=cache', {
+                    method: 'GET'
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`获取记录失败: ${response.status}`);
+                }
+                
+                const records = await response.json();
+                if (records.length === 0) {
+                    log('saveTests', '❌ 没有记录可以删除', 'warning');
+                    return;
+                }
+                
+                // 选择最后一条记录进行删除测试
+                const testRecord = records[records.length - 1];
+                log('saveTests', `🔄 正在测试删除记录 ID: ${testRecord.id}...`, 'info');
+                
+                const deleteResponse = await window.authManager.smartFetch(`/api/records?id=${testRecord.id}`, {
+                    method: 'DELETE'
+                });
+                
+                log('saveTests', `删除响应状态: ${deleteResponse.status}`, 
+                    deleteResponse.ok ? 'success' : 'error');
+                
+                if (deleteResponse.ok) {
+                    const data = await deleteResponse.json();
+                    log('saveTests', `删除成功: ${JSON.stringify(data, null, 2)}`, 'success');
+                } else {
+                    const errorData = await deleteResponse.json();
+                    log('saveTests', `删除失败: ${JSON.stringify(errorData, null, 2)}`, 'error');
+                }
+                    
+            } catch (error) {
+                log('saveTests', `批量删除测试失败: ${error.message}`, 'error');
             }
         }
 

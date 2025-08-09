@@ -12,66 +12,53 @@ function batchDeleteRecords(ids) {
         // 退出批量操作模式
         exitBatchMode();
         
-        // 发送批量删除请求到服务器
-        const requestConfig = window.authManager ? 
-            window.authManager.getRequestConfig({
-                method: 'DELETE'
-            }) : {
-                method: 'DELETE'
-            };
-        
-        // 如果没有CSRF token，尝试从多个来源恢复
-        if (!window.authManager?.csrfToken && window.authManager?.usesCookies) {
-            // 1. 尝试从localStorage重新加载
-            try {
-                const stored = localStorage.getItem('cloudclipboard_auth');
-                if (stored) {
-                    const authData = JSON.parse(stored);
-                    if (authData.csrfToken) {
-                        window.authManager.csrfToken = authData.csrfToken;
-                    }
-                }
-            } catch (error) {
-                console.error('从localStorage恢复CSRF token失败:', error);
-            }
+        // 发送批量删除请求到服务器，使用智能fetch处理token过期
+        const deletePromises = ids.map(id => {
+            const fetchPromise = window.authManager ? 
+                window.authManager.smartFetch(`/api/records?id=${id}`, { method: 'DELETE' }) :
+                fetch(`/api/records?id=${id}`, { method: 'DELETE' });
             
-            // 2. 尝试从CSRF Cookie获取
-            if (!window.authManager.csrfToken) {
-                try {
-                    const cookies = document.cookie.split(';').map(c => c.trim());
-                    const csrfCookie = cookies.find(c => c.startsWith('cc_csrf_token='));
-                    if (csrfCookie) {
-                        const csrfToken = decodeURIComponent(csrfCookie.split('=')[1]);
-                        window.authManager.csrfToken = csrfToken;
+            return fetchPromise.then(async response => {
+                console.log(`删除记录 ${id} 响应状态:`, response.status);
+                
+                if (!response.ok) {
+                    // 获取详细错误信息
+                    let errorMessage = `删除记录 ${id} 失败: ${response.status}`;
+                    try {
+                        const errorData = await response.json();
+                        if (errorData.error) {
+                            errorMessage = `删除记录 ${id} 失败: ${errorData.error}`;
+                        }
+                    } catch (e) {
+                        // 无法解析错误响应，使用默认消息
                     }
-                } catch (error) {
-                    console.error('从Cookie恢复CSRF token失败:', error);
+                    
+                    // 如果是401错误，可能需要重新认证
+                    if (response.status === 401 && window.authManager) {
+                        console.log('批量删除认证失败，尝试刷新token...');
+                        const refreshed = await window.authManager.refreshCSRFToken();
+                        if (refreshed) {
+                            console.log('Token刷新成功，重新尝试删除记录', id);
+                            // 重新发起删除请求
+                            const retryResponse = await window.authManager.smartFetch(`/api/records?id=${id}`, { method: 'DELETE' });
+                            if (retryResponse.ok) {
+                                return retryResponse;
+                            }
+                        }
+                    }
+                    
+                    throw new Error(errorMessage);
                 }
-            }
-            
-            // 如果成功恢复了token，重新获取请求配置
-            if (window.authManager.csrfToken) {
-                const updatedConfig = window.authManager.getRequestConfig({
-                    method: 'DELETE'
-                });
-                Object.assign(requestConfig, updatedConfig);
-            }
-        }
+                return response;
+            });
+        });
         
-        Promise.all(ids.map(id => 
-            fetch(`/api/records?id=${id}`, requestConfig)
-                .then(async response => {
-                    if (!response.ok) {
-                        const errorData = await response.json().catch(() => ({}));
-                        throw new Error(`删除记录 ${id} 失败: ${response.status} ${errorData.error || ''}`);
-                    }
-                    return response;
-                })
-        ))
+        Promise.all(deletePromises)
         .then(responses => {
             // 检查所有请求是否成功
             const allSuccessful = responses.every(response => response.ok);
             if (allSuccessful) {
+                console.log(`批量删除成功: ${ids.length} 条记录`);
                 // 重新加载记录以确保数据一致性
                 if (typeof loadRecords === 'function') {
                     loadRecords();
@@ -82,7 +69,20 @@ function batchDeleteRecords(ids) {
             }
         })
         .catch(error => {
-            showNotification('批量删除失败: ' + error.message);
+            console.error('批量删除错误:', error);
+            
+            // 提供更详细的错误信息
+            let errorMessage = '批量删除失败';
+            if (error.message.includes('401')) {
+                errorMessage = '认证失败，请重新登录后再试';
+            } else if (error.message.includes('网络')) {
+                errorMessage = '网络连接失败，请检查网络后重试';
+            } else {
+                errorMessage = '批量删除失败: ' + error.message;
+            }
+            
+            showNotification(errorMessage);
+            
             // 如果删除失败，重新加载记录以恢复界面
             if (typeof loadRecords === 'function') {
                 loadRecords();

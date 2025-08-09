@@ -28,9 +28,9 @@ window.currentFilter = 'cache';
 // 加载记录
 function loadRecords(filter = 'cache') {
     // console.log('loadRecords() 被调用，过滤器:', filter);
-    
+
     window.currentFilter = filter;
-    
+
     // 控制批量操作按钮的显示/隐藏
     const batchOperationBtn = document.getElementById('batchOperation');
     if (batchOperationBtn) {
@@ -42,22 +42,22 @@ function loadRecords(filter = 'cache') {
             batchOperationBtn.style.display = 'flex';
         }
     }
-    
+
     // 显示加载状态
     const container = document.getElementById('records-container');
     const loadingElement = document.getElementById('records-loading');
     container.style.display = 'none';
     loadingElement.style.display = 'flex';
-    
+
     // 修复URL路径，确保相对于网站根目录
-    const fetchPromise = window.authManager ? 
+    const fetchPromise = window.authManager ?
         window.authManager.smartFetch(`/api/records?filter=${filter}`, { method: 'GET' }) :
         fetch(`/api/records?filter=${filter}`);
-    
+
     fetchPromise
         .then(async response => {
             // console.log('加载记录响应状态:', response.status);
-            
+
             // 检查响应是否成功
             if (!response.ok) {
                 // 尝试获取详细错误信息
@@ -71,7 +71,7 @@ function loadRecords(filter = 'cache') {
                 } catch (e) {
                     console.log('无法解析错误响应:', e);
                 }
-                
+
                 // 如果是401错误，可能需要重新认证
                 if (response.status === 401 && window.authManager) {
                     console.log('认证失败，检查认证状态:', {
@@ -80,7 +80,7 @@ function loadRecords(filter = 'cache') {
                         hasCSRFToken: !!window.authManager.csrfToken,
                         usesCookies: window.authManager.usesCookies
                     });
-                    
+
                     // 检查是否需要重新登录
                     const needsAuth = await window.authManager.checkAuthRequired();
                     if (needsAuth && !window.authManager.isAuthenticated) {
@@ -88,7 +88,7 @@ function loadRecords(filter = 'cache') {
                         window.authManager.showAuthModal();
                         return; // 不抛出错误，等待用户重新登录
                     }
-                    
+
                     // 尝试刷新token
                     console.log('尝试刷新认证token...');
                     const refreshed = await window.authManager.refreshCSRFToken();
@@ -101,7 +101,7 @@ function loadRecords(filter = 'cache') {
                         }
                     }
                 }
-                
+
                 throw new Error(errorMessage);
             }
             return response.json(); // 直接解析JSON
@@ -110,7 +110,7 @@ function loadRecords(filter = 'cache') {
             // 隐藏加载状态
             loadingElement.style.display = 'none';
             container.style.display = 'block';
-            
+
             // 处理数据
             try {
                 if (data.length === 0) {
@@ -120,15 +120,15 @@ function loadRecords(filter = 'cache') {
                     data.forEach(record => {
                         // 对记录内容进行trim处理，去除前后空白字符
                         const trimmedContent = record.content.trim();
-                        
+
                         // 使用Base64编码内容，避免特殊字符问题
                         const encodedContent = btoa(unescape(encodeURIComponent(trimmedContent)));
-                        
+
                         // 检查内容是否超过3行（大约60个字符）
                         const isLongContent = trimmedContent.length > 60 || (trimmedContent.match(/\n/g) || []).length > 2;
                         const contentClass = isLongContent ? 'record-content collapsed' : 'record-content';
                         const buttonText = isLongContent ? '展开' : '';
-                        
+
                         // 格式化时间，根据屏幕宽度调整格式
                         const formatTime = (timestamp) => {
                             if (timestamp.length >= 16) {
@@ -144,49 +144,49 @@ function loadRecords(filter = 'cache') {
                             }
                             return timestamp;
                         };
-                        
+
                         // 存档状态 - 检查是否有archived字段
                         const hasArchivedField = record.hasOwnProperty('archived');
                         const isArchived = hasArchivedField && record.archived === 1;
                         const starIcon = isArchived ? 'star-filled.svg' : 'star-outline.svg';
                         const starTitle = isArchived ? '移出存档' : '移入存档';
                         const starText = isArchived ? '移出存档' : '移入存档';
-                        
-                        recordsHTML += '<li class="record-item">' + 
-                            '<input type="checkbox" class="record-checkbox" data-id="' + record.id + '" style="display: none;">' + 
-                            '<div class="record-content-wrapper">' + 
-                                '<div class="' + contentClass + '" data-id="' + record.id + '">' + 
-                                trimmedContent + 
-                                '</div>' + 
-                                '<div class="record-meta">' + 
-                                '<span class="meta-item">' +
-                                '<img src="img/length.svg" class="meta-icon" width="14" height="14" title="长度">' + 
-                                record.length + 
-                                '</span>' +
-                                '<span class="meta-item">' +
-                                '<img src="img/time.svg" class="meta-icon" width="14" height="14" title="时间">' + 
-                                formatTime(record.timestamp) + 
-                                '</span>' +
-                                (hasArchivedField ? 
-                                    '<button class="archive-btn" onclick="toggleArchive(' + record.id + ', ' + (isArchived ? 'false' : 'true') + ')" title="' + starTitle + '">' + 
-                                    '<img src="img/' + starIcon + '" class="icon archive-icon" width="16" height="16">' + 
-                                    '<span class="archive-text">' + starText + '</span>' +
-                                    '</button>' : '') +
-                                (isLongContent ? '<button class="expand-btn" onclick="toggleContent(' + record.id + ')">' + buttonText + '</button>' : '') + 
-                                '</div>' + 
-                            '</div>' + 
-                            '<div class="record-actions">' + 
-                            '<button class="copy-btn" onclick="copyToClipboard(' + record.id + ', \'' + encodedContent + 
-                            '\')" title="复制">' + 
-                            '<img src="img/copy.svg" class="icon copy-icon">' + 
-                            '<span class="copy-text">复制</span>' + 
-                            '</button>' + 
-                            '</div>' + 
+
+                        recordsHTML += '<li class="record-item">' +
+                            '<input type="checkbox" class="record-checkbox" data-id="' + record.id + '" style="display: none;">' +
+                            '<div class="record-content-wrapper">' +
+                            '<div class="' + contentClass + '" data-id="' + record.id + '">' +
+                            trimmedContent +
+                            '</div>' +
+                            '<div class="record-meta">' +
+                            '<span class="meta-item">' +
+                            '<img src="img/length.svg" class="meta-icon" width="14" height="14" title="长度">' +
+                            record.length +
+                            '</span>' +
+                            '<span class="meta-item">' +
+                            '<img src="img/time.svg" class="meta-icon" width="14" height="14" title="时间">' +
+                            formatTime(record.timestamp) +
+                            '</span>' +
+                            (hasArchivedField ?
+                                '<button class="archive-btn" onclick="toggleArchive(' + record.id + ', ' + (isArchived ? 'false' : 'true') + ')" title="' + starTitle + '">' +
+                                '<img src="img/' + starIcon + '" class="icon archive-icon" width="16" height="16">' +
+                                '<span class="archive-text">' + starText + '</span>' +
+                                '</button>' : '') +
+                            (isLongContent ? '<button class="expand-btn" onclick="toggleContent(' + record.id + ')">' + buttonText + '</button>' : '') +
+                            '</div>' +
+                            '</div>' +
+                            '<div class="record-actions">' +
+                            '<button class="copy-btn" onclick="copyToClipboard(' + record.id + ', \'' + encodedContent +
+                            '\')" title="复制">' +
+                            '<img src="img/copy.svg" class="icon copy-icon">' +
+                            '<span class="copy-text">复制</span>' +
+                            '</button>' +
+                            '</div>' +
                             '</li>';
                     });
                     recordsHTML += '</ul>';
                     container.innerHTML = recordsHTML;
-                    
+
                     // 如果在批量模式下，更新记录项
                     if (document.body.classList.contains('batch-mode')) {
                         updateRecordItemsForBatchMode(true);
@@ -212,17 +212,17 @@ function toggleArchive(id, archive) {
     const formData = new FormData();
     formData.append('id', id);
     formData.append('archived', archive ? '1' : '0');
-    
-    const fetchPromise = window.authManager ? 
+
+    const fetchPromise = window.authManager ?
         window.authManager.smartFetch('/api/records', {
             method: 'PUT',
             body: formData
-        }) : 
+        }) :
         fetch('/api/records', {
             method: 'PUT',
             body: formData
         });
-    
+
     fetchPromise
         .then(response => {
             if (!response.ok) {
@@ -234,12 +234,12 @@ function toggleArchive(id, archive) {
             if (data.error) {
                 throw new Error(data.error);
             }
-            
+
             // 显示成功消息
             if (typeof showNotification === 'function') {
                 showNotification(data.message);
             }
-            
+
             // 重新加载当前过滤器的记录
             loadRecords(window.currentFilter);
         })
@@ -253,10 +253,10 @@ function toggleArchive(id, archive) {
 
 // 检查是否支持存档功能
 function checkArchiveSupport() {
-    const fetchPromise = window.authManager ? 
+    const fetchPromise = window.authManager ?
         window.authManager.smartFetch('/api/records?filter=archived', { method: 'GET' }) :
         fetch('/api/records?filter=archived');
-    
+
     fetchPromise
         .then(response => response.json())
         .then(data => {
@@ -277,17 +277,17 @@ function checkArchiveSupport() {
 }
 
 // 初始化标签切换功能
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const tabButtons = document.querySelectorAll('.tab-btn');
-    
+
     tabButtons.forEach(button => {
-        button.addEventListener('click', function() {
+        button.addEventListener('click', function () {
             const filter = this.dataset.filter;
-            
+
             // 更新标签状态
             tabButtons.forEach(btn => btn.classList.remove('active'));
             this.classList.add('active');
-            
+
             // 控制批量操作按钮的显示/隐藏
             const batchOperationBtn = document.getElementById('batchOperation');
             if (batchOperationBtn) {
@@ -299,12 +299,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     batchOperationBtn.style.display = 'flex';
                 }
             }
-            
+
             // 加载对应的记录
             loadRecords(filter);
         });
     });
-    
+
     // 检查存档功能支持
     setTimeout(() => {
         checkArchiveSupport();
