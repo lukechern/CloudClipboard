@@ -79,6 +79,7 @@
         <div id="csrfTests"></div>
         <button onclick="testCSRF()">测试CSRF</button>
         <button onclick="refreshCSRF()">刷新CSRF Token</button>
+        <button onclick="checkCookies()">检查Cookie状态</button>
     </div>
 
     <div class="debug-section">
@@ -378,6 +379,46 @@
                 }
             } catch (error) {
                 log('csrfTests', `刷新失败: ${error.message}`, 'error');
+            }
+        }
+
+        async function checkCookies() {
+            clearSection('csrfTests');
+            
+            try {
+                // 解析所有Cookie
+                const cookies = {};
+                document.cookie.split(';').forEach(cookie => {
+                    const [name, value] = cookie.trim().split('=');
+                    if (name && value) {
+                        cookies[name] = decodeURIComponent(value);
+                    }
+                });
+                
+                log('csrfTests', '🍪 当前Cookie状态:', 'info');
+                log('csrfTests', `认证Cookie (cc_auth_token): ${cookies.cc_auth_token ? '存在 (' + cookies.cc_auth_token.substring(0, 20) + '...)' : '不存在'}`, 
+                    cookies.cc_auth_token ? 'success' : 'error');
+                log('csrfTests', `CSRF Cookie (cc_csrf_token): ${cookies.cc_csrf_token ? '存在 (' + cookies.cc_csrf_token.substring(0, 20) + '...)' : '不存在'}`, 
+                    cookies.cc_csrf_token ? 'success' : 'error');
+                
+                // 检查localStorage
+                const stored = localStorage.getItem('cloudclipboard_auth');
+                if (stored) {
+                    const authData = JSON.parse(stored);
+                    const age = Date.now() - authData.timestamp;
+                    log('csrfTests', `localStorage认证信息: 存在，年龄 ${Math.floor(age / 60000)} 分钟`, 'success');
+                    log('csrfTests', `localStorage详情: ${JSON.stringify({
+                        usesCookies: authData.usesCookies,
+                        hasToken: !!authData.token,
+                        hasCSRFToken: !!authData.csrfToken,
+                        type: authData.type
+                    }, null, 2)}`, 'info');
+                } else {
+                    log('csrfTests', 'localStorage认证信息: 不存在', 'error');
+                }
+                
+            } catch (error) {
+                log('csrfTests', `检查Cookie失败: ${error.message}`, 'error');
             }
         }
 

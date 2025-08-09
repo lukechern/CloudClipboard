@@ -37,7 +37,7 @@ export async function onRequestPost(context) {
         
         // 如果使用Cookie模式，也更新CSRF Cookie
         const cookieManager = new CookieManager(env);
-        response = cookieManager.setCSRFCookie(response, newCSRFToken, 60 * 60); // 1小时
+        response = cookieManager.setCSRFCookie(response, newCSRFToken); // 使用默认7天有效期
         
         return response;
         

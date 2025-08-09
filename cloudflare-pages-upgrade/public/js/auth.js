@@ -11,23 +11,31 @@ class AuthManager {
 
     // 初始化认证管理器
     async init() {
+        console.log('认证管理器初始化开始');
+        
         // 检查本地存储的认证信息
         this.loadStoredAuth();
 
         // 检查服务器是否需要密码保护
         const needsAuth = await this.checkAuthRequired();
+        console.log('服务器需要认证:', needsAuth, '当前认证状态:', this.isAuthenticated);
 
         if (needsAuth && !this.isAuthenticated) {
+            console.log('需要认证但未认证，显示登录界面');
             this.showAuthModal();
         } else if (!needsAuth) {
+            console.log('服务器不需要认证，直接成功');
             this.isAuthenticated = true;
             this.onAuthSuccess();
         } else {
+            console.log('已有认证信息，验证token有效性');
             // 验证存储的token是否仍然有效
             const isValid = await this.validateStoredToken();
             if (isValid) {
+                console.log('Token验证成功，认证完成');
                 this.onAuthSuccess();
             } else {
+                console.log('Token验证失败，清除认证信息并重新登录');
                 this.clearStoredAuth();
                 this.showAuthModal();
             }
@@ -49,13 +57,21 @@ class AuthManager {
     // 验证存储的token
     async validateStoredToken() {
         try {
-            const headers = this.getAuthHeaders();
-            const response = await fetch('/api/records', {
-                headers: headers,
-                credentials: 'same-origin' // 确保发送Cookie
+            console.log('验证存储的token，认证状态:', {
+                isAuthenticated: this.isAuthenticated,
+                hasAuthToken: !!this.authToken,
+                hasCSRFToken: !!this.csrfToken,
+                usesCookies: this.usesCookies
             });
+            
+            // 使用getRequestConfig确保正确的请求配置
+            const config = this.getRequestConfig({ method: 'GET' });
+            const response = await fetch('/api/records', config);
+            
+            console.log('Token验证响应状态:', response.status);
             return response.ok;
         } catch (error) {
+            console.error('Token验证失败:', error);
             return false;
         }
     }
@@ -73,20 +89,30 @@ class AuthManager {
                 const expiry = authData.timestamp + (7 * 24 * 60 * 60 * 1000);
 
                 if (now < expiry) {
+                    console.log('从localStorage加载认证信息:', {
+                        usesCookies: authData.usesCookies,
+                        hasToken: !!authData.token,
+                        hasCSRFToken: !!authData.csrfToken,
+                        age: Math.floor((now - authData.timestamp) / 60000) + ' 分钟'
+                    });
+                    
                     if (authData.usesCookies) {
                         // Cookie模式：只从localStorage获取CSRF token
                         this.csrfToken = authData.csrfToken;
                         this.usesCookies = true;
                         this.isAuthenticated = true;
                         // authToken将从Cookie中获取，这里不设置
+                        console.log('Cookie模式认证信息已加载');
                     } else {
                         // 传统模式：从localStorage获取完整信息
                         this.authToken = authData.token;
                         this.csrfToken = authData.csrfToken;
                         this.usesCookies = false;
                         this.isAuthenticated = true;
+                        console.log('传统模式认证信息已加载');
                     }
                 } else {
+                    console.log('存储的认证信息已过期，清除');
                     this.clearStoredAuth();
                 }
             }

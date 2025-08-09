@@ -33,7 +33,7 @@ class CookieManager {
     }
 
     // 设置CSRF Cookie
-    setCSRFCookie(response, csrfToken, maxAge = 4 * 60 * 60) { // 4小时
+    setCSRFCookie(response, csrfToken, maxAge = 7 * 24 * 60 * 60) { // 7天，与认证Cookie保持一致
         const cookieValue = this.createCookieString(this.csrfCookieName, csrfToken, {
             httpOnly: false, // CSRF token需要被JavaScript访问
             secure: this.secure,
