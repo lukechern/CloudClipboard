@@ -380,10 +380,19 @@ function handleLogout(e) {
     e.preventDefault();
     
     if (window.authManager) {
-        // 显示确认对话框
-        if (confirm('确定要退出登录吗？这将清除所有本地认证信息。')) {
-            window.authManager.logout();
-        }
+        // 使用自定义确认对话框，带有退出登录的特殊样式
+        showConfirm(
+            '退出登录', 
+            '确定要退出登录吗？这将清除所有本地认证信息，您需要重新输入密码才能继续使用。', 
+            () => {
+                window.authManager.logout();
+            },
+            {
+                type: 'logout',
+                confirmText: '退出登录',
+                cancelText: '取消'
+            }
+        );
     }
 }
 

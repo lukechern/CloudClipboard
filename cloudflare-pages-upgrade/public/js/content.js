@@ -50,13 +50,59 @@ function loadRecords(filter = 'cache') {
     loadingElement.style.display = 'flex';
     
     // 修复URL路径，确保相对于网站根目录
-    const requestConfig = window.authManager ? 
-        window.authManager.getRequestConfig() : {};
-    fetch(`/api/records?filter=${filter}`, requestConfig)
-        .then(response => {
+    const fetchPromise = window.authManager ? 
+        window.authManager.smartFetch(`/api/records?filter=${filter}`, { method: 'GET' }) :
+        fetch(`/api/records?filter=${filter}`);
+    
+    fetchPromise
+        .then(async response => {
+            console.log('加载记录响应状态:', response.status);
+            
             // 检查响应是否成功
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                // 尝试获取详细错误信息
+                let errorMessage = `HTTP error! status: ${response.status}`;
+                try {
+                    const errorData = await response.json();
+                    if (errorData.error) {
+                        errorMessage = errorData.error;
+                        console.log('服务器错误详情:', errorData.error);
+                    }
+                } catch (e) {
+                    console.log('无法解析错误响应:', e);
+                }
+                
+                // 如果是401错误，可能需要重新认证
+                if (response.status === 401 && window.authManager) {
+                    console.log('认证失败，检查认证状态:', {
+                        isAuthenticated: window.authManager.isAuthenticated,
+                        hasAuthToken: !!window.authManager.authToken,
+                        hasCSRFToken: !!window.authManager.csrfToken,
+                        usesCookies: window.authManager.usesCookies
+                    });
+                    
+                    // 检查是否需要重新登录
+                    const needsAuth = await window.authManager.checkAuthRequired();
+                    if (needsAuth && !window.authManager.isAuthenticated) {
+                        console.log('需要重新登录');
+                        window.authManager.showAuthModal();
+                        return; // 不抛出错误，等待用户重新登录
+                    }
+                    
+                    // 尝试刷新token
+                    console.log('尝试刷新认证token...');
+                    const refreshed = await window.authManager.refreshCSRFToken();
+                    if (refreshed) {
+                        console.log('Token刷新成功，重新尝试请求...');
+                        // 重新发起请求
+                        const retryResponse = await window.authManager.smartFetch(`/api/records?filter=${filter}`, { method: 'GET' });
+                        if (retryResponse.ok) {
+                            return retryResponse.json();
+                        }
+                    }
+                }
+                
+                throw new Error(errorMessage);
             }
             return response.json(); // 直接解析JSON
         })
@@ -167,16 +213,17 @@ function toggleArchive(id, archive) {
     formData.append('id', id);
     formData.append('archived', archive ? '1' : '0');
     
-    const requestConfig = window.authManager ? 
-        window.authManager.getRequestConfig({
+    const fetchPromise = window.authManager ? 
+        window.authManager.smartFetch('/api/records', {
             method: 'PUT',
             body: formData
-        }) : {
+        }) : 
+        fetch('/api/records', {
             method: 'PUT',
             body: formData
-        };
+        });
     
-    fetch('/api/records', requestConfig)
+    fetchPromise
         .then(response => {
             if (!response.ok) {
                 throw new Error('网络响应失败');
@@ -206,10 +253,11 @@ function toggleArchive(id, archive) {
 
 // 检查是否支持存档功能
 function checkArchiveSupport() {
-    const requestConfig = window.authManager ? 
-        window.authManager.getRequestConfig() : {};
+    const fetchPromise = window.authManager ? 
+        window.authManager.smartFetch('/api/records?filter=archived', { method: 'GET' }) :
+        fetch('/api/records?filter=archived');
     
-    fetch('/api/records?filter=archived', requestConfig)
+    fetchPromise
         .then(response => response.json())
         .then(data => {
             // 如果存档查询成功，说明支持存档功能

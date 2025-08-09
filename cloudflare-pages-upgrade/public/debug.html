@@ -85,6 +85,7 @@
         <h3>保存功能测试</h3>
         <div id="saveTests"></div>
         <button onclick="testSave()">测试保存</button>
+        <button onclick="testLoadRecords()">测试加载记录</button>
     </div>
 
     <div class="debug-section">
@@ -94,6 +95,7 @@
     </div>
 
     <script src="js/auth.js"></script>
+    <script src="js/utils.js"></script>
     <script>
         function log(section, message, type = 'info') {
             const element = document.getElementById(section);
@@ -153,13 +155,25 @@
                 return;
             }
 
-            try {
-                log('authStatus', '🔄 正在执行退出登录...', 'info');
-                await window.authManager.logout();
-                log('authStatus', '✅ 退出登录成功', 'success');
-            } catch (error) {
-                log('authStatus', `❌ 退出登录失败: ${error.message}`, 'error');
-            }
+            // 使用和主页面一样的确认对话框
+            showConfirm(
+                '退出登录', 
+                '确定要退出登录吗？这将清除所有本地认证信息。', 
+                async () => {
+                    try {
+                        log('authStatus', '🔄 正在执行退出登录...', 'info');
+                        await window.authManager.logout();
+                        log('authStatus', '✅ 退出登录成功', 'success');
+                    } catch (error) {
+                        log('authStatus', `❌ 退出登录失败: ${error.message}`, 'error');
+                    }
+                },
+                {
+                    type: 'logout',
+                    confirmText: '退出登录',
+                    cancelText: '取消'
+                }
+            );
         }
 
         async function runAPITests() {
@@ -239,14 +253,12 @@
                 const formData = new FormData();
                 formData.append('content', testContent);
                 
-                const config = window.authManager.getRequestConfig({
+                log('saveTests', '🔄 正在测试保存功能...', 'info');
+                
+                const response = await window.authManager.smartFetch('/api/records', {
                     method: 'POST',
                     body: formData
                 });
-                
-                log('saveTests', '🔄 正在测试保存功能...', 'info');
-                
-                const response = await fetch('/api/records', config);
                 
                 log('saveTests', `响应状态: ${response.status}`, 
                     response.ok ? 'success' : 'error');
@@ -257,6 +269,38 @@
                     
             } catch (error) {
                 log('saveTests', `保存测试失败: ${error.message}`, 'error');
+            }
+        }
+
+        async function testLoadRecords() {
+            clearSection('saveTests');
+            
+            if (!window.authManager || !window.authManager.isAuthenticated) {
+                log('saveTests', '❌ 请先登录', 'error');
+                return;
+            }
+
+            try {
+                log('saveTests', '🔄 正在测试加载记录...', 'info');
+                
+                const response = await window.authManager.smartFetch('/api/records?filter=cache', {
+                    method: 'GET'
+                });
+                
+                log('saveTests', `响应状态: ${response.status}`, 
+                    response.ok ? 'success' : 'error');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log('saveTests', `记录数量: ${data.length}`, 'success');
+                    log('saveTests', `前3条记录: ${JSON.stringify(data.slice(0, 3), null, 2)}`, 'info');
+                } else {
+                    const errorData = await response.json();
+                    log('saveTests', `错误信息: ${JSON.stringify(errorData, null, 2)}`, 'error');
+                }
+                    
+            } catch (error) {
+                log('saveTests', `加载记录测试失败: ${error.message}`, 'error');
             }
         }
 

@@ -2,15 +2,24 @@ import { verifyAuthToken, verifyFullAuth } from './auth.js';
 
 // 验证访问权限
 async function checkAuth(request, env, requireCSRF = true) {
+    console.log('检查访问权限，requireCSRF:', requireCSRF);
+    
     // 如果没有设置密码，允许访问
     if (!env.ACCESS_PASSWORD) {
+        console.log('未设置访问密码，允许访问');
         return { authorized: true };
     }
     
     // 使用完整的认证验证（包括CSRF）
     const authResult = await verifyFullAuth(request, env, requireCSRF);
+    console.log('认证验证结果:', {
+        valid: authResult.valid,
+        authenticated: authResult.authenticated,
+        error: authResult.error
+    });
     
     if (!authResult.valid) {
+        console.log('认证验证失败:', authResult.error);
         return { 
             authorized: false, 
             error: '访问权限验证失败: ' + authResult.error 
@@ -18,12 +27,14 @@ async function checkAuth(request, env, requireCSRF = true) {
     }
     
     if (!authResult.authenticated) {
+        console.log('用户未认证');
         return { 
             authorized: false, 
             error: '未经授权的访问' 
         };
     }
     
+    console.log('认证检查通过');
     return { authorized: true, payload: authResult.payload };
 }
 

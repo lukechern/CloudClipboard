@@ -22,23 +22,33 @@ function copyToClipboard(id, encodedContent) {
 }
 
 // 显示自定义确认对话框
-function showConfirm(title, message, onConfirm) {
+function showConfirm(title, message, onConfirm, options = {}) {
     // 创建模态对话框元素
     const modal = document.createElement('div');
     modal.className = 'modal show';
     modal.id = 'confirmModal';
     
+    // 根据类型设置不同的样式类
+    const type = options.type || 'default';
+    const modalContentClass = type === 'logout' ? 'modal-content modal-logout' : 'modal-content';
+    const confirmBtnClass = type === 'logout' ? 'btn btn-confirm btn-logout' : 'btn btn-confirm';
+    const confirmText = options.confirmText || '确认';
+    const cancelText = options.cancelText || '取消';
+    
+    // 为退出登录添加图标
+    const titleWithIcon = type === 'logout' ? `🚪 ${title}` : title;
+    
     modal.innerHTML = `
-        <div class="modal-content">
+        <div class="${modalContentClass}">
             <div class="modal-header">
-                <h3>${title}</h3>
+                <h3>${titleWithIcon}</h3>
             </div>
             <div class="modal-body">
                 <p>${message}</p>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-cancel" id="cancelBtn">取消</button>
-                <button class="btn btn-confirm" id="confirmBtn">确认</button>
+                <button class="btn btn-cancel" id="cancelBtn">${cancelText}</button>
+                <button class="${confirmBtnClass}" id="confirmBtn">${confirmText}</button>
             </div>
         </div>
     `;

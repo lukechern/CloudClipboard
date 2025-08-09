@@ -211,19 +211,27 @@ export async function onRequestDelete(context) {
 export async function verifyAuthToken(request, env) {
     const cookieManager = new CookieManager(env);
     let token = null;
+    let tokenSource = 'none';
 
     // 优先从Cookie获取token
     token = cookieManager.getAuthCookie(request);
+    if (token) {
+        tokenSource = 'cookie';
+        console.log('从Cookie获取到token:', token.substring(0, 20) + '...');
+    }
 
     // 如果Cookie中没有，尝试从Authorization头获取
     if (!token) {
         const authHeader = request.headers.get('Authorization');
         if (authHeader && authHeader.startsWith('Bearer ')) {
             token = authHeader.substring(7); // 移除 "Bearer " 前缀
+            tokenSource = 'header';
+            console.log('从Authorization头获取到token:', token.substring(0, 20) + '...');
         }
     }
 
     if (!token) {
+        console.log('未找到认证token');
         return { valid: false, error: 'Missing authentication token' };
     }
 
@@ -232,6 +240,7 @@ export async function verifyAuthToken(request, env) {
         const jwtUtils = new JWTUtils(jwtSecret);
 
         const payload = await jwtUtils.verifyToken(token);
+        console.log('JWT验证成功，来源:', tokenSource, '认证状态:', payload.authenticated);
 
         return {
             valid: true,
@@ -240,6 +249,7 @@ export async function verifyAuthToken(request, env) {
             sessionId: payload.sessionId
         };
     } catch (error) {
+        console.log('JWT验证失败:', error.message, '来源:', tokenSource);
         return {
             valid: false,
             error: error.message
