@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,25 +13,41 @@
             padding: 20px;
             background: #f5f5f5;
         }
+
         .debug-section {
             background: white;
             padding: 20px;
             margin: 20px 0;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
+
         .debug-section h3 {
             margin-top: 0;
             color: #333;
         }
+
         .status {
             padding: 10px;
             border-radius: 4px;
             margin: 10px 0;
         }
-        .status.success { background: #d4edda; color: #155724; }
-        .status.error { background: #f8d7da; color: #721c24; }
-        .status.warning { background: #fff3cd; color: #856404; }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status.warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
         button {
             background: #007bff;
             color: white;
@@ -40,7 +57,11 @@
             cursor: pointer;
             margin: 5px;
         }
-        button:hover { background: #0056b3; }
+
+        button:hover {
+            background: #0056b3;
+        }
+
         pre {
             background: #f8f9fa;
             padding: 15px;
@@ -48,18 +69,28 @@
             overflow-x: auto;
             font-size: 12px;
         }
+
         .test-result {
             margin: 10px 0;
             padding: 10px;
             border-left: 4px solid #ccc;
         }
-        .test-result.pass { border-color: #28a745; background: #d4edda; }
-        .test-result.fail { border-color: #dc3545; background: #f8d7da; }
+
+        .test-result.pass {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+
+        .test-result.fail {
+            border-color: #dc3545;
+            background: #f8d7da;
+        }
     </style>
 </head>
+
 <body>
     <h1>🔧 云剪贴板调试工具</h1>
-    
+
     <div class="debug-section">
         <h3>认证状态检查</h3>
         <div id="authStatus"></div>
@@ -80,6 +111,7 @@
         <button onclick="testCSRF()">测试CSRF</button>
         <button onclick="refreshCSRF()">刷新CSRF Token</button>
         <button onclick="checkCookies()">检查Cookie状态</button>
+        <button onclick="checkWebViewStatus()">检查WebView状态</button>
     </div>
 
     <div class="debug-section">
@@ -114,7 +146,7 @@
 
         async function checkAuthStatus() {
             clearSection('authStatus');
-            
+
             if (!window.authManager) {
                 log('authStatus', '❌ 认证管理器未初始化', 'error');
                 return;
@@ -125,26 +157,26 @@
                 hasAuthToken: !!window.authManager.authToken,
                 hasCSRFToken: !!window.authManager.csrfToken,
                 usesCookies: window.authManager.usesCookies,
-                authTokenPreview: window.authManager.authToken ? 
+                authTokenPreview: window.authManager.authToken ?
                     window.authManager.authToken.substring(0, 20) + '...' : 'null',
-                csrfTokenPreview: window.authManager.csrfToken ? 
+                csrfTokenPreview: window.authManager.csrfToken ?
                     window.authManager.csrfToken.substring(0, 20) + '...' : 'null'
             };
 
-            log('authStatus', `<pre>${JSON.stringify(status, null, 2)}</pre>`, 
+            log('authStatus', `<pre>${JSON.stringify(status, null, 2)}</pre>`,
                 status.isAuthenticated ? 'success' : 'warning');
         }
 
         async function testLogin() {
             clearSection('authStatus');
-            
+
             try {
                 const response = await fetch('/api/auth');
                 const data = await response.json();
-                
-                log('authStatus', `认证检查响应: ${JSON.stringify(data, null, 2)}`, 
+
+                log('authStatus', `认证检查响应: ${JSON.stringify(data, null, 2)}`,
                     response.ok ? 'success' : 'error');
-                    
+
             } catch (error) {
                 log('authStatus', `认证检查失败: ${error.message}`, 'error');
             }
@@ -152,7 +184,7 @@
 
         async function testLogout() {
             clearSection('authStatus');
-            
+
             if (!window.authManager) {
                 log('authStatus', '❌ 认证管理器未初始化', 'error');
                 return;
@@ -160,8 +192,8 @@
 
             // 使用和主页面一样的确认对话框
             showConfirm(
-                '退出登录', 
-                '确定要退出登录吗？这将清除所有本地认证信息。', 
+                '退出登录',
+                '确定要退出登录吗？这将清除所有本地认证信息。',
                 async () => {
                     try {
                         log('authStatus', '🔄 正在执行退出登录...', 'info');
@@ -181,7 +213,7 @@
 
         async function runAPITests() {
             clearSection('apiTests');
-            
+
             const tests = [
                 { name: 'GET /api/auth', url: '/api/auth', method: 'GET' },
                 { name: 'GET /api/storage', url: '/api/storage', method: 'GET' },
@@ -190,17 +222,17 @@
 
             for (const test of tests) {
                 try {
-                    const config = window.authManager ? 
-                        window.authManager.getRequestConfig({ method: test.method }) : 
+                    const config = window.authManager ?
+                        window.authManager.getRequestConfig({ method: test.method }) :
                         { method: test.method };
-                        
+
                     const response = await fetch(test.url, config);
                     const data = await response.json();
-                    
-                    log('apiTests', 
-                        `✅ ${test.name}: ${response.status} - ${JSON.stringify(data).substring(0, 100)}...`, 
+
+                    log('apiTests',
+                        `✅ ${test.name}: ${response.status} - ${JSON.stringify(data).substring(0, 100)}...`,
                         response.ok ? 'success' : 'error');
-                        
+
                 } catch (error) {
                     log('apiTests', `❌ ${test.name}: ${error.message}`, 'error');
                 }
@@ -209,7 +241,7 @@
 
         async function testCSRF() {
             clearSection('csrfTests');
-            
+
             if (!window.authManager || !window.authManager.isAuthenticated) {
                 log('csrfTests', '❌ 请先登录', 'error');
                 return;
@@ -219,24 +251,24 @@
             try {
                 const formData = new FormData();
                 formData.append('content', 'CSRF测试内容 - ' + new Date().toISOString());
-                
+
                 const config = window.authManager.getRequestConfig({
                     method: 'POST',
                     body: formData
                 });
-                
+
                 log('csrfTests', `请求配置: ${JSON.stringify({
                     headers: config.headers,
                     credentials: config.credentials
                 }, null, 2)}`, 'info');
-                
+
                 const response = await fetch('/api/records', config);
                 const data = await response.json();
-                
-                log('csrfTests', 
-                    `CSRF测试结果: ${response.status} - ${JSON.stringify(data, null, 2)}`, 
+
+                log('csrfTests',
+                    `CSRF测试结果: ${response.status} - ${JSON.stringify(data, null, 2)}`,
                     response.ok ? 'success' : 'error');
-                    
+
             } catch (error) {
                 log('csrfTests', `CSRF测试失败: ${error.message}`, 'error');
             }
@@ -244,32 +276,32 @@
 
         async function testSave() {
             clearSection('saveTests');
-            
+
             if (!window.authManager || !window.authManager.isAuthenticated) {
                 log('saveTests', '❌ 请先登录', 'error');
                 return;
             }
 
             const testContent = '调试测试内容 - ' + new Date().toISOString();
-            
+
             try {
                 const formData = new FormData();
                 formData.append('content', testContent);
-                
+
                 log('saveTests', '🔄 正在测试保存功能...', 'info');
-                
+
                 const response = await window.authManager.smartFetch('/api/records', {
                     method: 'POST',
                     body: formData
                 });
-                
-                log('saveTests', `响应状态: ${response.status}`, 
+
+                log('saveTests', `响应状态: ${response.status}`,
                     response.ok ? 'success' : 'error');
-                
+
                 const data = await response.json();
-                log('saveTests', `响应数据: ${JSON.stringify(data, null, 2)}`, 
+                log('saveTests', `响应数据: ${JSON.stringify(data, null, 2)}`,
                     data.success ? 'success' : 'error');
-                    
+
             } catch (error) {
                 log('saveTests', `保存测试失败: ${error.message}`, 'error');
             }
@@ -277,7 +309,7 @@
 
         async function testLoadRecords() {
             clearSection('saveTests');
-            
+
             if (!window.authManager || !window.authManager.isAuthenticated) {
                 log('saveTests', '❌ 请先登录', 'error');
                 return;
@@ -285,14 +317,14 @@
 
             try {
                 log('saveTests', '🔄 正在测试加载记录...', 'info');
-                
+
                 const response = await window.authManager.smartFetch('/api/records?filter=cache', {
                     method: 'GET'
                 });
-                
-                log('saveTests', `响应状态: ${response.status}`, 
+
+                log('saveTests', `响应状态: ${response.status}`,
                     response.ok ? 'success' : 'error');
-                
+
                 if (response.ok) {
                     const data = await response.json();
                     log('saveTests', `记录数量: ${data.length}`, 'success');
@@ -301,7 +333,7 @@
                     const errorData = await response.json();
                     log('saveTests', `错误信息: ${JSON.stringify(errorData, null, 2)}`, 'error');
                 }
-                    
+
             } catch (error) {
                 log('saveTests', `加载记录测试失败: ${error.message}`, 'error');
             }
@@ -309,7 +341,7 @@
 
         async function testBatchDelete() {
             clearSection('saveTests');
-            
+
             if (!window.authManager || !window.authManager.isAuthenticated) {
                 log('saveTests', '❌ 请先登录', 'error');
                 return;
@@ -317,33 +349,33 @@
 
             try {
                 log('saveTests', '🔄 正在获取记录列表...', 'info');
-                
+
                 // 先获取记录列表
                 const response = await window.authManager.smartFetch('/api/records?filter=cache', {
                     method: 'GET'
                 });
-                
+
                 if (!response.ok) {
                     throw new Error(`获取记录失败: ${response.status}`);
                 }
-                
+
                 const records = await response.json();
                 if (records.length === 0) {
                     log('saveTests', '❌ 没有记录可以删除', 'warning');
                     return;
                 }
-                
+
                 // 选择最后一条记录进行删除测试
                 const testRecord = records[records.length - 1];
                 log('saveTests', `🔄 正在测试删除记录 ID: ${testRecord.id}...`, 'info');
-                
+
                 const deleteResponse = await window.authManager.smartFetch(`/api/records?id=${testRecord.id}`, {
                     method: 'DELETE'
                 });
-                
-                log('saveTests', `删除响应状态: ${deleteResponse.status}`, 
+
+                log('saveTests', `删除响应状态: ${deleteResponse.status}`,
                     deleteResponse.ok ? 'success' : 'error');
-                
+
                 if (deleteResponse.ok) {
                     const data = await deleteResponse.json();
                     log('saveTests', `删除成功: ${JSON.stringify(data, null, 2)}`, 'success');
@@ -351,7 +383,7 @@
                     const errorData = await deleteResponse.json();
                     log('saveTests', `删除失败: ${JSON.stringify(errorData, null, 2)}`, 'error');
                 }
-                    
+
             } catch (error) {
                 log('saveTests', `批量删除测试失败: ${error.message}`, 'error');
             }
@@ -359,7 +391,7 @@
 
         async function refreshCSRF() {
             clearSection('csrfTests');
-            
+
             if (!window.authManager || !window.authManager.isAuthenticated) {
                 log('csrfTests', '❌ 请先登录', 'error');
                 return;
@@ -367,14 +399,14 @@
 
             try {
                 const success = await window.authManager.refreshCSRFToken();
-                log('csrfTests', 
-                    success ? '✅ CSRF token刷新成功' : '❌ CSRF token刷新失败', 
+                log('csrfTests',
+                    success ? '✅ CSRF token刷新成功' : '❌ CSRF token刷新失败',
                     success ? 'success' : 'error');
-                    
+
                 // 显示新的token信息
                 if (success) {
-                    log('csrfTests', 
-                        `新CSRF token: ${window.authManager.csrfToken.substring(0, 20)}...`, 
+                    log('csrfTests',
+                        `新CSRF token: ${window.authManager.csrfToken.substring(0, 20)}...`,
                         'info');
                 }
             } catch (error) {
@@ -384,7 +416,7 @@
 
         async function checkCookies() {
             clearSection('csrfTests');
-            
+
             try {
                 // 解析所有Cookie
                 const cookies = {};
@@ -394,13 +426,13 @@
                         cookies[name] = decodeURIComponent(value);
                     }
                 });
-                
+
                 log('csrfTests', '🍪 当前Cookie状态:', 'info');
-                log('csrfTests', `认证Cookie (cc_auth_token): ${cookies.cc_auth_token ? '存在 (' + cookies.cc_auth_token.substring(0, 20) + '...)' : '不存在'}`, 
+                log('csrfTests', `认证Cookie (cc_auth_token): ${cookies.cc_auth_token ? '存在 (' + cookies.cc_auth_token.substring(0, 20) + '...)' : '不存在'}`,
                     cookies.cc_auth_token ? 'success' : 'error');
-                log('csrfTests', `CSRF Cookie (cc_csrf_token): ${cookies.cc_csrf_token ? '存在 (' + cookies.cc_csrf_token.substring(0, 20) + '...)' : '不存在'}`, 
+                log('csrfTests', `CSRF Cookie (cc_csrf_token): ${cookies.cc_csrf_token ? '存在 (' + cookies.cc_csrf_token.substring(0, 20) + '...)' : '不存在'}`,
                     cookies.cc_csrf_token ? 'success' : 'error');
-                
+
                 // 检查localStorage
                 const stored = localStorage.getItem('cloudclipboard_auth');
                 if (stored) {
@@ -416,24 +448,62 @@
                 } else {
                     log('csrfTests', 'localStorage认证信息: 不存在', 'error');
                 }
-                
+
             } catch (error) {
                 log('csrfTests', `检查Cookie失败: ${error.message}`, 'error');
             }
         }
 
+        async function checkWebViewStatus() {
+            clearSection('csrfTests');
+
+            try {
+                const userAgent = navigator.userAgent;
+                const isWebView = /wv|WebView|Android.*Version\/\d+\.\d+.*Chrome/i.test(userAgent);
+
+                log('csrfTests', '📱 WebView环境检测:', 'info');
+                log('csrfTests', `User Agent: ${userAgent}`, 'info');
+                log('csrfTests', `是否为WebView: ${isWebView ? '是' : '否'}`, isWebView ? 'warning' : 'success');
+
+                if (window.authManager) {
+                    log('csrfTests', `认证管理器WebView状态: ${window.authManager.isWebView ? '是' : '否'}`, 'info');
+                    log('csrfTests', `WebView类型: ${window.authManager.webViewType || '未检测到'}`, 'info');
+                }
+
+                // 检查原生接口
+                const hasAndroidInterface = !!window.AndroidInterface;
+                const hasWebKitInterface = !!(window.webkit?.messageHandlers);
+
+                log('csrfTests', `Android接口: ${hasAndroidInterface ? '可用' : '不可用'}`, hasAndroidInterface ? 'success' : 'warning');
+                log('csrfTests', `WebKit接口: ${hasWebKitInterface ? '可用' : '不可用'}`, hasWebKitInterface ? 'success' : 'warning');
+
+                // 检查存储状态
+                const mainStorage = localStorage.getItem('cloudclipboard_auth');
+                const backupStorage = localStorage.getItem('cloudclipboard_auth_webview');
+                const sessionBackup = sessionStorage.getItem('cloudclipboard_auth_backup');
+
+                log('csrfTests', '💾 存储状态检查:', 'info');
+                log('csrfTests', `主存储: ${mainStorage ? '存在' : '不存在'}`, mainStorage ? 'success' : 'warning');
+                log('csrfTests', `WebView备份: ${backupStorage ? '存在' : '不存在'}`, backupStorage ? 'success' : 'warning');
+                log('csrfTests', `Session备份: ${sessionBackup ? '存在' : '不存在'}`, sessionBackup ? 'success' : 'warning');
+
+            } catch (error) {
+                log('csrfTests', `WebView状态检查失败: ${error.message}`, 'error');
+            }
+        }
+
         async function getSystemInfo() {
             clearSection('systemInfo');
-            
+
             const info = {
                 userAgent: navigator.userAgent,
                 protocol: window.location.protocol,
                 host: window.location.host,
                 cookiesEnabled: navigator.cookieEnabled,
-                localStorage: typeof(Storage) !== "undefined",
+                localStorage: typeof (Storage) !== "undefined",
                 timestamp: new Date().toISOString()
             };
-            
+
             // 如果有认证管理器，添加token年龄信息
             if (window.authManager && window.authManager.isAuthenticated) {
                 try {
@@ -448,7 +518,7 @@
                     info.tokenAgeError = e.message;
                 }
             }
-            
+
             log('systemInfo', `<pre>${JSON.stringify(info, null, 2)}</pre>`, 'info');
         }
 
@@ -461,4 +531,5 @@
         });
     </script>
 </body>
+
 </html>

@@ -6,12 +6,118 @@ class AuthManager {
         this.csrfToken = null;
         this.usesCookies = false;
         this.storageKey = 'cloudclipboard_auth';
+        this.isWebView = false;
+        this.webViewType = null;
         this.init();
+    }
+
+    // 检测WebView环境并进行兼容性处理
+    detectAndHandleWebView() {
+        const userAgent = navigator.userAgent;
+        
+        // 检测各种WebView环境
+        this.isWebView = /wv|WebView|Android.*Version\/\d+\.\d+.*Chrome/i.test(userAgent);
+        
+        if (this.isWebView) {
+            console.log('检测到WebView环境:', userAgent);
+            
+            // 检测具体的WebView类型
+            if (/Android/i.test(userAgent)) {
+                this.webViewType = 'android';
+                console.log('Android WebView检测到');
+                
+                // Android WebView特殊处理
+                this.handleAndroidWebView();
+            }
+        }
+    }
+
+    // Android WebView特殊处理
+    handleAndroidWebView() {
+        console.log('应用Android WebView兼容性修复');
+        
+        // 1. 强制使用localStorage而不是Cookie
+        this.usesCookies = false;
+        console.log('WebView模式：强制使用localStorage存储');
+        
+        // 2. 增加存储检查频率
+        this.setupWebViewStorageMonitoring();
+        
+        // 3. 尝试通过postMessage与原生应用通信（如果支持）
+        this.setupNativeAppCommunication();
+    }
+
+    // 设置WebView存储监控
+    setupWebViewStorageMonitoring() {
+        // 每30秒检查一次存储状态
+        setInterval(() => {
+            if (this.isAuthenticated) {
+                this.verifyAndRepairStorage();
+            }
+        }, 30000);
+        
+        // 页面可见性变化时检查存储
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden && this.isAuthenticated) {
+                setTimeout(() => {
+                    this.verifyAndRepairStorage();
+                }, 1000);
+            }
+        });
+    }
+
+    // 验证并修复存储
+    async verifyAndRepairStorage() {
+        try {
+            const stored = localStorage.getItem(this.storageKey);
+            if (!stored && this.isAuthenticated) {
+                console.log('检测到存储丢失，尝试修复');
+                // 重新保存当前认证状态
+                this.saveAuth(this.authToken, this.csrfToken, this.usesCookies);
+            }
+        } catch (error) {
+            console.error('存储验证失败:', error);
+        }
+    }
+
+    // 设置与原生应用的通信
+    setupNativeAppCommunication() {
+        // 检查是否有原生应用提供的接口
+        if (window.AndroidInterface || window.webkit?.messageHandlers) {
+            console.log('检测到原生应用接口');
+            
+            // 监听来自原生应用的消息
+            window.addEventListener('message', (event) => {
+                if (event.data && event.data.type === 'restoreAuth') {
+                    console.log('从原生应用恢复认证状态');
+                    this.restoreAuthFromNative(event.data.authData);
+                }
+            });
+        }
+    }
+
+    // 从原生应用恢复认证状态
+    restoreAuthFromNative(authData) {
+        if (authData && authData.token && authData.csrfToken) {
+            this.authToken = authData.token;
+            this.csrfToken = authData.csrfToken;
+            this.usesCookies = false; // WebView模式强制使用localStorage
+            this.isAuthenticated = true;
+            
+            // 保存到localStorage
+            this.saveAuth(this.authToken, this.csrfToken, this.usesCookies);
+            
+            console.log('从原生应用恢复认证状态成功');
+            this.onAuthSuccess();
+        }
     }
 
     // 初始化认证管理器
     async init() {
         console.log('认证管理器初始化开始');
+        
+        // 检测WebView环境并进行兼容性处理
+        this.detectAndHandleWebView();
         
         // 检查本地存储的认证信息
         this.loadStoredAuth();
@@ -79,29 +185,47 @@ class AuthManager {
     // 从本地存储加载认证信息
     loadStoredAuth() {
         try {
-            const stored = localStorage.getItem(this.storageKey);
+            let stored = localStorage.getItem(this.storageKey);
+            let authData = null;
 
+            // 尝试从主存储位置加载
             if (stored) {
-                const authData = JSON.parse(stored);
+                authData = JSON.parse(stored);
+            }
+            
+            // WebView环境下，如果主存储失败，尝试从备用位置恢复
+            if (!authData && this.isWebView) {
+                console.log('主存储为空，尝试从WebView备用存储恢复');
+                authData = this.loadFromWebViewBackup();
+            }
 
+            if (authData) {
                 // 检查是否过期（7天）
                 const now = Date.now();
                 const expiry = authData.timestamp + (7 * 24 * 60 * 60 * 1000);
 
                 if (now < expiry) {
                     console.log('从localStorage加载认证信息:', {
+                        type: authData.type,
                         usesCookies: authData.usesCookies,
                         hasToken: !!authData.token,
                         hasCSRFToken: !!authData.csrfToken,
-                        age: Math.floor((now - authData.timestamp) / 60000) + ' 分钟'
+                        age: Math.floor((now - authData.timestamp) / 60000) + ' 分钟',
+                        webViewType: authData.webViewType
                     });
                     
-                    if (authData.usesCookies) {
+                    // WebView环境强制使用localStorage模式
+                    if (this.isWebView || authData.type === 'jwt-webview') {
+                        this.authToken = authData.token;
+                        this.csrfToken = authData.csrfToken;
+                        this.usesCookies = false; // WebView强制不使用Cookie
+                        this.isAuthenticated = true;
+                        console.log('WebView模式认证信息已加载');
+                    } else if (authData.usesCookies) {
                         // Cookie模式：只从localStorage获取CSRF token
                         this.csrfToken = authData.csrfToken;
                         this.usesCookies = true;
                         this.isAuthenticated = true;
-                        // authToken将从Cookie中获取，这里不设置
                         console.log('Cookie模式认证信息已加载');
                     } else {
                         // 传统模式：从localStorage获取完整信息
@@ -115,6 +239,8 @@ class AuthManager {
                     console.log('存储的认证信息已过期，清除');
                     this.clearStoredAuth();
                 }
+            } else {
+                console.log('未找到存储的认证信息');
             }
         } catch (error) {
             console.error('加载存储的认证信息失败:', error);
@@ -122,19 +248,53 @@ class AuthManager {
         }
     }
 
+    // 从WebView备用存储加载
+    loadFromWebViewBackup() {
+        try {
+            // 1. 尝试从备用localStorage key加载
+            let backup = localStorage.getItem(this.storageKey + '_webview');
+            if (backup) {
+                console.log('从WebView备用localStorage恢复');
+                return JSON.parse(backup);
+            }
+            
+            // 2. 尝试从sessionStorage加载
+            backup = sessionStorage.getItem(this.storageKey + '_backup');
+            if (backup) {
+                console.log('从sessionStorage备份恢复');
+                const authData = JSON.parse(backup);
+                // 恢复到主存储位置
+                localStorage.setItem(this.storageKey, backup);
+                return authData;
+            }
+            
+            return null;
+        } catch (error) {
+            console.error('从WebView备用存储加载失败:', error);
+            return null;
+        }
+    }
+
     // 保存认证信息到本地存储
     saveAuth(token, csrfToken = null, usesCookies = false) {
         try {
+            // 在WebView中强制使用localStorage模式
+            if (this.isWebView) {
+                usesCookies = false;
+                console.log('WebView环境：强制使用localStorage模式');
+            }
+
             const authData = {
                 token: token,
                 csrfToken: csrfToken,
                 usesCookies: usesCookies,
                 timestamp: Date.now(),
-                type: 'jwt' // 标识为JWT token
+                type: this.isWebView ? 'jwt-webview' : 'jwt',
+                webViewType: this.webViewType
             };
 
-            // 如果使用Cookie模式，只保存CSRF token到localStorage
-            if (usesCookies) {
+            // 如果使用Cookie模式且不在WebView中，只保存CSRF token到localStorage
+            if (usesCookies && !this.isWebView) {
                 const cookieAuthData = {
                     csrfToken: csrfToken,
                     usesCookies: true,
@@ -143,16 +303,53 @@ class AuthManager {
                 };
                 localStorage.setItem(this.storageKey, JSON.stringify(cookieAuthData));
             } else {
-                // 传统模式，保存完整信息
+                // 传统模式或WebView模式，保存完整信息
                 localStorage.setItem(this.storageKey, JSON.stringify(authData));
+                
+                // WebView中额外保存到多个位置以提高可靠性
+                if (this.isWebView) {
+                    this.saveAuthToMultipleLocations(authData);
+                }
             }
 
             this.authToken = token;
             this.csrfToken = csrfToken;
             this.usesCookies = usesCookies;
             this.isAuthenticated = true;
+            
+            // 通知原生应用保存认证状态
+            this.notifyNativeAppAuthSaved(authData);
+            
         } catch (error) {
             console.error('保存认证信息失败:', error);
+        }
+    }
+
+    // 在WebView中保存到多个位置
+    saveAuthToMultipleLocations(authData) {
+        try {
+            // 1. 保存到sessionStorage作为备份
+            sessionStorage.setItem(this.storageKey + '_backup', JSON.stringify(authData));
+            
+            // 2. 保存到一个备用key
+            localStorage.setItem(this.storageKey + '_webview', JSON.stringify(authData));
+            
+            console.log('WebView多重存储保存完成');
+        } catch (error) {
+            console.error('WebView多重存储失败:', error);
+        }
+    }
+
+    // 通知原生应用保存认证状态
+    notifyNativeAppAuthSaved(authData) {
+        try {
+            // Android WebView接口
+            if (window.AndroidInterface && window.AndroidInterface.saveAuthData) {
+                window.AndroidInterface.saveAuthData(JSON.stringify(authData));
+                console.log('已通知Android应用保存认证数据');
+            }
+        } catch (error) {
+            console.error('通知原生应用失败:', error);
         }
     }
 
