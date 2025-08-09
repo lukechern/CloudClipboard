@@ -4,7 +4,7 @@ window.initialDataLoaded = false;
 // 页面加载完成后的处理
 document.addEventListener('DOMContentLoaded', function () {
     // 监听认证成功事件
-    window.addEventListener('authSuccess', function() {
+    window.addEventListener('authSuccess', function () {
         // console.log('认证成功事件触发，initialDataLoaded:', window.initialDataLoaded);
         // 认证成功后，如果还没有进行初始数据加载，则加载数据
         if (!window.initialDataLoaded) {
@@ -18,13 +18,13 @@ document.addEventListener('DOMContentLoaded', function () {
             window.initialDataLoaded = true;
         }
     });
-    
+
     // 延迟检查认证状态，避免与认证管理器初始化冲突
     setTimeout(() => {
         // console.log('检查认证状态，authManager存在:', !!window.authManager, 
         //            '已认证:', window.authManager?.isAuthenticated, 
         //            'initialDataLoaded:', window.initialDataLoaded);
-        
+
         // 如果没有认证管理器或者已经认证成功，直接加载数据
         if (!window.authManager || window.authManager.isAuthenticated) {
             if (!window.initialDataLoaded) {
@@ -68,19 +68,19 @@ document.addEventListener('DOMContentLoaded', function () {
     const batchToolbar = document.createElement('div');
     batchToolbar.id = 'batchToolbar';
     batchToolbar.className = 'batch-toolbar';
-    batchToolbar.innerHTML = 
+    batchToolbar.innerHTML =
         '<div class="actions">' +
-            '<button class="complete-btn">' +
-                '<img src="img/complete.svg" class="icon" alt="完成" width="16" height="16">' +
-                '完成' +
-            '</button>' +
-            '<span class="count">已选择 0 项</span>' +
+        '<button class="complete-btn">' +
+        '<img src="img/complete.svg" class="icon" alt="完成" width="16" height="16">' +
+        '完成' +
+        '</button>' +
+        '<span class="count">已选择 0 项</span>' +
         '</div>' +
         '<div class="actions">' +
-            '<button class="delete-btn" disabled>' +
-                '<img src="img/delete.svg" class="icon" alt="删除" width="16" height="16">' +
-                '批量删除' +
-            '</button>' +
+        '<button class="delete-btn" disabled>' +
+        '<img src="img/delete.svg" class="icon" alt="删除" width="16" height="16">' +
+        '批量删除' +
+        '</button>' +
         '</div>';
     document.body.appendChild(batchToolbar);
 
@@ -226,20 +226,20 @@ document.addEventListener('DOMContentLoaded', function () {
             formData.append('content', content);
 
             // 发送请求 - 使用智能fetch自动处理token刷新
-            const fetchPromise = window.authManager ? 
+            const fetchPromise = window.authManager ?
                 window.authManager.smartFetch('/api/records', {
                     method: 'POST',
                     body: formData
-                }) : 
+                }) :
                 fetch('/api/records', {
                     method: 'POST',
                     body: formData
                 });
-            
+
             fetchPromise
                 .then(async response => {
                     console.log('保存请求响应状态:', response.status);
-                    
+
                     if (!response.ok) {
                         // 尝试获取详细错误信息
                         let errorMessage = '网络响应失败';
@@ -258,7 +258,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 })
                 .then(data => {
                     console.log('保存响应数据:', data);
-                    
+
                     // 检查服务器返回的是否是错误信息
                     if (data.error) {
                         throw new Error(data.error);
@@ -293,7 +293,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         hasCSRFToken: !!window.authManager?.csrfToken,
                         usesCookies: window.authManager?.usesCookies
                     });
-                    
+
                     showNotification('保存失败: ' + (error.message || '未知错误'));
 
                     if (submitBtn) {
@@ -305,7 +305,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 // 加载存储信息
 function loadStorageInfo() {
-    const requestConfig = window.authManager ? 
+    const requestConfig = window.authManager ?
         window.authManager.getRequestConfig() : {};
 
     fetch('/api/storage', requestConfig)
@@ -338,7 +338,7 @@ function loadStorageInfo() {
 function displayStorageInfo(storageInfo) {
     const container = document.getElementById('storage-info-container');
     const storageSection = document.querySelector('.storage-info');
-    
+
     if (!container || !storageSection) return;
 
     // 检查是否已登录
@@ -362,12 +362,12 @@ function displayStorageInfo(storageInfo) {
             <span class="storage-info-value"><a href="./init_db.html" target="_blank">${description}</a></span>
         </div>
         <div class="logout-section">
-            <a href="#" id="logoutLink" class="logout-link">退出</a>
+            <a href="#" id="logoutLink" class="logout-link">退出登录</a>
         </div>
     `;
 
     container.innerHTML = html;
-    
+
     // 绑定退出链接事件
     const logoutLink = document.getElementById('logoutLink');
     if (logoutLink) {
@@ -378,12 +378,12 @@ function displayStorageInfo(storageInfo) {
 // 处理退出登录
 function handleLogout(e) {
     e.preventDefault();
-    
+
     if (window.authManager) {
         // 使用自定义确认对话框，带有退出登录的特殊样式
         showConfirm(
-            '退出登录', 
-            '确定要退出登录吗？这将清除所有本地认证信息，您需要重新输入密码才能继续使用。', 
+            '退出登录',
+            '确定要退出登录吗？这将清除所有本地认证信息，您需要重新输入密码才能继续使用。',
             () => {
                 window.authManager.logout();
             },

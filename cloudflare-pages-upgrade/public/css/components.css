@@ -111,13 +111,26 @@
 }
 
 .modal-logout .modal-body {
-    border-left: 4px solid #dc3545;
-    background: #fff5f5;
+    background: linear-gradient(135deg, #fff5f5 0%, #ffeaea 100%);
+    border: 1px solid #f5c6cb;
+    position: relative;
+}
+
+.modal-logout .modal-body::before {
+    content: "⚠️";
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    font-size: 1.2em;
+    opacity: 0.7;
 }
 
 .modal-logout .modal-body p {
     color: #721c24;
     font-weight: 500;
+    margin-left: 35px; /* 为警告图标留出空间 */
+    margin-top: 0;
+    margin-bottom: 0;
 }
 
 .btn-logout {
