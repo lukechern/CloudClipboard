@@ -107,7 +107,7 @@
 
 /* 退出登录对话框特殊样式 */
 .modal-logout .modal-header {
-    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    background: linear-gradient(135deg, #b02a37 0%, #a01e2a 100%);
 }
 
 .modal-logout .modal-body {
@@ -116,14 +116,6 @@
     position: relative;
 }
 
-.modal-logout .modal-body::before {
-    content: "⚠️";
-    position: absolute;
-    top: 15px;
-    left: 15px;
-    font-size: 1.2em;
-    opacity: 0.7;
-}
 
 .modal-logout .modal-body p {
     color: #721c24;
@@ -134,15 +126,15 @@
 }
 
 .btn-logout {
-    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%) !important;
+    background: linear-gradient(135deg, #b02a37 0%, #a01e2a 100%) !important;
     color: white !important;
     font-weight: 600;
 }
 
 .btn-logout:hover {
-    background: linear-gradient(135deg, #c82333 0%, #bd2130 100%) !important;
+    background: linear-gradient(135deg, #a01e2a 0%, #951b26 100%) !important;
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+    box-shadow: 0 5px 15px rgba(176, 42, 55, 0.3);
 }
 
 .modal-logout .btn-cancel {

@@ -13,10 +13,10 @@ class AuthManager {
     async init() {
         // 检查本地存储的认证信息
         this.loadStoredAuth();
-        
+
         // 检查服务器是否需要密码保护
         const needsAuth = await this.checkAuthRequired();
-        
+
         if (needsAuth && !this.isAuthenticated) {
             this.showAuthModal();
         } else if (!needsAuth) {
@@ -64,14 +64,14 @@ class AuthManager {
     loadStoredAuth() {
         try {
             const stored = localStorage.getItem(this.storageKey);
-            
+
             if (stored) {
                 const authData = JSON.parse(stored);
-                
+
                 // 检查是否过期（7天）
                 const now = Date.now();
                 const expiry = authData.timestamp + (7 * 24 * 60 * 60 * 1000);
-                
+
                 if (now < expiry) {
                     if (authData.usesCookies) {
                         // Cookie模式：只从localStorage获取CSRF token
@@ -106,7 +106,7 @@ class AuthManager {
                 timestamp: Date.now(),
                 type: 'jwt' // 标识为JWT token
             };
-            
+
             // 如果使用Cookie模式，只保存CSRF token到localStorage
             if (usesCookies) {
                 const cookieAuthData = {
@@ -120,7 +120,7 @@ class AuthManager {
                 // 传统模式，保存完整信息
                 localStorage.setItem(this.storageKey, JSON.stringify(authData));
             }
-            
+
             this.authToken = token;
             this.csrfToken = csrfToken;
             this.usesCookies = usesCookies;
@@ -141,12 +141,12 @@ class AuthManager {
     showAuthModal() {
         // 锁定主内容
         document.body.classList.add('content-locked');
-        
+
         // 创建认证界面
         const overlay = document.createElement('div');
         overlay.className = 'auth-overlay';
         overlay.id = 'authOverlay';
-        
+
         overlay.innerHTML = `
             <div class="auth-modal">
                 <div class="auth-header">
@@ -182,17 +182,17 @@ class AuthManager {
                 </form>
             </div>
         `;
-        
+
         document.body.appendChild(overlay);
-        
+
         // 显示模态框
         setTimeout(() => {
             overlay.classList.add('show');
         }, 10);
-        
+
         // 绑定事件
         this.bindAuthEvents();
-        
+
         // 聚焦到密码输入框
         document.getElementById('passwordInput').focus();
     }
@@ -221,7 +221,7 @@ class AuthManager {
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             const password = passwordInput.value.trim();
             if (!password) {
                 this.showAuthError('请输入密码');
@@ -241,14 +241,14 @@ class AuthManager {
 
             try {
                 const result = await this.verifyPassword(password);
-                
+
                 if (result.success) {
                     console.log('认证成功，设置token信息:', {
                         hasToken: !!result.token,
                         hasCSRFToken: !!result.csrfToken,
                         usesCookies: result.usesCookies
                     });
-                    
+
                     // 设置token到实例变量
                     if (result.token) {
                         this.authToken = result.token;
@@ -261,7 +261,7 @@ class AuthManager {
                         this.usesCookies = true;
                     }
                     this.isAuthenticated = true;
-                    
+
                     // 检查是否需要记住密码
                     const rememberAuth = document.getElementById('rememberAuth').checked;
                     if (rememberAuth) {
@@ -271,7 +271,7 @@ class AuthManager {
                         // 因为CSRF token不能存储在HttpOnly Cookie中
                         this.saveAuth(null, result.csrfToken, result.usesCookies);
                     }
-                    
+
                     this.hideAuthModal();
                     this.onAuthSuccess();
                 } else if (result.blocked) {
@@ -279,7 +279,7 @@ class AuthManager {
                     const minutes = Math.ceil(result.remainingTime / 60);
                     this.showAuthError(`访问被暂时限制，请在 ${minutes} 分钟后重试`);
                     submitBtn.disabled = true;
-                    
+
                     // 倒计时显示
                     this.startBlockCountdown(result.remainingTime, submitBtn);
                 } else {
@@ -291,7 +291,7 @@ class AuthManager {
                     this.showAuthError(errorMsg);
                     passwordInput.value = '';
                     passwordInput.focus();
-                    
+
                     // 重置提交按钮状态，允许继续提交
                     submitBtn.disabled = false;
                     submitBtn.textContent = '验证访问权限';
@@ -328,7 +328,7 @@ class AuthManager {
         });
 
         const data = await response.json();
-        
+
         // 如果验证成功，保存相关信息
         if (data.success) {
             if (data.token) {
@@ -341,7 +341,7 @@ class AuthManager {
                 this.usesCookies = true;
             }
         }
-        
+
         return {
             success: data.success,
             token: data.token,
@@ -358,11 +358,11 @@ class AuthManager {
     showAuthError(message) {
         const errorDiv = document.getElementById('authError');
         const passwordInput = document.getElementById('passwordInput');
-        
+
         errorDiv.textContent = message;
         errorDiv.classList.add('show');
         passwordInput.classList.add('error');
-        
+
         // 3秒后清除错误样式
         setTimeout(() => {
             passwordInput.classList.remove('error');
@@ -372,7 +372,7 @@ class AuthManager {
     // 隐藏认证模态框
     hideAuthModal() {
         const overlay = document.getElementById('authOverlay');
-        
+
         if (overlay) {
             overlay.classList.remove('show');
             setTimeout(() => {
@@ -387,10 +387,10 @@ class AuthManager {
     // 认证成功回调
     onAuthSuccess() {
         this.isAuthenticated = true;
-        
+
         // 触发自定义事件
         window.dispatchEvent(new CustomEvent('authSuccess'));
-        
+
         // 如果页面已经加载完成，初始化应用
         if (document.readyState === 'complete') {
             this.initializeApp();
@@ -421,23 +421,23 @@ class AuthManager {
     // 开始封锁倒计时
     startBlockCountdown(remainingSeconds, submitBtn) {
         let remaining = remainingSeconds;
-        
+
         const updateButton = () => {
             const minutes = Math.floor(remaining / 60);
             const seconds = remaining % 60;
             submitBtn.textContent = `请等待 ${minutes}:${seconds.toString().padStart(2, '0')}`;
         };
-        
+
         updateButton();
-        
+
         const countdown = setInterval(() => {
             remaining--;
-            
+
             if (remaining <= 0) {
                 clearInterval(countdown);
                 submitBtn.disabled = false;
                 submitBtn.textContent = '验证访问权限';
-                
+
                 // 清除错误信息
                 const errorDiv = document.getElementById('authError');
                 if (errorDiv) {
@@ -452,15 +452,15 @@ class AuthManager {
     // 检查token是否即将过期并刷新
     async checkTokenExpiration() {
         if (!this.authToken) return;
-        
+
         try {
             // 解析JWT payload（简单解析，不验证签名）
             const parts = this.authToken.split('.');
             if (parts.length !== 3) return;
-            
+
             const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
             const now = Math.floor(Date.now() / 1000);
-            
+
             // 如果token在1小时内过期，尝试刷新
             if (payload.exp && payload.exp - now < 3600) {
                 console.log('Token即将过期，尝试刷新...');
@@ -474,39 +474,39 @@ class AuthManager {
     // 刷新CSRF token
     async refreshCSRFToken() {
         if (!this.isAuthenticated) return false;
-        
+
         try {
             console.log('正在刷新CSRF token...');
-            
+
             // 使用当前的认证信息请求新的CSRF token
             const config = this.getRequestConfig({
                 method: 'POST',
                 body: new FormData() // 空的表单数据
             });
-            
+
             // 临时移除CSRF token以避免验证失败
             const oldCSRFToken = this.csrfToken;
             delete config.headers['X-CSRF-Token'];
-            
+
             const response = await fetch('/api/auth/refresh-csrf', config);
-            
+
             if (response.ok) {
                 const data = await response.json();
                 if (data.csrfToken) {
                     this.csrfToken = data.csrfToken;
                     console.log('CSRF token刷新成功');
-                    
+
                     // 更新存储的认证信息
                     this.saveAuth(this.authToken, this.csrfToken, this.usesCookies);
                     return true;
                 }
             }
-            
+
             // 如果刷新失败，恢复旧token
             this.csrfToken = oldCSRFToken;
             console.log('CSRF token刷新失败，状态:', response.status);
             return false;
-            
+
         } catch (error) {
             console.error('刷新CSRF token失败:', error);
             return false;
@@ -517,7 +517,7 @@ class AuthManager {
     async refreshTokens() {
         // 先尝试刷新CSRF token
         const csrfRefreshed = await this.refreshCSRFToken();
-        
+
         if (!csrfRefreshed) {
             console.log('CSRF token刷新失败，可能需要重新登录');
             // 可以选择清除认证信息或显示重新登录提示
@@ -531,20 +531,20 @@ class AuthManager {
     // 获取认证头
     getAuthHeaders() {
         const headers = {};
-        
+
         // 如果不使用Cookie模式，添加Authorization头
         if (!this.usesCookies && this.authToken) {
             headers['Authorization'] = `Bearer ${this.authToken}`;
         }
-        
+
         // 添加CSRF token头（如果有）
         if (this.csrfToken) {
             headers['X-CSRF-Token'] = this.csrfToken;
-            console.log('添加CSRF token到请求头:', this.csrfToken.substring(0, 20) + '...');
+            // console.log('添加CSRF token到请求头:', this.csrfToken.substring(0, 20) + '...');
         } else {
-            console.warn('警告: 缺少CSRF token');
+            // console.warn('警告: 缺少CSRF token');
         }
-        
+
         return headers;
     }
 
@@ -557,12 +557,12 @@ class AuthManager {
                 ...(options.headers || {})
             }
         };
-        
+
         // 如果使用Cookie模式，确保发送Cookie
         if (this.usesCookies) {
             config.credentials = 'same-origin';
         }
-        
+
         return config;
     }
 
@@ -577,7 +577,7 @@ class AuthManager {
                     const authData = JSON.parse(stored);
                     const now = Date.now();
                     const age = now - authData.timestamp;
-                    
+
                     // 如果超过45分钟，尝试刷新CSRF token
                     if (age > 45 * 60 * 1000) {
                         console.log('CSRF token可能过期，尝试刷新...');
@@ -588,7 +588,7 @@ class AuthManager {
                 }
             }
         }
-        
+
         const config = this.getRequestConfig(options);
         return fetch(url, config);
     }
@@ -606,22 +606,22 @@ class AuthManager {
         } catch (error) {
             console.error('服务器注销失败:', error);
         }
-        
+
         // 清除本地认证信息
         this.clearStoredAuth();
-        
+
         // 清除实例状态
         this.authToken = null;
         this.csrfToken = null;
         this.usesCookies = false;
         this.isAuthenticated = false;
-        
+
         // 隐藏存储信息区域
         const storageSection = document.querySelector('.storage-info');
         if (storageSection) {
             storageSection.style.display = 'none';
         }
-        
+
         // 重新加载页面以确保完全清理状态
         location.reload();
     }

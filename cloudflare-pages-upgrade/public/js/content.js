@@ -56,7 +56,7 @@ function loadRecords(filter = 'cache') {
     
     fetchPromise
         .then(async response => {
-            console.log('加载记录响应状态:', response.status);
+            // console.log('加载记录响应状态:', response.status);
             
             // 检查响应是否成功
             if (!response.ok) {

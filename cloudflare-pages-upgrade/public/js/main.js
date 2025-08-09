@@ -257,7 +257,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     return response.json();
                 })
                 .then(data => {
-                    console.log('保存响应数据:', data);
+                    // console.log('保存响应数据:', data);
 
                     // 检查服务器返回的是否是错误信息
                     if (data.error) {

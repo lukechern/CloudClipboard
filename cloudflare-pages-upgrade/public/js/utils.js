@@ -36,7 +36,7 @@ function showConfirm(title, message, onConfirm, options = {}) {
     const cancelText = options.cancelText || '取消';
     
     // 为退出登录添加图标
-    const titleWithIcon = type === 'logout' ? `🚪 ${title}` : title;
+    const titleWithIcon = type === 'logout' ? `⚠️ ${title}` : title;
     
     modal.innerHTML = `
         <div class="${modalContentClass}">
