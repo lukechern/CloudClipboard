@@ -93,6 +93,38 @@
 
 如有任何问题或建议，请访问我们的 [GitHub 仓库](https://github.com/lukechern/CloudClipboard) 提交 Issue 或 Pull Request。
 
+### 免责声明
+
+本项目纯属个人兴趣之作，代码敲得飞起，bug修得心累。本着"为爱发电，为友谊干杯"的开源精神，希望能帮到有需要的小伙伴，供大家学习交流使用。
+
+但请注意：
+- 本项目不保证能让你升职加薪、迎娶白富美、走上人生巅峰
+- 本项目不保证能修复你破碎的内心和复杂的感情问题
+- 本项目不保证能让你在深夜 coding 时不会饿肚子
+- 本项目不保证能让你的头发重新长出来
+
+总而言之，使用本项目时请保持愉快的心情，但不对使用本项目产生的任何后果承担责任。代码有风险，使用需谨慎，跑路不负责！
+
+### 安全配置
+
+
+项目已升级到企业级安全系统，提供多层安全防护：
+
+**第一阶段 ✅**:
+- **JWT认证**: 替代Base64编码，防止token伪造
+- **速率限制**: 防止暴力破解攻击
+- **增强体验**: 智能错误提示和倒计时功能
+
+**第二阶段 ✅**:
+- **HttpOnly Cookie**: JWT token安全存储，防止XSS攻击
+- **CSRF保护**: 防止跨站请求伪造攻击
+- **双重认证**: Cookie + CSRF Token双重验证
+
+详细配置方法请参考：
+- [安全升级指南](cloudflare-pages-upgrade/SECURITY_UPGRADE.md)
+- [第二阶段安全升级](cloudflare-pages-upgrade/SECURITY_PHASE2.md)
+- [安全配置指南](cloudflare-pages-upgrade/SECURITY_CONFIG.md)
+
 ---
 
 ## English
@@ -150,6 +182,25 @@ An online clipboard tool based on Cloudflare D1 database for storing and managin
 
 ### Important Notes
 
+### Security Configuration
+
+The project has been upgraded to an enterprise-level security system with multi-layer protection:
+
+**Phase 1 ✅**:
+- **JWT Authentication**: Replaces Base64 encoding, prevents token forgery
+- **Rate Limiting**: Prevents brute force attacks
+- **Enhanced UX**: Smart error messages and countdown features
+
+**Phase 2 ✅**:
+- **HttpOnly Cookie**: Secure JWT token storage, prevents XSS attacks
+- **CSRF Protection**: Prevents cross-site request forgery attacks
+- **Dual Authentication**: Cookie + CSRF Token dual verification
+
+For detailed configuration instructions, see:
+- [Security Upgrade Guide](cloudflare-pages-upgrade/SECURITY_UPGRADE.md)
+- [Phase 2 Security Upgrade](cloudflare-pages-upgrade/SECURITY_PHASE2.md)
+- [Security Configuration Guide](cloudflare-pages-upgrade/SECURITY_CONFIG.md)
+
 - Ensure [config/config.php](file:///config/config.php) contains correct Cloudflare configuration information
 - Visit `init_db.php` to initialize the database before first use
 - Do not commit [config/config.php](file:///config/config.php) to version control systems
@@ -170,26 +221,6 @@ Thanks to the following tools and platforms for their support:
 ### Contact Us
 
 For any questions or suggestions, please visit our [GitHub repository](https://github.com/lukechern/CloudClipboard) to submit Issues or Pull Requests.
-### 安全配置
-
-
-项目已升级到企业级安全系统，提供多层安全防护：
-
-**第一阶段 ✅**:
-- **JWT认证**: 替代Base64编码，防止token伪造
-- **速率限制**: 防止暴力破解攻击
-- **增强体验**: 智能错误提示和倒计时功能
-
-**第二阶段 ✅**:
-- **HttpOnly Cookie**: JWT token安全存储，防止XSS攻击
-- **CSRF保护**: 防止跨站请求伪造攻击
-- **双重认证**: Cookie + CSRF Token双重验证
-
-详细配置方法请参考：
-- [安全升级指南](cloudflare-pages-upgrade/SECURITY_UPGRADE.md)
-- [第二阶段安全升级](cloudflare-pages-upgrade/SECURITY_PHASE2.md)
-- [安全配置指南](cloudflare-pages-upgrade/SECURITY_CONFIG.md)
-
 ### Security Configuration
 
 The project has been upgraded to enterprise-level security system with multi-layer protection:
@@ -208,3 +239,15 @@ For detailed configuration instructions, see:
 - [Security Upgrade Guide](cloudflare-pages-upgrade/SECURITY_UPGRADE.md)
 - [Phase 2 Security Upgrade](cloudflare-pages-upgrade/SECURITY_PHASE2.md)
 - [Security Configuration Guide](cloudflare-pages-upgrade/SECURITY_CONFIG.md)
+
+### Disclaimer
+
+This project is a personal hobby project, coded with passion and bugs fixed with tears. Built with the open-source spirit of "doing it for love and friendship", hoping to help those in need for learning and exchange purposes.
+
+Please note:
+- This project does not guarantee career advancement, marriage to a wealthy beauty, or reaching the pinnacle of life
+- This project does not guarantee fixing your broken heart or complex relationship issues
+- This project does not guarantee you won't get hungry while coding late at night
+- This project does not guarantee regrowing your hair
+
+In short, please use this project with a happy heart, but we take no responsibility for any consequences arising from its use. Code at your own risk, use with caution, and we're not responsible if you run away!
