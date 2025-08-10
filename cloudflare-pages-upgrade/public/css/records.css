@@ -164,7 +164,7 @@
 
 .refresh-btn {
     background: none;
-    border: 1px solid #e1e5e9;
+    border: none;
     border-radius: 6px;
     padding: 8px;
     cursor: pointer;
@@ -178,7 +178,6 @@
 }
 
 .refresh-btn:hover {
-    border-color: #667eea;
     color: #667eea;
     background-color: #f8f9ff;
 }
@@ -335,4 +334,67 @@
 .meta-icon {
     color: #999;
     flex-shrink: 0;
+}
+/* 下拉
+刷新指示器样式 */
+.pull-refresh-indicator {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%) translateY(-100%);
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 0 0 12px 12px;
+    padding: 15px 20px;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    opacity: 0;
+}
+
+.pull-refresh-indicator.ready {
+    background: rgba(102, 126, 234, 0.1);
+}
+
+.pull-refresh-indicator.refreshing {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1 !important;
+}
+
+.refresh-spinner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.refresh-icon {
+    transition: transform 0.3s ease;
+    color: #667eea;
+}
+
+.refreshing .refresh-icon {
+    animation: spin 1s linear infinite;
+}
+
+.refresh-text {
+    font-size: 14px;
+    color: #666;
+    font-weight: 500;
+}
+
+.pull-refresh-indicator.ready .refresh-text {
+    color: #667eea;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
 }
