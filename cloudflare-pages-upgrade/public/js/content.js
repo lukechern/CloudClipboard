@@ -16,6 +16,14 @@ function startRefreshAnimation() {
         refreshBtn.classList.add('refreshing');
         refreshBtn.disabled = true;
         
+        // 直接设置内联样式确保动画工作
+        const icon = refreshBtn.querySelector('.icon');
+        if (icon) {
+            icon.style.animation = 'spin 1s linear infinite';
+            icon.style.transform = 'none';
+            icon.style.transition = 'none';
+        }
+        
         // 强制重绘以确保动画立即开始
         refreshBtn.offsetHeight;
     }
@@ -29,6 +37,14 @@ function stopRefreshAnimation() {
     if (refreshBtn) {
         refreshBtn.classList.remove('refreshing');
         refreshBtn.disabled = false;
+        
+        // 清除内联样式，恢复CSS控制
+        const icon = refreshBtn.querySelector('.icon');
+        if (icon) {
+            icon.style.animation = '';
+            icon.style.transform = '';
+            icon.style.transition = '';
+        }
     }
 }
 

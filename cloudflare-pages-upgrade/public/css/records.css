@@ -190,31 +190,23 @@
     transition: transform 0.3s;
 }
 
-.refresh-btn:hover .icon {
+/* 只有在非刷新状态下才应用hover效果 */
+.refresh-btn:not(.refreshing):hover .icon {
     transform: rotate(180deg);
 }
 
-button.refresh-btn.refreshing .icon {
+/* 刷新状态下的动画 - 使用最高优先级 */
+.refresh-btn.refreshing .icon {
     animation: spin 1s linear infinite !important;
     transform: none !important;
     transition: none !important;
 }
 
-button.refresh-btn.refreshing:hover .icon {
-    animation: spin 1s linear infinite !important;
-    transform: none !important;
-    transition: none !important;
-}
-
-/* 确保动画优先级最高 */
-#refreshRecords.refreshing .icon {
-    animation: spin 1s linear infinite !important;
-    transform: none !important;
-    transition: none !important;
-}
-
+/* 确保刷新时hover不会干扰动画 */
 .refresh-btn.refreshing:hover .icon {
+    animation: spin 1s linear infinite !important;
     transform: none !important;
+    transition: none !important;
 }
 
 .tab-container {
