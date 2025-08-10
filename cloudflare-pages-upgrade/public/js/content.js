@@ -311,7 +311,7 @@ document.addEventListener('DOMContentLoaded', function () {
         refreshBtn.addEventListener('click', function () {
             // 刷新当前过滤器的记录
             loadRecords(window.currentFilter || 'cache');
-            
+
             // 显示刷新提示
             if (typeof showNotification === 'function') {
                 showNotification('记录已刷新');
