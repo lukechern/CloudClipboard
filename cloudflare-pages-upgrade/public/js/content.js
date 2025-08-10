@@ -15,6 +15,9 @@ function startRefreshAnimation() {
     if (refreshBtn) {
         refreshBtn.classList.add('refreshing');
         refreshBtn.disabled = true;
+        
+        // 强制重绘以确保动画立即开始
+        refreshBtn.offsetHeight;
     }
 }
 

@@ -194,9 +194,23 @@
     transform: rotate(180deg);
 }
 
-.refresh-btn.refreshing .icon {
-    animation: spin 1s linear infinite;
+button.refresh-btn.refreshing .icon {
+    animation: spin 1s linear infinite !important;
     transform: none !important;
+    transition: none !important;
+}
+
+button.refresh-btn.refreshing:hover .icon {
+    animation: spin 1s linear infinite !important;
+    transform: none !important;
+    transition: none !important;
+}
+
+/* 确保动画优先级最高 */
+#refreshRecords.refreshing .icon {
+    animation: spin 1s linear infinite !important;
+    transform: none !important;
+    transition: none !important;
 }
 
 .refresh-btn.refreshing:hover .icon {
@@ -344,6 +358,7 @@
     color: #999;
     flex-shrink: 0;
 }
+
 /* 下拉刷新指示器样式 */
 .pull-refresh-indicator {
     position: absolute;
@@ -403,6 +418,7 @@
     from {
         transform: rotate(0deg);
     }
+
     to {
         transform: rotate(360deg);
     }
