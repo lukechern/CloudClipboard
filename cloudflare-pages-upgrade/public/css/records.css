@@ -194,6 +194,15 @@
     transform: rotate(180deg);
 }
 
+.refresh-btn.refreshing .icon {
+    animation: spin 1s linear infinite;
+    transform: none !important;
+}
+
+.refresh-btn.refreshing:hover .icon {
+    transform: none !important;
+}
+
 .tab-container {
     display: flex;
     gap: 16px;

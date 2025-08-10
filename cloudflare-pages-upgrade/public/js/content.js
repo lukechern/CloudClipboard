@@ -4,6 +4,30 @@ let pullToRefreshCurrentY = 0;
 let pullToRefreshThreshold = 80;
 let isPulling = false;
 let refreshIndicator = null;
+let isRefreshing = false;
+
+// 开始刷新动画
+function startRefreshAnimation() {
+    if (isRefreshing) return;
+    isRefreshing = true;
+
+    const refreshBtn = document.getElementById('refreshRecords');
+    if (refreshBtn) {
+        refreshBtn.classList.add('refreshing');
+        refreshBtn.disabled = true;
+    }
+}
+
+// 停止刷新动画
+function stopRefreshAnimation() {
+    isRefreshing = false;
+
+    const refreshBtn = document.getElementById('refreshRecords');
+    if (refreshBtn) {
+        refreshBtn.classList.remove('refreshing');
+        refreshBtn.disabled = false;
+    }
+}
 
 // 创建刷新指示器
 function createRefreshIndicator() {
@@ -31,9 +55,16 @@ function createRefreshIndicator() {
 
 // 触发刷新
 function triggerRefresh() {
+    if (isRefreshing) return; // 防止重复刷新
+
+    // 开始刷新动画
+    startRefreshAnimation();
+
     const indicator = createRefreshIndicator();
-    indicator.classList.add('refreshing');
-    indicator.querySelector('.refresh-text').textContent = '正在刷新...';
+    if (indicator) {
+        indicator.classList.add('refreshing');
+        indicator.querySelector('.refresh-text').textContent = '正在刷新...';
+    }
 
     // 刷新当前过滤器的记录
     loadRecords(window.currentFilter || 'cache');
@@ -42,15 +73,6 @@ function triggerRefresh() {
     if (typeof showNotification === 'function') {
         showNotification('记录已刷新');
     }
-
-    // 延迟隐藏指示器
-    setTimeout(() => {
-        indicator.classList.remove('refreshing');
-        indicator.style.opacity = '0';
-        setTimeout(() => {
-            indicator.style.display = 'none';
-        }, 300);
-    }, 1000);
 }
 
 // 切换内容展开/收起状态
@@ -162,6 +184,18 @@ function loadRecords(filter = 'cache') {
             return response.json(); // 直接解析JSON
         })
         .then(data => {
+            // 停止刷新动画
+            stopRefreshAnimation();
+
+            // 隐藏下拉刷新指示器
+            if (refreshIndicator) {
+                refreshIndicator.classList.remove('refreshing');
+                refreshIndicator.style.opacity = '0';
+                setTimeout(() => {
+                    refreshIndicator.style.display = 'none';
+                }, 300);
+            }
+
             // 隐藏加载状态
             loadingElement.style.display = 'none';
             container.style.display = 'block';
@@ -255,6 +289,19 @@ function loadRecords(filter = 'cache') {
         })
         .catch(error => {
             console.error('加载记录失败:', error);
+
+            // 停止刷新动画
+            stopRefreshAnimation();
+
+            // 隐藏下拉刷新指示器
+            if (refreshIndicator) {
+                refreshIndicator.classList.remove('refreshing');
+                refreshIndicator.style.opacity = '0';
+                setTimeout(() => {
+                    refreshIndicator.style.display = 'none';
+                }, 300);
+            }
+
             // 隐藏加载状态
             loadingElement.style.display = 'none';
             container.style.display = 'block';
@@ -353,6 +400,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     // 缓存模式下显示批量操作按钮
                     batchOperationBtn.style.display = 'flex';
                 }
+            }
+
+            // 如果正在刷新，先停止动画
+            if (isRefreshing) {
+                stopRefreshAnimation();
             }
 
             // 加载对应的记录
