@@ -305,6 +305,20 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    // 刷新按钮点击事件
+    const refreshBtn = document.getElementById('refreshRecords');
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', function () {
+            // 刷新当前过滤器的记录
+            loadRecords(window.currentFilter || 'cache');
+            
+            // 显示刷新提示
+            if (typeof showNotification === 'function') {
+                showNotification('记录已刷新');
+            }
+        });
+    }
+
     // 检查存档功能支持
     setTimeout(() => {
         checkArchiveSupport();

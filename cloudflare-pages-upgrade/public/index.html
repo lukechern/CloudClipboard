@@ -38,9 +38,14 @@
             <div class="records-section">
                 <div class="records-header">
                     <h2>历史记录</h2>
-                    <div class="tab-container">
-                        <button class="tab-btn active" data-filter="cache">缓存</button>
-                        <button class="tab-btn" data-filter="archived">存档</button>
+                    <div class="header-actions">
+                        <button class="refresh-btn" id="refreshRecords" title="刷新记录">
+                            <img src="img/refresh.svg" class="icon" alt="刷新" width="16" height="16">
+                        </button>
+                        <div class="tab-container">
+                            <button class="tab-btn active" data-filter="cache">缓存</button>
+                            <button class="tab-btn" data-filter="archived">存档</button>
+                        </div>
                     </div>
                 </div>
                 <div id="records-loading" class="records-loading" style="display: none;">
