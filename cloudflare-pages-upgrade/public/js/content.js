@@ -8,7 +8,15 @@ let refreshIndicator = null;
 // 创建刷新指示器
 function createRefreshIndicator() {
     if (refreshIndicator) return refreshIndicator;
-    
+
+    const textareaContainer = document.querySelector('.textarea-container');
+    if (!textareaContainer) return null;
+
+    // 确保容器有相对定位
+    if (getComputedStyle(textareaContainer).position === 'static') {
+        textareaContainer.style.position = 'relative';
+    }
+
     refreshIndicator = document.createElement('div');
     refreshIndicator.className = 'pull-refresh-indicator';
     refreshIndicator.innerHTML = `
@@ -17,7 +25,7 @@ function createRefreshIndicator() {
         </div>
         <span class="refresh-text">下拉刷新</span>
     `;
-    document.body.appendChild(refreshIndicator);
+    textareaContainer.appendChild(refreshIndicator);
     return refreshIndicator;
 }
 
@@ -26,19 +34,19 @@ function triggerRefresh() {
     const indicator = createRefreshIndicator();
     indicator.classList.add('refreshing');
     indicator.querySelector('.refresh-text').textContent = '正在刷新...';
-    
+
     // 刷新当前过滤器的记录
     loadRecords(window.currentFilter || 'cache');
-    
+
     // 显示刷新提示
     if (typeof showNotification === 'function') {
         showNotification('记录已刷新');
     }
-    
+
     // 延迟隐藏指示器
     setTimeout(() => {
         indicator.classList.remove('refreshing');
-        indicator.style.transform = 'translateY(-100%)';
+        indicator.style.opacity = '0';
         setTimeout(() => {
             indicator.style.display = 'none';
         }, 300);
@@ -371,7 +379,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // 触摸开始
-    document.addEventListener('touchstart', function(e) {
+    document.addEventListener('touchstart', function (e) {
         if (checkIfAtTop()) {
             touchStartY = e.touches[0].clientY;
             isAtTop = true;
@@ -379,7 +387,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }, { passive: true });
 
     // 触摸移动
-    document.addEventListener('touchmove', function(e) {
+    document.addEventListener('touchmove', function (e) {
         if (!isAtTop) return;
 
         touchCurrentY = e.touches[0].clientY;
@@ -388,21 +396,20 @@ document.addEventListener('DOMContentLoaded', function () {
         // 只有在页面顶部且向下拉时才处理
         if (checkIfAtTop() && pullDistance > 0) {
             isPulling = true;
-            
+
             const indicator = createRefreshIndicator();
+            if (!indicator) return;
+
             indicator.style.display = 'flex';
-            
+
             // 计算拉动进度
             const progress = Math.min(pullDistance / pullToRefreshThreshold, 1);
-            const translateY = Math.min(pullDistance * 0.5, pullToRefreshThreshold * 0.5);
-            
-            indicator.style.transform = `translateY(${translateY - 60}px)`;
             indicator.style.opacity = progress;
-            
+
             // 更新指示器状态
             const refreshIcon = indicator.querySelector('.refresh-icon');
             const refreshText = indicator.querySelector('.refresh-text');
-            
+
             if (pullDistance >= pullToRefreshThreshold) {
                 refreshIcon.style.transform = 'rotate(180deg)';
                 refreshText.textContent = '释放刷新';
@@ -412,7 +419,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 refreshText.textContent = '下拉刷新';
                 indicator.classList.remove('ready');
             }
-            
+
             // 阻止默认滚动行为
             if (pullDistance > 10) {
                 e.preventDefault();
@@ -421,23 +428,23 @@ document.addEventListener('DOMContentLoaded', function () {
     }, { passive: false });
 
     // 触摸结束
-    document.addEventListener('touchend', function(e) {
+    document.addEventListener('touchend', function (e) {
         if (!isPulling) return;
-        
+
         const pullDistance = touchCurrentY - touchStartY;
         const indicator = createRefreshIndicator();
-        
+
         if (pullDistance >= pullToRefreshThreshold) {
             // 触发刷新
             triggerRefresh();
         } else {
             // 隐藏指示器
-            indicator.style.transform = 'translateY(-100%)';
+            indicator.style.opacity = '0';
             setTimeout(() => {
                 indicator.style.display = 'none';
             }, 300);
         }
-        
+
         // 重置状态
         isPulling = false;
         isAtTop = false;
