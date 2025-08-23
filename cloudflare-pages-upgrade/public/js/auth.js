@@ -64,6 +64,22 @@ class AuthManager {
                 }, 1000);
             }
         });
+        
+        // 修复: 添加页面焦点恢复时的认证检查
+        window.addEventListener('focus', () => {
+            if (this.isAuthenticated) {
+                this.checkAuthStatus_7ree();
+            }
+        });
+        
+        // 修复: 添加页面加载完成后的认证检查
+        window.addEventListener('load', () => {
+            if (this.isAuthenticated) {
+                setTimeout(() => {
+                    this.checkAuthStatus_7ree();
+                }, 2000);
+            }
+        });
     }
 
     // 验证并修复存储
@@ -163,21 +179,42 @@ class AuthManager {
     // 验证存储的token
     async validateStoredToken() {
         try {
-            console.log('验证存储的token，认证状态:', {
+            console.log('🔍 [DEBUG] 验证存储的token，认证状态:', {
                 isAuthenticated: this.isAuthenticated,
                 hasAuthToken: !!this.authToken,
                 hasCSRFToken: !!this.csrfToken,
-                usesCookies: this.usesCookies
+                usesCookies: this.usesCookies,
+                timestamp: new Date().toISOString()
             });
             
             // 使用getRequestConfig确保正确的请求配置
             const config = this.getRequestConfig({ method: 'GET' });
+            console.log('🔍 [DEBUG] 请求配置:', {
+                headers: config.headers,
+                credentials: config.credentials
+            });
+            
             const response = await fetch('/api/records', config);
             
-            console.log('Token验证响应状态:', response.status);
+            console.log('🔍 [DEBUG] Token验证响应:', {
+                status: response.status,
+                statusText: response.statusText,
+                ok: response.ok,
+                headers: Object.fromEntries(response.headers.entries())
+            });
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.log('🔍 [DEBUG] Token验证失败响应内容:', errorText);
+            }
+            
             return response.ok;
         } catch (error) {
-            console.error('Token验证失败:', error);
+            console.error('🔍 [DEBUG] Token验证异常:', {
+                message: error.message,
+                stack: error.stack,
+                timestamp: new Date().toISOString()
+            });
             return false;
         }
     }
@@ -278,10 +315,18 @@ class AuthManager {
     // 保存认证信息到本地存储
     saveAuth(token, csrfToken = null, usesCookies = false) {
         try {
+            console.log('🔍 [DEBUG] 开始保存认证信息:', {
+                hasToken: !!token,
+                hasCSRFToken: !!csrfToken,
+                usesCookies: usesCookies,
+                isWebView: this.isWebView,
+                timestamp: new Date().toISOString()
+            });
+            
             // 在WebView中强制使用localStorage模式
             if (this.isWebView) {
                 usesCookies = false;
-                console.log('WebView环境：强制使用localStorage模式');
+                console.log('🔍 [DEBUG] WebView环境：强制使用localStorage模式');
             }
 
             const authData = {
@@ -302,9 +347,11 @@ class AuthManager {
                     type: 'jwt-cookie'
                 };
                 localStorage.setItem(this.storageKey, JSON.stringify(cookieAuthData));
+                console.log('🔍 [DEBUG] Cookie模式：仅保存CSRF token到localStorage');
             } else {
                 // 传统模式或WebView模式，保存完整信息
                 localStorage.setItem(this.storageKey, JSON.stringify(authData));
+                console.log('🔍 [DEBUG] 完整模式：保存所有认证信息到localStorage');
                 
                 // WebView中额外保存到多个位置以提高可靠性
                 if (this.isWebView) {
@@ -317,11 +364,20 @@ class AuthManager {
             this.usesCookies = usesCookies;
             this.isAuthenticated = true;
             
+            console.log('🔍 [DEBUG] 认证信息保存完成:', {
+                isAuthenticated: this.isAuthenticated,
+                usesCookies: this.usesCookies
+            });
+            
             // 通知原生应用保存认证状态
             this.notifyNativeAppAuthSaved(authData);
             
         } catch (error) {
-            console.error('保存认证信息失败:', error);
+            console.error('🔍 [DEBUG] 保存认证信息失败:', {
+                message: error.message,
+                stack: error.stack,
+                timestamp: new Date().toISOString()
+            });
         }
     }
 
@@ -848,14 +904,56 @@ class AuthManager {
         // 重新加载页面以确保完全清理状态
         location.reload();
     }
+
+    // 修复: 增强的认证状态检查方法
+    async checkAuthStatus_7ree() {
+        try {
+            console.log('执行增强认证状态检查');
+            
+            // 检查本地存储是否完整
+            const stored = localStorage.getItem(this.storageKey);
+            if (!stored) {
+                console.log('本地存储丢失，需要重新认证');
+                this.handleAuthLoss_7ree();
+                return;
+            }
+            
+            // 验证token是否仍然有效
+            const isValid = await this.validateStoredToken();
+            if (!isValid) {
+                console.log('Token验证失败，需要重新认证');
+                this.handleAuthLoss_7ree();
+                return;
+            }
+            
+            console.log('认证状态检查通过');
+        } catch (error) {
+            console.error('认证状态检查失败:', error);
+            this.handleAuthLoss_7ree();
+        }
+    }
+    
+    // 修复: 处理认证丢失的方法
+    handleAuthLoss_7ree() {
+        console.log('处理认证丢失');
+        this.clearStoredAuth();
+        this.isAuthenticated = false;
+        this.authToken = null;
+        this.csrfToken = null;
+        
+        // 显示认证模态框
+        this.showAuthModal();
+    }
 }
 
 // 创建全局认证管理器实例
 window.authManager = new AuthManager();
 
-// 定期检查token过期时间
+// 修复: 更频繁的token检查
 setInterval(() => {
     if (window.authManager && window.authManager.isAuthenticated) {
         window.authManager.checkTokenExpiration();
+        // 每2分钟进行一次完整的认证状态检查
+        window.authManager.checkAuthStatus_7ree();
     }
-}, 5 * 60 * 1000); // 每5分钟检查一次
+}, 2 * 60 * 1000); // 每2分钟检查一次

@@ -79,10 +79,23 @@ export async function onRequestPost(context) {
                 headers: { 'Content-Type': 'application/json' }
             });
 
-            // 设置HttpOnly Cookie
+            // 修复: 使用改进的Cookie设置方法
             const cookieManager = new CookieManager(env);
-            response = cookieManager.setAuthCookie(response, token);
-            response = cookieManager.setCSRFCookie(response, csrfToken);
+            const authCookieValue = cookieManager.createCookieString(cookieManager.cookieName, token, {
+                httpOnly: true,
+                secure: cookieManager.secure,
+                sameSite: cookieManager.sameSite,
+                maxAge: 7 * 24 * 60 * 60,
+                path: '/'
+            });
+            const csrfCookieValue = cookieManager.createCookieString(cookieManager.csrfCookieName, csrfToken, {
+                httpOnly: false,
+                secure: cookieManager.secure,
+                sameSite: cookieManager.sameSite,
+                maxAge: 7 * 24 * 60 * 60,
+                path: '/'
+            });
+            response = cookieManager.setMultipleCookies_7ree(response, [authCookieValue, csrfCookieValue]);
 
             return response;
         }
@@ -119,10 +132,23 @@ export async function onRequestPost(context) {
                 headers: { 'Content-Type': 'application/json' }
             });
 
-            // 设置HttpOnly Cookie
+            // 修复: 使用改进的Cookie设置方法
             const cookieManager = new CookieManager(env);
-            response = cookieManager.setAuthCookie(response, token);
-            response = cookieManager.setCSRFCookie(response, csrfToken);
+            const authCookieValue = cookieManager.createCookieString(cookieManager.cookieName, token, {
+                httpOnly: true,
+                secure: cookieManager.secure,
+                sameSite: cookieManager.sameSite,
+                maxAge: 7 * 24 * 60 * 60,
+                path: '/'
+            });
+            const csrfCookieValue = cookieManager.createCookieString(cookieManager.csrfCookieName, csrfToken, {
+                httpOnly: false,
+                secure: cookieManager.secure,
+                sameSite: cookieManager.sameSite,
+                maxAge: 7 * 24 * 60 * 60,
+                path: '/'
+            });
+            response = cookieManager.setMultipleCookies_7ree(response, [authCookieValue, csrfCookieValue]);
 
             return response;
         } else {

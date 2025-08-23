@@ -8,7 +8,8 @@ class CookieManager {
         this.csrfCookieName = 'cc_csrf_token';
         this.domain = this.extractDomain(env);
         this.secure = true; // Cloudflare Pages默认HTTPS
-        this.sameSite = 'Strict';
+        // 修复: 使用Lax而不是Strict，避免跨页面跳转时cookie丢失
+        this.sameSite = 'Lax';
     }
 
     // 提取域名
@@ -42,16 +43,28 @@ class CookieManager {
             path: '/'
         });
 
-        // 如果已经有Set-Cookie头，需要添加多个
-        const existingCookies = response.headers.get('Set-Cookie');
-        if (existingCookies) {
-            response.headers.delete('Set-Cookie');
-            response.headers.append('Set-Cookie', existingCookies);
+        // 修复: 正确处理多个Set-Cookie头
+        const existingCookies = response.headers.getAll('Set-Cookie');
+        if (existingCookies && existingCookies.length > 0) {
+            // 保留现有的cookies并添加新的
             response.headers.append('Set-Cookie', cookieValue);
         } else {
             response.headers.set('Set-Cookie', cookieValue);
         }
 
+        return response;
+    }
+
+    // 设置多个Cookie的辅助方法
+    setMultipleCookies_7ree(response, cookies) {
+        // 清除现有的Set-Cookie头
+        response.headers.delete('Set-Cookie');
+        
+        // 添加所有cookie
+        cookies.forEach(cookieValue => {
+            response.headers.append('Set-Cookie', cookieValue);
+        });
+        
         return response;
     }
 
@@ -79,10 +92,9 @@ class CookieManager {
             path: '/'
         });
 
-        const existingCookies = response.headers.get('Set-Cookie');
-        if (existingCookies) {
-            response.headers.delete('Set-Cookie');
-            response.headers.append('Set-Cookie', existingCookies);
+        // 修复: 正确处理多个Set-Cookie头
+        const existingCookies = response.headers.getAll('Set-Cookie');
+        if (existingCookies && existingCookies.length > 0) {
             response.headers.append('Set-Cookie', cookieValue);
         } else {
             response.headers.set('Set-Cookie', cookieValue);
