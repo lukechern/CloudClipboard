@@ -134,14 +134,21 @@ cloudflare-pages-upgrade/public/
 3. **存储**：建议定期清理不需要的图片记录
 4. **兼容性**：旧版本浏览器可能不支持某些功能
 5. **用户体验**：图片专用模式提供更直观的上传体验
+6. **表单验证**：系统会自动管理required属性，避免隐藏字段的验证错误
 
 ## 测试和演示
 
 - 访问 `test-clipboard.html` 查看详细的测试指南
 - 访问 `demo-workflow.html` 查看图片专用模式演示
+- 访问 `test-form-validation.html` 查看表单验证修复演示
 - 支持多种测试场景：纯文本、纯图片、混合内容
 
 ## 更新日志
+
+### v2.1.1 - 表单验证修复
+- 🐛 修复图片专用模式下的表单验证错误
+- 🔧 动态管理textarea的required属性
+- ✅ 解决"invalid form control not focusable"错误
 
 ### v2.1 - 图片专用模式
 - ✨ 新增图片专用模式，自动隐藏文本框

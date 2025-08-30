@@ -212,6 +212,11 @@ class ClipboardImageHandler {
             if (inputSection) {
                 inputSection.classList.remove('image-only-mode');
             }
+            // 恢复textarea的required属性
+            const textarea = document.getElementById('content-input');
+            if (textarea) {
+                textarea.setAttribute('required', '');
+            }
         } else {
             container.style.display = 'block';
             
@@ -242,6 +247,10 @@ class ClipboardImageHandler {
                 if (titleElement) {
                     titleElement.textContent = '准备发送图片到云端';
                 }
+                // 移除textarea的required属性，避免表单验证错误
+                if (textarea) {
+                    textarea.removeAttribute('required');
+                }
             } else {
                 // 有文本时显示文本框
                 if (textareaContainer) {
@@ -252,6 +261,10 @@ class ClipboardImageHandler {
                 }
                 if (titleElement) {
                     titleElement.textContent = '图片预览';
+                }
+                // 恢复textarea的required属性
+                if (textarea) {
+                    textarea.setAttribute('required', '');
                 }
             }
         }
@@ -291,11 +304,17 @@ class ClipboardImageHandler {
         // 恢复文本框显示
         const textareaContainer = document.querySelector('.textarea-container');
         const inputSection = document.querySelector('.input-section');
+        const textarea = document.getElementById('content-input');
+        
         if (textareaContainer) {
             textareaContainer.style.display = 'block';
         }
         if (inputSection) {
             inputSection.classList.remove('image-only-mode');
+        }
+        // 恢复textarea的required属性
+        if (textarea) {
+            textarea.setAttribute('required', '');
         }
         
         if (typeof showNotification === 'function') {
@@ -336,8 +355,14 @@ class ClipboardImageHandler {
         
         // 恢复正常模式
         const inputSection = document.querySelector('.input-section');
+        const textarea = document.getElementById('content-input');
+        
         if (inputSection) {
             inputSection.classList.remove('image-only-mode');
+        }
+        // 恢复textarea的required属性
+        if (textarea) {
+            textarea.setAttribute('required', '');
         }
     }
 }
