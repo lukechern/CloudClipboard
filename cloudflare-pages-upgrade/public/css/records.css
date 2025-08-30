@@ -68,6 +68,58 @@
     /* 确保与meta区域有间距 */
 }
 
+/* 记录中的图片样式 */
+.record-content .record-images {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.record-content .record-image {
+    position: relative;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #dee2e6;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.record-content .record-image:hover {
+    transform: scale(1.02);
+}
+
+.record-content .record-image img {
+    width: 80px;
+    height: 60px;
+    object-fit: cover;
+    display: block;
+}
+
+.record-content .record-image .image-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.record-content .record-image:hover .image-overlay {
+    opacity: 1;
+}
+
+.record-content .record-image .image-overlay span {
+    color: white;
+    font-size: 12px;
+    font-weight: 500;
+}
+
 .record-content.collapsed {
     display: -webkit-box;
     -webkit-line-clamp: 3;

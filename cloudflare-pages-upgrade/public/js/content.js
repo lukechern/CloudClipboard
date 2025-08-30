@@ -121,6 +121,63 @@ function toggleContent(id) {
 // 当前过滤器状态
 window.currentFilter = 'cache';
 
+// 图片查看功能
+function viewImage(base64, type) {
+    // 创建模态框
+    const modal = document.createElement('div');
+    modal.className = 'image-modal';
+    modal.innerHTML = `
+        <div class="image-modal-backdrop" onclick="closeImageModal()"></div>
+        <div class="image-modal-content">
+            <button class="image-modal-close" onclick="closeImageModal()">&times;</button>
+            <img src="${base64}" alt="查看图片" />
+            <div class="image-modal-actions">
+                <button onclick="downloadImage('${base64}', '${type}')" class="download-btn">下载图片</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    document.body.style.overflow = 'hidden';
+    
+    // 添加ESC键关闭功能
+    const handleEsc = (e) => {
+        if (e.key === 'Escape') {
+            closeImageModal();
+            document.removeEventListener('keydown', handleEsc);
+        }
+    };
+    document.addEventListener('keydown', handleEsc);
+}
+
+function closeImageModal() {
+    const modal = document.querySelector('.image-modal');
+    if (modal) {
+        modal.remove();
+        document.body.style.overflow = '';
+    }
+}
+
+function downloadImage(base64, type) {
+    try {
+        const link = document.createElement('a');
+        link.href = base64;
+        link.download = `image_${Date.now()}.${type.split('/')[1] || 'png'}`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        if (typeof showNotification === 'function') {
+            showNotification('图片下载已开始');
+        }
+    } catch (error) {
+        console.error('下载图片失败:', error);
+        if (typeof showNotification === 'function') {
+            showNotification('下载图片失败');
+        }
+    }
+}
+
 // 加载记录
 function loadRecords(filter = 'cache') {
     // console.log('loadRecords() 被调用，过滤器:', filter);
@@ -227,7 +284,33 @@ function loadRecords(filter = 'cache') {
                     let recordsHTML = '<ul class="record-list">';
                     data.forEach(record => {
                         // 对记录内容进行trim处理，去除前后空白字符
-                        const trimmedContent = record.content.trim();
+                        const trimmedContent = record.content ? record.content.trim() : '';
+
+                        // 处理图片数据
+                        let imagesHTML = '';
+                        let hasImages = false;
+                        if (record.images) {
+                            try {
+                                const images = typeof record.images === 'string' ? JSON.parse(record.images) : record.images;
+                                if (Array.isArray(images) && images.length > 0) {
+                                    hasImages = true;
+                                    imagesHTML = '<div class="record-images">';
+                                    images.forEach((img, index) => {
+                                        imagesHTML += `
+                                            <div class="record-image" onclick="viewImage('${img.base64}', '${img.type}')">
+                                                <img src="${img.base64}" alt="图片 ${index + 1}" />
+                                                <div class="image-overlay">
+                                                    <span>查看</span>
+                                                </div>
+                                            </div>
+                                        `;
+                                    });
+                                    imagesHTML += '</div>';
+                                }
+                            } catch (e) {
+                                console.error('解析图片数据失败:', e);
+                            }
+                        }
 
                         // 使用Base64编码内容，避免特殊字符问题
                         const encodedContent = btoa(unescape(encodeURIComponent(trimmedContent)));
@@ -260,17 +343,43 @@ function loadRecords(filter = 'cache') {
                         const starTitle = isArchived ? '移出存档' : '移入存档';
                         const starText = isArchived ? '移出存档' : '移入存档';
 
+                        // 构建内容区域
+                        let contentHTML = '';
+                        if (trimmedContent) {
+                            contentHTML += trimmedContent;
+                        }
+                        if (hasImages) {
+                            contentHTML += imagesHTML;
+                        }
+
+                        // 计算实际长度（包含图片）
+                        let imageCount = 0;
+                        if (hasImages && record.images) {
+                            try {
+                                const images = typeof record.images === 'string' ? JSON.parse(record.images) : record.images;
+                                imageCount = Array.isArray(images) ? images.length : 0;
+                            } catch (e) {
+                                imageCount = 0;
+                            }
+                        }
+                        const actualLength = record.length || (trimmedContent.length + (imageCount * 50));
+
                         recordsHTML += '<li class="record-item">' +
                             '<input type="checkbox" class="record-checkbox" data-id="' + record.id + '" style="display: none;">' +
                             '<div class="record-content-wrapper">' +
                             '<div class="' + contentClass + '" data-id="' + record.id + '">' +
-                            trimmedContent +
+                            contentHTML +
                             '</div>' +
                             '<div class="record-meta">' +
                             '<span class="meta-item">' +
                             '<img src="img/length.svg" class="meta-icon" width="14" height="14" title="长度">' +
-                            record.length +
+                            actualLength +
                             '</span>' +
+                            (hasImages ? 
+                                '<span class="meta-item">' +
+                                '<img src="img/image.svg" class="meta-icon" width="14" height="14" title="图片数量">' +
+                                imageCount + '张图片' +
+                                '</span>' : '') +
                             '<span class="meta-item">' +
                             '<img src="img/time.svg" class="meta-icon" width="14" height="14" title="时间">' +
                             formatTime(record.timestamp) +

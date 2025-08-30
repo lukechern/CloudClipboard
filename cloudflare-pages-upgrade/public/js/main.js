@@ -150,7 +150,10 @@ document.addEventListener('DOMContentLoaded', function () {
     if (textarea && clearBtn && textareaContainer) {
         // 监听textarea内容变化
         function updateClearButtonVisibility() {
-            if (textarea.value.trim().length > 0) {
+            const hasText = textarea.value.trim().length > 0;
+            const hasImages = window.clipboardHandler && window.clipboardHandler.hasImages();
+            
+            if (hasText || hasImages) {
                 textareaContainer.classList.add('has-content');
             } else {
                 textareaContainer.classList.remove('has-content');
@@ -168,8 +171,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // 清空内容的函数
         function clearTextarea() {
-            textarea.value = '';
-            updateClearButtonVisibility();
+            if (window.clipboardHandler) {
+                window.clipboardHandler.clearAll();
+            } else {
+                textarea.value = '';
+                updateClearButtonVisibility();
+            }
             textarea.focus();
             if (typeof showNotification === 'function') {
                 showNotification('内容已清空');
@@ -209,10 +216,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // 获取表单数据
             const content = textarea.value.trim();
+            const hasImages = window.clipboardHandler && window.clipboardHandler.hasImages();
 
             // 验证内容是否为空
-            if (!content) {
-                showNotification('请输入要保存的内容');
+            if (!content && !hasImages) {
+                showNotification('请输入要保存的内容或添加图片');
                 return;
             }
 
@@ -223,7 +231,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // 创建请求数据
             const formData = new FormData();
-            formData.append('content', content);
+            
+            // 添加文本内容
+            if (content) {
+                formData.append('content', content);
+            }
+
+            // 添加图片数据
+            if (hasImages) {
+                const imagesData = window.clipboardHandler.getImagesData();
+                formData.append('images', JSON.stringify(imagesData));
+                formData.append('content_type', 'mixed'); // 标识为混合内容
+            } else {
+                formData.append('content_type', 'text'); // 标识为纯文本
+            }
 
             // 发送请求 - 使用智能fetch自动处理token刷新
             const fetchPromise = window.authManager ?
@@ -264,13 +285,15 @@ document.addEventListener('DOMContentLoaded', function () {
                         throw new Error(data.error);
                     }
 
-                    // 清空并重新启用表单
-                    textarea.value = '';
-
-                    // 更新清空按钮状态
-                    const textareaContainer = document.querySelector('.textarea-container');
-                    if (textareaContainer) {
-                        textareaContainer.classList.remove('has-content');
+                    // 清空表单内容
+                    if (window.clipboardHandler) {
+                        window.clipboardHandler.clearAll();
+                    } else {
+                        textarea.value = '';
+                        const textareaContainer = document.querySelector('.textarea-container');
+                        if (textareaContainer) {
+                            textareaContainer.classList.remove('has-content');
+                        }
                     }
 
                     if (submitBtn) {
@@ -406,7 +429,7 @@ async function autoReadClipboard() {
     }
 
     // 检查浏览器是否支持剪贴板API
-    if (!navigator.clipboard || !navigator.clipboard.readText) {
+    if (!navigator.clipboard) {
         console.log('浏览器不支持剪贴板API');
         return;
     }
@@ -417,32 +440,41 @@ async function autoReadClipboard() {
         return;
     }
 
-    // 如果输入框已有内容，不覆盖
-    if (contentInput.value.trim()) {
-        console.log('输入框已有内容，跳过自动读取剪贴板');
+    // 如果输入框已有内容或已有图片，不覆盖
+    if (contentInput.value.trim() || (window.clipboardHandler && window.clipboardHandler.hasImages())) {
+        console.log('已有内容，跳过自动读取剪贴板');
         return;
     }
 
-    // 读取剪贴板内容
-    try {
-        const text = await navigator.clipboard.readText();
-        if (text && text.trim()) {
-            contentInput.value = text.trim();
-            // console.log('已自动读取剪贴板内容');
+    // 尝试使用剪贴板处理器自动读取
+    if (window.clipboardHandler) {
+        try {
+            await window.clipboardHandler.readClipboard();
+        } catch (err) {
+            console.log('自动读取剪贴板失败:', err.message);
+            // 如果新API失败，尝试只读取文本
+            try {
+                if (navigator.clipboard.readText) {
+                    const text = await navigator.clipboard.readText();
+                    if (text && text.trim()) {
+                        contentInput.value = text.trim();
+                        
+                        // 更新清空按钮状态
+                        const textareaContainer = document.querySelector('.textarea-container');
+                        if (textareaContainer) {
+                            textareaContainer.classList.add('has-content');
+                        }
 
-            // 更新清空按钮状态
-            const textareaContainer = document.querySelector('.textarea-container');
-            if (textareaContainer) {
-                textareaContainer.classList.add('has-content');
-            }
-
-            // 显示提示信息
-            if (typeof showNotification === 'function') {
-                showNotification('已自动读取剪贴板内容');
+                        // 显示提示信息
+                        if (typeof showNotification === 'function') {
+                            showNotification('已自动读取剪贴板文本');
+                        }
+                    }
+                }
+            } catch (textErr) {
+                console.log('无法读取剪贴板文本:', textErr.message);
             }
         }
-    } catch (err) {
-        console.log('无法读取剪贴板:', err.message);
     }
 }
 

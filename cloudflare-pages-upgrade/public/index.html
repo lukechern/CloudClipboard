@@ -31,7 +31,22 @@
                             <img src="img/clear.svg" alt="清空" width="24" height="24">
                         </button>
                     </div>
-                    <button type="submit">发送到云端</button>
+                    <div class="image-preview-container" id="imagePreviewContainer" style="display: none;">
+                        <div class="image-preview-header">
+                            <span class="image-preview-title">图片预览</span>
+                            <button type="button" class="remove-image-btn" id="removeImageBtn" title="移除图片">
+                                <img src="img/clear.svg" alt="移除" width="16" height="16">
+                            </button>
+                        </div>
+                        <div class="image-preview" id="imagePreview"></div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="paste-btn" id="pasteBtn" title="粘贴剪贴板内容">
+                            <img src="img/paste.svg" alt="粘贴" width="16" height="16">
+                            粘贴
+                        </button>
+                        <button type="submit">发送到云端</button>
+                    </div>
                 </form>
             </div>
 
@@ -82,6 +97,7 @@
     <script src="js/auth.js"></script>
     <script src="js/auth-debug_7ree.js"></script>
     <script src="js/utils.js"></script>
+    <script src="js/clipboard.js"></script>
     <script src="js/content.js"></script>
     <script src="js/batch.js"></script>
     <script src="js/main.js"></script>
