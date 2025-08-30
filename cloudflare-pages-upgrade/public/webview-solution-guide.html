@@ -128,8 +128,8 @@
     </style>
 </head>
 <body>
-    <h1>🚀 WebView图片加载优化完整方案</h1>
-    <p><strong>解决安卓WebView中大图片导致的无限加载转圈圈问题</strong></p>
+    <h1>🚀 图片加载优化方案</h1>
+    <p><strong>通过缩略图技术解决大图片导致的加载性能问题</strong></p>
 
     <!-- 问题分析 -->
     <div class="solution-section">
@@ -315,12 +315,12 @@ imagesHTML += `
         <h2>🔒 兼容性保证</h2>
         
         <div class="info-box">
-            <h4>📱 设备适配</h4>
+            <h4>📱 通用适配</h4>
             <ul>
-                <li><strong>安卓WebView：</strong>使用占位符 + 点击加载模式</li>
-                <li><strong>iOS Safari：</strong>使用缩略图 + 懒加载模式</li>
-                <li><strong>桌面浏览器：</strong>正常显示缩略图，性能无影响</li>
-                <li><strong>旧数据：</strong>自动兼容没有缩略图的历史记录</li>
+                <li><strong>所有设备：</strong>统一使用缩略图显示，性能优异</li>
+                <li><strong>响应式设计：</strong>自动适配不同屏幕尺寸</li>
+                <li><strong>旧数据兼容：</strong>自动兼容没有缩略图的历史记录</li>
+                <li><strong>渐进增强：</strong>有缩略图时使用，没有时降级到原图</li>
             </ul>
         </div>
 
@@ -362,19 +362,16 @@ imagesHTML += `
             </a>
             
             <a href="./test-thumbnail-generation.html" class="test-link" target="_blank">
-                <h4>🖼️ 缩略图测试</h4>
-                <p>测试缩略图生成功能和压缩效果</p>
+                <h4>🖼️ 缩略图详细测试</h4>
+                <p>详细测试缩略图生成功能和压缩效果</p>
             </a>
             
-            <a href="./webview-diagnostic.html" class="test-link" target="_blank">
-                <h4>📱 WebView诊断</h4>
-                <p>诊断WebView性能和优化效果</p>
+            <a href="./test-thumbnail-simple.html" class="test-link" target="_blank">
+                <h4>✨ 缩略图快速验证</h4>
+                <p>快速验证缩略图功能和优化效果</p>
             </a>
             
-            <a href="./test-mobile-optimization.html" class="test-link" target="_blank">
-                <h4>📲 移动端优化</h4>
-                <p>测试移动端渲染优化效果</p>
-            </a>
+
             
             <a href="./index.html" class="test-link" target="_blank">
                 <h4>🏠 主页面测试</h4>

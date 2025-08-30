@@ -325,13 +325,6 @@ function loadRecords(filter = 'cache') {
 
             // 处理数据
             try {
-                // 检测是否为移动设备，使用优化渲染
-                if (typeof window.renderRecordsOptimized === 'function' && 
-                    (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent))) {
-                    window.renderRecordsOptimized(data);
-                    return;
-                }
-                
                 if (data.length === 0) {
                     container.innerHTML = '<p style="text-align: center; color: #666; padding: 40px 0;">暂无记录</p>';
                 } else {
