@@ -338,15 +338,20 @@ class ClipboardImageHandler {
 
     // 清空所有内容（文本和图片）
     clearAll() {
-        // 清空文本
         const textarea = document.getElementById('content-input');
+        const textareaContainer = document.querySelector('.textarea-container');
+        const inputSection = document.querySelector('.input-section');
+        
+        // 清空文本
         if (textarea) {
             textarea.value = '';
-            const textareaContainer = document.querySelector('.textarea-container');
-            if (textareaContainer) {
-                textareaContainer.classList.remove('has-content');
-                textareaContainer.style.display = 'block'; // 确保文本框显示
-            }
+            // 恢复textarea的required属性
+            textarea.setAttribute('required', '');
+        }
+        
+        if (textareaContainer) {
+            textareaContainer.classList.remove('has-content');
+            textareaContainer.style.display = 'block'; // 确保文本框显示
         }
 
         // 清空图片
@@ -354,15 +359,8 @@ class ClipboardImageHandler {
         this.updateImagePreview();
         
         // 恢复正常模式
-        const inputSection = document.querySelector('.input-section');
-        const textarea = document.getElementById('content-input');
-        
         if (inputSection) {
             inputSection.classList.remove('image-only-mode');
-        }
-        // 恢复textarea的required属性
-        if (textarea) {
-            textarea.setAttribute('required', '');
         }
     }
 }
