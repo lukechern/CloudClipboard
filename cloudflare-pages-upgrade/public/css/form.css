@@ -100,7 +100,7 @@
         flex-direction: column;
     }
     
-    .paste-btn {
+    .upload-btn {
         width: 100%;
         justify-content: center;
     }
@@ -231,8 +231,8 @@
     margin-top: 15px;
 }
 
-.paste-btn {
-    background: #6c757d;
+.upload-btn {
+    background: #28a745;
     color: white;
     border: none;
     padding: 12px 16px;
@@ -247,12 +247,12 @@
     flex-shrink: 0;
 }
 
-.paste-btn:hover {
-    background: #5a6268;
+.upload-btn:hover {
+    background: #218838;
     transform: translateY(-1px);
 }
 
-.paste-btn:active {
+.upload-btn:active {
     transform: translateY(0);
 }
 

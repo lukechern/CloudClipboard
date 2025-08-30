@@ -6,10 +6,12 @@ class ClipboardImageHandler {
     }
 
     init() {
-        // 绑定粘贴按钮事件
-        const pasteBtn = document.getElementById('pasteBtn');
-        if (pasteBtn) {
-            pasteBtn.addEventListener('click', () => this.handlePasteClick());
+        // 绑定上传按钮事件
+        const uploadBtn = document.getElementById('uploadBtn');
+        const fileInput = document.getElementById('fileInput');
+        if (uploadBtn && fileInput) {
+            uploadBtn.addEventListener('click', () => this.handleUploadClick());
+            fileInput.addEventListener('change', (e) => this.handleFileSelect(e));
         }
 
         // 绑定移除图片按钮事件
@@ -24,19 +26,104 @@ class ClipboardImageHandler {
         // 监听键盘快捷键
         document.addEventListener('keydown', (e) => {
             if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
-                // Ctrl+V 或 Cmd+V
+                // Ctrl+V 或 Cmd+V - 检查是否有新的剪贴板内容
                 setTimeout(() => this.checkClipboard(), 100);
             }
         });
     }
 
-    async handlePasteClick() {
+    handleUploadClick() {
+        const fileInput = document.getElementById('fileInput');
+        if (fileInput) {
+            fileInput.click();
+        }
+    }
+
+    async handleFileSelect(event) {
+        const files = event.target.files;
+        if (!files || files.length === 0) return;
+
+        let addedCount = 0;
+        for (let file of files) {
+            if (file.type.startsWith('image/')) {
+                await this.addImage(file);
+                addedCount++;
+            }
+        }
+
+        if (addedCount > 0) {
+            if (typeof showNotification === 'function') {
+                showNotification(`已添加 ${addedCount} 张图片`);
+            }
+        } else {
+            if (typeof showNotification === 'function') {
+                showNotification('请选择图片文件');
+            }
+        }
+
+        // 清空文件输入，允许重复选择相同文件
+        event.target.value = '';
+    }
+
+    async checkClipboard() {
         try {
             await this.readClipboard();
         } catch (error) {
-            console.error('读取剪贴板失败:', error);
-            if (typeof showNotification === 'function') {
-                showNotification('读取剪贴板失败: ' + error.message);
+            // 静默处理错误，避免频繁提示
+            console.log('检查剪贴板失败:', error.message);
+        }
+    }
+
+    async readClipboard() {
+        if (!navigator.clipboard) {
+            throw new Error('浏览器不支持剪贴板API');
+        }
+
+        try {
+            // 尝试读取剪贴板内容
+            const clipboardItems = await navigator.clipboard.read();
+            
+            let hasContent = false;
+
+            for (const clipboardItem of clipboardItems) {
+                // 处理图片
+                for (const type of clipboardItem.types) {
+                    if (type.startsWith('image/')) {
+                        const blob = await clipboardItem.getType(type);
+                        await this.addImage(blob);
+                        hasContent = true;
+                    }
+                }
+
+                // 处理文本
+                if (clipboardItem.types.includes('text/plain')) {
+                    const textBlob = await clipboardItem.getType('text/plain');
+                    const text = await textBlob.text();
+                    if (text.trim()) {
+                        this.addText(text.trim());
+                        hasContent = true;
+                    }
+                }
+            }
+
+            if (hasContent && typeof showNotification === 'function') {
+                showNotification('已从剪贴板添加内容');
+            }
+
+        } catch (error) {
+            // 如果新API失败，尝试旧的文本API
+            try {
+                const text = await navigator.clipboard.readText();
+                if (text.trim()) {
+                    this.addText(text.trim());
+                    if (typeof showNotification === 'function') {
+                        showNotification('已从剪贴板添加文本');
+                    }
+                } else {
+                    throw new Error('剪贴板为空');
+                }
+            } catch (textError) {
+                throw new Error('无法访问剪贴板内容');
             }
         }
     }

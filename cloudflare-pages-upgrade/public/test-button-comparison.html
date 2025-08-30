@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>按钮功能对比测试</title>
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/form.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .comparison-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        .comparison-item {
+            background: white;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+        .comparison-item.old {
+            border-color: #6c757d;
+        }
+        .comparison-item.new {
+            border-color: #28a745;
+        }
+        .button-demo {
+            margin: 20px 0;
+        }
+        .old-paste-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 12px 16px;
+            font-size: 0.9rem;
+            border-radius: 8px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 500;
+            transition: background-color 0.2s, transform 0.2s;
+        }
+        .old-paste-btn:hover {
+            background: #5a6268;
+            transform: translateY(-1px);
+        }
+        .feature-list {
+            text-align: left;
+            margin-top: 15px;
+        }
+        .feature-list li {
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+        .feature-list li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #28a745;
+            font-weight: bold;
+        }
+        .summary {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        @media (max-width: 768px) {
+            .comparison-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>按钮功能对比：粘贴 vs 上传</h1>
+    
+    <div class="comparison-container">
+        <!-- 原粘贴按钮 -->
+        <div class="comparison-item old">
+            <h3>🔄 原粘贴按钮</h3>
+            <div class="button-demo">
+                <button class="old-paste-btn">
+                    <img src="img/paste.svg" alt="粘贴" width="16" height="16" style="filter: brightness(0) invert(1);">
+                    粘贴
+                </button>
+            </div>
+            <h4>功能特点：</h4>
+            <ul class="feature-list">
+                <li>读取系统剪贴板内容</li>
+                <li>支持粘贴图片和文本</li>
+                <li>需要用户先复制内容</li>
+                <li>依赖剪贴板API权限</li>
+                <li>灰色背景，粘贴图标</li>
+            </ul>
+        </div>
+
+        <!-- 新上传按钮 -->
+        <div class="comparison-item new">
+            <h3>📤 新上传按钮</h3>
+            <div class="button-demo">
+                <button class="upload-btn">
+                    <img src="img/upload.svg" alt="上传" width="16" height="16" style="filter: brightness(0) invert(1);">
+                    上传
+                </button>
+            </div>
+            <h4>功能特点：</h4>
+            <ul class="feature-list">
+                <li>打开文件选择对话框</li>
+                <li>支持选择本地图片文件</li>
+                <li>支持多选图片</li>
+                <li>无需剪贴板权限</li>
+                <li>绿色背景，上传图标</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="summary">
+        <h3>📋 修改总结</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div>
+                <h4>保持不变的功能：</h4>
+                <ul>
+                    <li>✅ 图片处理逻辑完全相同</li>
+                    <li>✅ Base64编码存储方式</li>
+                    <li>✅ 图片预览功能</li>
+                    <li>✅ 清除图片功能</li>
+                    <li>✅ 表单提交逻辑</li>
+                    <li>✅ 键盘粘贴快捷键（Ctrl+V）</li>
+                    <li>✅ 全局粘贴事件监听</li>
+                </ul>
+            </div>
+            <div>
+                <h4>改变的内容：</h4>
+                <ul>
+                    <li>🔄 按钮文字：粘贴 → 上传</li>
+                    <li>🔄 按钮图标：paste.svg → upload.svg</li>
+                    <li>🔄 按钮颜色：灰色 → 绿色</li>
+                    <li>🔄 触发方式：读取剪贴板 → 文件选择</li>
+                    <li>🔄 CSS类名：paste-btn → upload-btn</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div style="margin-top: 20px; padding: 15px; background: #e7f3ff; border-radius: 6px;">
+            <h4>💡 用户体验提升：</h4>
+            <p>新的上传按钮提供了更直观的文件选择方式，用户无需先复制图片到剪贴板，可以直接从文件系统选择图片。同时保留了粘贴功能（Ctrl+V），为用户提供了两种便捷的图片添加方式。</p>
+        </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 30px;">
+        <h3>🧪 实际测试</h3>
+        <p>要测试新的上传功能，请访问：</p>
+        <a href="./test-upload-button.html" target="_blank" style="color: #007bff; text-decoration: none; font-weight: bold; font-size: 1.1rem;">
+            🔗 打开上传按钮测试页面
+        </a>
+        <br><br>
+        <a href="./index.html" target="_blank" style="color: #28a745; text-decoration: none; font-weight: bold; font-size: 1.1rem;">
+            🏠 查看主页面效果
+        </a>
+    </div>
+</body>
+</html>
