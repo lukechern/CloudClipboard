@@ -178,6 +178,53 @@ function downloadImage(base64, type) {
     }
 }
 
+// 下载记录中的图片
+function downloadRecordImages(recordId, encodedImagesData) {
+    try {
+        // 解码图片数据
+        const imagesData = JSON.parse(decodeURIComponent(escape(atob(encodedImagesData))));
+        
+        if (!Array.isArray(imagesData) || imagesData.length === 0) {
+            if (typeof showNotification === 'function') {
+                showNotification('没有找到可下载的图片');
+            }
+            return;
+        }
+
+        // 如果只有一张图片，直接下载
+        if (imagesData.length === 1) {
+            const img = imagesData[0];
+            downloadImage(img.base64, img.type);
+        } else {
+            // 多张图片，依次下载
+            let downloadCount = 0;
+            imagesData.forEach((img, index) => {
+                setTimeout(() => {
+                    const link = document.createElement('a');
+                    link.href = img.base64;
+                    const extension = img.type.split('/')[1] || 'png';
+                    link.download = `image_${recordId}_${index + 1}.${extension}`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    
+                    downloadCount++;
+                    if (downloadCount === imagesData.length) {
+                        if (typeof showNotification === 'function') {
+                            showNotification(`已开始下载 ${imagesData.length} 张图片`);
+                        }
+                    }
+                }, index * 500); // 每张图片间隔500ms下载，避免浏览器限制
+            });
+        }
+    } catch (error) {
+        console.error('下载图片失败:', error);
+        if (typeof showNotification === 'function') {
+            showNotification('下载图片失败: ' + error.message);
+        }
+    }
+}
+
 // 加载记录
 function loadRecords(filter = 'cache') {
     // console.log('loadRecords() 被调用，过滤器:', filter);
@@ -354,15 +401,19 @@ function loadRecords(filter = 'cache') {
 
                         // 计算实际长度（包含图片）
                         let imageCount = 0;
+                        let images = [];
                         if (hasImages && record.images) {
                             try {
-                                const images = typeof record.images === 'string' ? JSON.parse(record.images) : record.images;
+                                images = typeof record.images === 'string' ? JSON.parse(record.images) : record.images;
                                 imageCount = Array.isArray(images) ? images.length : 0;
                             } catch (e) {
                                 imageCount = 0;
                             }
                         }
                         const actualLength = record.length || (trimmedContent.length + (imageCount * 50));
+
+                        // 检查是否是纯图片内容
+                        const isPureImageContent = trimmedContent.startsWith('[图片内容]') && hasImages;
 
                         recordsHTML += '<li class="record-item">' +
                             '<input type="checkbox" class="record-checkbox" data-id="' + record.id + '" style="display: none;">' +
@@ -393,11 +444,20 @@ function loadRecords(filter = 'cache') {
                             '</div>' +
                             '</div>' +
                             '<div class="record-actions">' +
-                            '<button class="copy-btn" onclick="copyToClipboard(' + record.id + ', \'' + encodedContent +
-                            '\')" title="复制">' +
-                            '<img src="img/copy.svg" class="icon copy-icon">' +
-                            '<span class="copy-text">复制</span>' +
-                            '</button>' +
+                            (isPureImageContent ? 
+                                // 纯图片内容显示下载按钮
+                                '<button class="download-btn" onclick="downloadRecordImages(' + record.id + ', \'' + 
+                                btoa(unescape(encodeURIComponent(JSON.stringify(images)))) + '\')" title="下载图片">' +
+                                '<img src="img/download.svg" class="icon download-icon">' +
+                                '<span class="download-text">下载</span>' +
+                                '</button>' :
+                                // 普通内容显示复制按钮
+                                '<button class="copy-btn" onclick="copyToClipboard(' + record.id + ', \'' + encodedContent +
+                                '\')" title="复制">' +
+                                '<img src="img/copy.svg" class="icon copy-icon">' +
+                                '<span class="copy-text">复制</span>' +
+                                '</button>'
+                            ) +
                             '</div>' +
                             '</li>';
                     });

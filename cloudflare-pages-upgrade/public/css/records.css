@@ -191,6 +191,42 @@
     font-weight: normal;
 }
 
+/* 下载按钮样式 */
+.download-btn {
+    background: #28a745;
+    border: 2px solid #28a745;
+    border-radius: 6px;
+    padding: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    color: white;
+}
+
+.download-btn:hover {
+    background: #218838;
+    border-color: #1e7e34;
+    transform: translateY(-1px);
+}
+
+.download-btn .icon {
+    width: 16px;
+    height: 16px;
+    margin-bottom: 4px;
+    filter: brightness(0) invert(1); /* 让图标变白色 */
+}
+
+.download-btn .download-text {
+    font-size: 12px;
+    font-weight: normal;
+    color: white;
+}
+
 /* 标签切换样式 */
 .records-header {
     display: flex;
