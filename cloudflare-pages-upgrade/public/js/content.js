@@ -343,16 +343,28 @@ function loadRecords(filter = 'cache') {
                         // 处理图片数据
                         let imagesHTML = '';
                         let hasImages = false;
+                        let images = [];
+                        let thumbnails = [];
+                        
                         if (record.images) {
                             try {
-                                const images = typeof record.images === 'string' ? JSON.parse(record.images) : record.images;
+                                images = typeof record.images === 'string' ? JSON.parse(record.images) : record.images;
+                                // 尝试获取缩略图数据
+                                if (record.thumbnails) {
+                                    thumbnails = typeof record.thumbnails === 'string' ? JSON.parse(record.thumbnails) : record.thumbnails;
+                                }
+                                
                                 if (Array.isArray(images) && images.length > 0) {
                                     hasImages = true;
                                     imagesHTML = '<div class="record-images">';
                                     images.forEach((img, index) => {
+                                        // 优先使用缩略图，如果没有则使用原图
+                                        const displayImage = (thumbnails[index] && thumbnails[index].base64) ? 
+                                                           thumbnails[index].base64 : img.base64;
+                                        
                                         imagesHTML += `
                                             <div class="record-image" onclick="viewImage('${img.base64}', '${img.type}')">
-                                                <img src="${img.base64}" alt="图片 ${index + 1}" />
+                                                <img src="${displayImage}" alt="图片 ${index + 1}" />
                                                 <div class="image-overlay">
                                                     <span>查看</span>
                                                 </div>

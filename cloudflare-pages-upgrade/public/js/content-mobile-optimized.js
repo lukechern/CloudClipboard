@@ -57,10 +57,12 @@ class ImageLazyLoader {
                 </div>
             `;
         } else {
-            // 桌面端和其他移动端使用缩略图
+            // 桌面端和其他移动端使用缩略图进行懒加载
+            const displaySrc = imageData.thumbnail || imageData.base64;
             return `
                 <div class="record-image lazy-image" 
-                     data-src="${imageData.base64}" 
+                     data-src="${displaySrc}" 
+                     data-original="${imageData.base64}"
                      data-type="${imageData.type}"
                      onclick="viewImage('${imageData.base64}', '${imageData.type}')">
                     <div class="image-loading">加载中...</div>
@@ -136,6 +138,12 @@ function renderRecordsOptimized(data) {
         if (record.images) {
             try {
                 images = typeof record.images === 'string' ? JSON.parse(record.images) : record.images;
+                // 获取缩略图数据
+                let thumbnails = [];
+                if (record.thumbnails) {
+                    thumbnails = typeof record.thumbnails === 'string' ? JSON.parse(record.thumbnails) : record.thumbnails;
+                }
+                
                 if (Array.isArray(images) && images.length > 0) {
                     hasImages = true;
                     imagesHTML = '<div class="record-images">';
@@ -145,11 +153,17 @@ function renderRecordsOptimized(data) {
                     const displayImages = images.slice(0, maxImages);
                     
                     displayImages.forEach((img, index) => {
+                        // 创建包含原图和缩略图信息的图片数据
+                        const imageWithThumbnail = {
+                            ...img,
+                            thumbnail: (thumbnails[index] && thumbnails[index].base64) ? thumbnails[index].base64 : img.base64
+                        };
+                        
                         if (optimizer) {
-                            const imgElement = optimizer.createOptimizedImageElement(img, index, record.id);
+                            const imgElement = optimizer.createOptimizedImageElement(imageWithThumbnail, index, record.id);
                             imagesHTML += imgElement.outerHTML;
                         } else {
-                            imagesHTML += window.imageLazyLoader.createImagePlaceholder(img, index);
+                            imagesHTML += window.imageLazyLoader.createImagePlaceholder(imageWithThumbnail, index);
                         }
                     });
                     

@@ -143,14 +143,33 @@ class WebViewOptimizer {
         placeholder.dataset.index = index;
         placeholder.dataset.recordId = recordId;
         
-        placeholder.innerHTML = `
-            <div class="image-placeholder-content">
-                <div class="image-icon">🖼️</div>
-                <div class="image-info">图片 ${index + 1}</div>
-                <div class="image-size">${this.formatFileSize(imageData.size || 0)}</div>
-                <div class="tap-to-load">点击查看</div>
-            </div>
-        `;
+        // 如果有缩略图，显示缩略图预览
+        if (imageData.thumbnail) {
+            placeholder.innerHTML = `
+                <img src="${imageData.thumbnail}" alt="图片 ${index + 1}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">
+                <div class="image-overlay" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s;">
+                    <span style="color: white; font-size: 12px;">点击查看</span>
+                </div>
+            `;
+            placeholder.style.position = 'relative';
+            placeholder.addEventListener('mouseenter', () => {
+                const overlay = placeholder.querySelector('.image-overlay');
+                if (overlay) overlay.style.opacity = '1';
+            });
+            placeholder.addEventListener('mouseleave', () => {
+                const overlay = placeholder.querySelector('.image-overlay');
+                if (overlay) overlay.style.opacity = '0';
+            });
+        } else {
+            placeholder.innerHTML = `
+                <div class="image-placeholder-content">
+                    <div class="image-icon">🖼️</div>
+                    <div class="image-info">图片 ${index + 1}</div>
+                    <div class="image-size">${this.formatFileSize(imageData.size || 0)}</div>
+                    <div class="tap-to-load">点击查看</div>
+                </div>
+            `;
+        }
         
         placeholder.addEventListener('click', () => {
             this.loadImageOnDemand(placeholder, imageData);
@@ -163,7 +182,9 @@ class WebViewOptimizer {
     createLazyImage(imageData, index) {
         const container = document.createElement('div');
         container.className = 'record-image lazy-image';
-        container.dataset.src = imageData.base64;
+        // 使用缩略图进行懒加载，原图用于查看
+        container.dataset.src = imageData.thumbnail || imageData.base64;
+        container.dataset.original = imageData.base64;
         container.dataset.type = imageData.type;
         
         container.innerHTML = `
@@ -175,6 +196,7 @@ class WebViewOptimizer {
         
         container.addEventListener('click', () => {
             if (typeof window.viewImage === 'function') {
+                // 查看时使用原图
                 window.viewImage(imageData.base64, imageData.type);
             }
         });

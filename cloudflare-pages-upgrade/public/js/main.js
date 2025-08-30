@@ -245,7 +245,23 @@ document.addEventListener('DOMContentLoaded', function () {
             // 添加图片数据
             if (hasImages) {
                 const imagesData = window.clipboardHandler.getImagesData();
-                formData.append('images', JSON.stringify(imagesData));
+                
+                // 分离原图和缩略图数据
+                const originalImages = imagesData.map(img => ({
+                    base64: img.base64,
+                    type: img.type,
+                    size: img.size
+                }));
+                
+                const thumbnailImages = imagesData.map(img => ({
+                    base64: img.thumbnail || img.base64, // 如果没有缩略图，使用原图
+                    type: img.type,
+                    size: img.size
+                }));
+                
+                formData.append('images', JSON.stringify(originalImages));
+                formData.append('thumbnails', JSON.stringify(thumbnailImages));
+                
                 if (content) {
                     formData.append('content_type', 'mixed'); // 标识为混合内容
                 } else {

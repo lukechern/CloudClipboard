@@ -66,7 +66,8 @@ export async function onRequestPost(context) {
     try {
         const formData = await request.formData();
         const content = formData.get('content');
-        const images = formData.get('images'); // 获取图片数据
+        const images = formData.get('images'); // 获取原图数据
+        const thumbnails = formData.get('thumbnails'); // 获取缩略图数据
 
         if (!content || content.trim() === '') {
             return new Response(JSON.stringify({ error: '内容不能为空' }), {
@@ -78,20 +79,26 @@ export async function onRequestPost(context) {
         const length = content.length;
         const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
 
-        // 检查表结构，看是否有archived和images字段
+        // 检查表结构，看是否有archived、images和thumbnails字段
         let hasArchivedColumn = false;
         let hasImagesColumn = false;
+        let hasThumbnailsColumn = false;
         try {
             const columns = await env.DB.prepare(`PRAGMA table_info(${env.TABLE_NAME})`).all();
             hasArchivedColumn = columns.results.some(col => col.name === 'archived');
             hasImagesColumn = columns.results.some(col => col.name === 'images');
+            hasThumbnailsColumn = columns.results.some(col => col.name === 'thumbnails');
         } catch (e) {
             console.log('检查表结构失败:', e);
         }
         
         // 保存到D1数据库
         let result;
-        if (hasArchivedColumn && hasImagesColumn) {
+        if (hasArchivedColumn && hasImagesColumn && hasThumbnailsColumn) {
+            result = await env.DB.prepare(
+                `INSERT INTO ${env.TABLE_NAME} (content, length, timestamp, archived, images, thumbnails) VALUES (?, ?, ?, 0, ?, ?)`
+            ).bind(content, length, timestamp, images, thumbnails).run();
+        } else if (hasArchivedColumn && hasImagesColumn) {
             result = await env.DB.prepare(
                 `INSERT INTO ${env.TABLE_NAME} (content, length, timestamp, archived, images) VALUES (?, ?, ?, 0, ?)`
             ).bind(content, length, timestamp, images).run();

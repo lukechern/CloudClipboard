@@ -228,10 +228,14 @@ class ClipboardImageHandler {
             // 转换为base64
             const base64 = await this.fileToBase64(file);
             
+            // 生成缩略图
+            const thumbnail = await this.generateThumbnail(file, 200, 200);
+            
             const imageData = {
                 id: Date.now() + Math.random(),
                 file: file,
-                base64: base64,
+                base64: base64,           // 原图
+                thumbnail: thumbnail,     // 缩略图
                 type: file.type,
                 size: file.size
             };
@@ -282,6 +286,78 @@ class ClipboardImageHandler {
         });
     }
 
+    // 生成缩略图
+    generateThumbnail(file, maxWidth = 200, maxHeight = 200, quality = 0.8) {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            img.onload = () => {
+                // 计算缩略图尺寸，保持宽高比
+                let { width, height } = this.calculateThumbnailSize(
+                    img.width, img.height, maxWidth, maxHeight
+                );
+                
+                canvas.width = width;
+                canvas.height = height;
+                
+                // 绘制缩略图
+                ctx.drawImage(img, 0, 0, width, height);
+                
+                // 转换为base64
+                const thumbnailBase64 = canvas.toDataURL(file.type, quality);
+                resolve(thumbnailBase64);
+            };
+            
+            img.onerror = () => reject(new Error('无法加载图片'));
+            
+            // 从文件创建图片URL
+            const url = URL.createObjectURL(file);
+            img.src = url;
+            
+            // 清理URL
+            img.onload = () => {
+                URL.revokeObjectURL(url);
+                // 计算缩略图尺寸，保持宽高比
+                let { width, height } = this.calculateThumbnailSize(
+                    img.width, img.height, maxWidth, maxHeight
+                );
+                
+                canvas.width = width;
+                canvas.height = height;
+                
+                // 绘制缩略图
+                ctx.drawImage(img, 0, 0, width, height);
+                
+                // 转换为base64
+                const thumbnailBase64 = canvas.toDataURL(file.type, quality);
+                resolve(thumbnailBase64);
+            };
+        });
+    }
+
+    // 计算缩略图尺寸，保持宽高比
+    calculateThumbnailSize(originalWidth, originalHeight, maxWidth, maxHeight) {
+        let width = originalWidth;
+        let height = originalHeight;
+        
+        // 如果图片尺寸小于最大尺寸，直接返回原尺寸
+        if (width <= maxWidth && height <= maxHeight) {
+            return { width, height };
+        }
+        
+        // 计算缩放比例
+        const widthRatio = maxWidth / width;
+        const heightRatio = maxHeight / height;
+        const ratio = Math.min(widthRatio, heightRatio);
+        
+        return {
+            width: Math.round(width * ratio),
+            height: Math.round(height * ratio)
+        };
+    }
+
     updateImagePreview() {
         const container = document.getElementById('imagePreviewContainer');
         const preview = document.getElementById('imagePreview');
@@ -311,9 +387,18 @@ class ClipboardImageHandler {
             
             this.currentImages.forEach((imageData, index) => {
                 const imgElement = document.createElement('img');
-                imgElement.src = imageData.base64;
+                // 使用缩略图进行预览，如果没有缩略图则使用原图
+                imgElement.src = imageData.thumbnail || imageData.base64;
                 imgElement.alt = `预览图片 ${index + 1}`;
                 imgElement.title = `${imageData.type} - ${this.formatFileSize(imageData.size)}`;
+                
+                // 点击预览图片时查看原图
+                imgElement.addEventListener('click', () => {
+                    if (typeof viewImage === 'function') {
+                        viewImage(imageData.base64, imageData.type);
+                    }
+                });
+                imgElement.style.cursor = 'pointer';
                 
                 preview.appendChild(imgElement);
             });
@@ -412,7 +497,8 @@ class ClipboardImageHandler {
     // 获取当前图片数据，用于表单提交
     getImagesData() {
         return this.currentImages.map(img => ({
-            base64: img.base64,
+            base64: img.base64,        // 原图
+            thumbnail: img.thumbnail,  // 缩略图
             type: img.type,
             size: img.size
         }));
