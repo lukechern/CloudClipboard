@@ -272,6 +272,20 @@
 
 .refresh-btn:active {
     transform: scale(0.95);
+    background-color: #e8ecff;
+}
+
+/* 手机版触摸反馈 */
+@media (max-width: 768px) {
+    .refresh-btn:active {
+        background-color: #e8ecff;
+        transform: scale(0.9);
+    }
+    
+    .refresh-btn:focus {
+        outline: 2px solid #667eea;
+        outline-offset: 2px;
+    }
 }
 
 .refresh-btn .icon {
@@ -380,9 +394,15 @@
     }
 
     .refresh-btn {
-        width: 28px;
-        height: 28px;
-        padding: 6px;
+        width: 36px;
+        height: 36px;
+        padding: 8px;
+        /* 增加触摸区域 */
+        min-width: 44px;
+        min-height: 44px;
+        /* 确保触摸友好 */
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: rgba(102, 126, 234, 0.2);
     }
 
     .tab-container {

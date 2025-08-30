@@ -74,7 +74,12 @@ function createRefreshIndicator() {
 
 // 触发刷新
 function triggerRefresh() {
-    if (isRefreshing) return; // 防止重复刷新
+    if (isRefreshing) {
+        console.log('正在刷新中，跳过重复请求');
+        return; // 防止重复刷新
+    }
+
+    console.log('开始刷新记录，当前过滤器:', window.currentFilter || 'cache');
 
     // 开始刷新动画
     startRefreshAnimation();
@@ -82,15 +87,27 @@ function triggerRefresh() {
     const indicator = createRefreshIndicator();
     if (indicator) {
         indicator.classList.add('refreshing');
-        indicator.querySelector('.refresh-text').textContent = '正在刷新...';
+        const refreshText = indicator.querySelector('.refresh-text');
+        if (refreshText) {
+            refreshText.textContent = '正在刷新...';
+        }
     }
 
     // 刷新当前过滤器的记录
-    loadRecords(window.currentFilter || 'cache');
-
-    // 显示刷新提示
-    if (typeof showNotification === 'function') {
-        showNotification('记录已刷新');
+    try {
+        loadRecords(window.currentFilter || 'cache');
+        
+        // 显示刷新提示
+        if (typeof showNotification === 'function') {
+            showNotification('正在刷新记录...');
+        }
+    } catch (error) {
+        console.error('刷新记录时出错:', error);
+        stopRefreshAnimation();
+        
+        if (typeof showNotification === 'function') {
+            showNotification('刷新失败，请重试');
+        }
     }
 }
 
@@ -120,6 +137,49 @@ function toggleContent(id) {
 
 // 当前过滤器状态
 window.currentFilter = 'cache';
+
+// 手机版调试和修复函数
+function debugMobileIssues() {
+    const isMobile = window.innerWidth <= 768;
+    if (!isMobile) return;
+    
+    console.log('=== 手机版调试信息 ===');
+    console.log('屏幕宽度:', window.innerWidth);
+    console.log('认证管理器存在:', !!window.authManager);
+    console.log('已认证:', window.authManager?.isAuthenticated);
+    console.log('初始数据已加载:', window.initialDataLoaded);
+    console.log('当前过滤器:', window.currentFilter);
+    
+    // 检查关键元素
+    const refreshBtn = document.getElementById('refreshRecords');
+    const recordsContainer = document.getElementById('records-container');
+    const loadingElement = document.getElementById('records-loading');
+    
+    console.log('刷新按钮存在:', !!refreshBtn);
+    console.log('记录容器存在:', !!recordsContainer);
+    console.log('加载元素存在:', !!loadingElement);
+    
+    if (refreshBtn) {
+        console.log('刷新按钮可见:', refreshBtn.offsetParent !== null);
+        console.log('刷新按钮禁用状态:', refreshBtn.disabled);
+    }
+    
+    // 如果记录没有加载，尝试手动触发
+    if (!window.initialDataLoaded && (!window.authManager || window.authManager.isAuthenticated)) {
+        console.log('尝试手动加载记录...');
+        setTimeout(() => {
+            if (typeof loadRecords === 'function') {
+                loadRecords();
+                window.initialDataLoaded = true;
+            }
+        }, 1000);
+    }
+}
+
+// 页面加载完成后运行调试
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(debugMobileIssues, 2000);
+});
 
 // 图片查看功能
 function viewImage(base64, type) {
@@ -307,6 +367,8 @@ function loadRecords(filter = 'cache') {
             return response.json(); // 直接解析JSON
         })
         .then(data => {
+            console.log('记录加载成功，数据长度:', data?.length || 0);
+            
             // 停止刷新动画
             stopRefreshAnimation();
 
@@ -315,13 +377,20 @@ function loadRecords(filter = 'cache') {
                 refreshIndicator.classList.remove('refreshing');
                 refreshIndicator.style.opacity = '0';
                 setTimeout(() => {
-                    refreshIndicator.style.display = 'none';
+                    if (refreshIndicator) {
+                        refreshIndicator.style.display = 'none';
+                    }
                 }, 300);
             }
 
             // 隐藏加载状态
             loadingElement.style.display = 'none';
             container.style.display = 'block';
+            
+            // 显示加载完成的通知
+            if (typeof showNotification === 'function') {
+                showNotification('记录已刷新');
+            }
 
             // 处理数据
             try {
@@ -498,7 +567,9 @@ function loadRecords(filter = 'cache') {
                 refreshIndicator.classList.remove('refreshing');
                 refreshIndicator.style.opacity = '0';
                 setTimeout(() => {
-                    refreshIndicator.style.display = 'none';
+                    if (refreshIndicator) {
+                        refreshIndicator.style.display = 'none';
+                    }
                 }, 300);
             }
 
@@ -506,6 +577,11 @@ function loadRecords(filter = 'cache') {
             loadingElement.style.display = 'none';
             container.style.display = 'block';
             container.innerHTML = '<p style="text-align: center; color: #666; padding: 40px 0;">加载记录失败: ' + error.message + '</p>';
+            
+            // 显示错误通知
+            if (typeof showNotification === 'function') {
+                showNotification('加载失败: ' + error.message);
+            }
         });
 }
 
@@ -615,8 +691,29 @@ document.addEventListener('DOMContentLoaded', function () {
     // 刷新按钮点击事件
     const refreshBtn = document.getElementById('refreshRecords');
     if (refreshBtn) {
-        refreshBtn.addEventListener('click', function () {
+        // 添加点击事件
+        refreshBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('刷新按钮被点击');
             triggerRefresh();
+        });
+        
+        // 为手机版添加触摸事件支持
+        refreshBtn.addEventListener('touchend', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('刷新按钮触摸结束');
+            triggerRefresh();
+        });
+        
+        // 防止触摸时的默认行为
+        refreshBtn.addEventListener('touchstart', function (e) {
+            e.stopPropagation();
+        });
+        
+        refreshBtn.addEventListener('touchmove', function (e) {
+            e.stopPropagation();
         });
     }
 
@@ -632,6 +729,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // 触摸开始
     document.addEventListener('touchstart', function (e) {
+        // 检查是否点击了刷新按钮或其他交互元素
+        const target = e.target;
+        const isInteractiveElement = target.closest('.refresh-btn') || 
+                                   target.closest('button') || 
+                                   target.closest('a') || 
+                                   target.closest('.record-actions') ||
+                                   target.closest('.tab-btn');
+        
+        if (isInteractiveElement) {
+            console.log('触摸到交互元素，跳过下拉刷新');
+            return;
+        }
+        
         if (checkIfAtTop()) {
             touchStartY = e.touches[0].clientY;
             isAtTop = true;
@@ -641,6 +751,18 @@ document.addEventListener('DOMContentLoaded', function () {
     // 触摸移动
     document.addEventListener('touchmove', function (e) {
         if (!isAtTop) return;
+
+        // 检查是否在交互元素上
+        const target = e.target;
+        const isInteractiveElement = target.closest('.refresh-btn') || 
+                                   target.closest('button') || 
+                                   target.closest('a') || 
+                                   target.closest('.record-actions') ||
+                                   target.closest('.tab-btn');
+        
+        if (isInteractiveElement) {
+            return;
+        }
 
         touchCurrentY = e.touches[0].clientY;
         const pullDistance = touchCurrentY - touchStartY;

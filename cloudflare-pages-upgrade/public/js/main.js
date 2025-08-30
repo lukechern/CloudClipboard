@@ -20,6 +20,10 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // 延迟检查认证状态，避免与认证管理器初始化冲突
+    // 手机版使用更短的延迟时间
+    const isMobile = window.innerWidth <= 768;
+    const delayTime = isMobile ? 100 : 200;
+    
     setTimeout(() => {
         // console.log('检查认证状态，authManager存在:', !!window.authManager, 
         //            '已认证:', window.authManager?.isAuthenticated, 
@@ -45,7 +49,26 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
         // 如果需要认证但还未认证，等待认证成功事件
-    }, 200);
+    }, delayTime);
+    
+    // 添加手机版的额外检查机制
+    if (isMobile) {
+        // 页面完全加载后再次检查
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                if (!window.initialDataLoaded && (!window.authManager || window.authManager.isAuthenticated)) {
+                    console.log('手机版延迟加载数据');
+                    if (typeof loadRecords === 'function') {
+                        loadRecords();
+                    }
+                    if (typeof loadStorageInfo === 'function') {
+                        loadStorageInfo();
+                    }
+                    window.initialDataLoaded = true;
+                }
+            }, 500);
+        });
+    }
 
     // 检查是否有成功消息
     const urlParams = new URLSearchParams(window.location.search);

@@ -3,6 +3,33 @@
         margin: 10px 0px;
         border-radius: 10px;
     }
+    
+    /* 改善手机版触摸体验 */
+    * {
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+    
+    /* 允许文本选择 */
+    .record-content, textarea, input[type="text"] {
+        -webkit-user-select: text;
+        -khtml-user-select: text;
+        -moz-user-select: text;
+        -ms-user-select: text;
+        user-select: text;
+    }
+    
+    /* 确保按钮有足够的触摸区域 */
+    button, .btn, .tab-btn, .refresh-btn {
+        min-height: 44px;
+        min-width: 44px;
+        touch-action: manipulation;
+    }
 
     .header {
         padding: 20px;
