@@ -177,6 +177,9 @@ class ClipboardImageHandler {
                 textareaContainer.classList.add('has-content');
             }
 
+            // 重新更新预览状态（可能需要显示文本框）
+            this.updateImagePreview();
+
             if (typeof showNotification === 'function') {
                 showNotification('已添加文本内容');
             }
@@ -195,11 +198,20 @@ class ClipboardImageHandler {
     updateImagePreview() {
         const container = document.getElementById('imagePreviewContainer');
         const preview = document.getElementById('imagePreview');
+        const textareaContainer = document.querySelector('.textarea-container');
+        const inputSection = document.querySelector('.input-section');
         
         if (!container || !preview) return;
 
         if (this.currentImages.length === 0) {
             container.style.display = 'none';
+            // 恢复文本框显示
+            if (textareaContainer) {
+                textareaContainer.style.display = 'block';
+            }
+            if (inputSection) {
+                inputSection.classList.remove('image-only-mode');
+            }
         } else {
             container.style.display = 'block';
             
@@ -213,6 +225,35 @@ class ClipboardImageHandler {
                 
                 preview.appendChild(imgElement);
             });
+
+            // 检查是否只有图片没有文本
+            const textarea = document.getElementById('content-input');
+            const hasText = textarea && textarea.value.trim().length > 0;
+            const titleElement = document.querySelector('.image-preview-title');
+            
+            if (!hasText) {
+                // 只有图片时隐藏文本框
+                if (textareaContainer) {
+                    textareaContainer.style.display = 'none';
+                }
+                if (inputSection) {
+                    inputSection.classList.add('image-only-mode');
+                }
+                if (titleElement) {
+                    titleElement.textContent = '准备发送图片到云端';
+                }
+            } else {
+                // 有文本时显示文本框
+                if (textareaContainer) {
+                    textareaContainer.style.display = 'block';
+                }
+                if (inputSection) {
+                    inputSection.classList.remove('image-only-mode');
+                }
+                if (titleElement) {
+                    titleElement.textContent = '图片预览';
+                }
+            }
         }
 
         // 通知主界面更新清空按钮状态
@@ -247,6 +288,16 @@ class ClipboardImageHandler {
         this.currentImages = [];
         this.updateImagePreview();
         
+        // 恢复文本框显示
+        const textareaContainer = document.querySelector('.textarea-container');
+        const inputSection = document.querySelector('.input-section');
+        if (textareaContainer) {
+            textareaContainer.style.display = 'block';
+        }
+        if (inputSection) {
+            inputSection.classList.remove('image-only-mode');
+        }
+        
         if (typeof showNotification === 'function') {
             showNotification('已清除所有图片');
         }
@@ -275,11 +326,19 @@ class ClipboardImageHandler {
             const textareaContainer = document.querySelector('.textarea-container');
             if (textareaContainer) {
                 textareaContainer.classList.remove('has-content');
+                textareaContainer.style.display = 'block'; // 确保文本框显示
             }
         }
 
         // 清空图片
-        this.clearImages();
+        this.currentImages = [];
+        this.updateImagePreview();
+        
+        // 恢复正常模式
+        const inputSection = document.querySelector('.input-section');
+        if (inputSection) {
+            inputSection.classList.remove('image-only-mode');
+        }
     }
 }
 

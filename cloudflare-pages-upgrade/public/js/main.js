@@ -235,13 +235,20 @@ document.addEventListener('DOMContentLoaded', function () {
             // 添加文本内容
             if (content) {
                 formData.append('content', content);
+            } else if (hasImages) {
+                // 如果只有图片没有文本，添加空字符串作为内容
+                formData.append('content', '');
             }
 
             // 添加图片数据
             if (hasImages) {
                 const imagesData = window.clipboardHandler.getImagesData();
                 formData.append('images', JSON.stringify(imagesData));
-                formData.append('content_type', 'mixed'); // 标识为混合内容
+                if (content) {
+                    formData.append('content_type', 'mixed'); // 标识为混合内容
+                } else {
+                    formData.append('content_type', 'image'); // 标识为纯图片
+                }
             } else {
                 formData.append('content_type', 'text'); // 标识为纯文本
             }
@@ -306,7 +313,13 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
 
                     // 显示成功消息
-                    showNotification('内容已保存到云端');
+                    let successMessage = '内容已保存到云端';
+                    if (hasImages && !content) {
+                        successMessage = '图片已保存到云端';
+                    } else if (hasImages && content) {
+                        successMessage = '文本和图片已保存到云端';
+                    }
+                    showNotification(successMessage);
                 })
                 .catch(error => {
                     console.error('保存错误详情:', error);
