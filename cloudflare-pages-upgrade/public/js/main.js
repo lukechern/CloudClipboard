@@ -236,8 +236,10 @@ document.addEventListener('DOMContentLoaded', function () {
             if (content) {
                 formData.append('content', content);
             } else if (hasImages) {
-                // 如果只有图片没有文本，添加空字符串作为内容
-                formData.append('content', '');
+                // 如果只有图片没有文本，添加默认描述作为内容
+                const imageCount = window.clipboardHandler.getImageCount();
+                const defaultContent = `[图片内容] ${imageCount}张图片`;
+                formData.append('content', defaultContent);
             }
 
             // 添加图片数据

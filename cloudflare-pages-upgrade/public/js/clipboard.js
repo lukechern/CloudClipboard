@@ -336,6 +336,11 @@ class ClipboardImageHandler {
         return this.currentImages.length > 0;
     }
 
+    // 获取图片数量
+    getImageCount() {
+        return this.currentImages.length;
+    }
+
     // 清空所有内容（文本和图片）
     clearAll() {
         const textarea = document.getElementById('content-input');

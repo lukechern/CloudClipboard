@@ -141,9 +141,15 @@ cloudflare-pages-upgrade/public/
 - 访问 `test-clipboard.html` 查看详细的测试指南
 - 访问 `demo-workflow.html` 查看图片专用模式演示
 - 访问 `test-form-validation.html` 查看表单验证修复演示
+- 访问 `test-image-submit.html` 查看图片提交逻辑演示
 - 支持多种测试场景：纯文本、纯图片、混合内容
 
 ## 更新日志
+
+### v2.1.2 - 内容提交修复
+- 🐛 修复图片专用模式下"内容不能为空"错误
+- 🔧 为纯图片内容生成默认描述文本
+- ✅ 确保服务器端content字段验证通过
 
 ### v2.1.1 - 表单验证修复
 - 🐛 修复图片专用模式下的表单验证错误

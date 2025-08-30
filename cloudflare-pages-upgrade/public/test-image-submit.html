@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片提交测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .mock-form {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #5a6fd8;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .form-data-preview {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            border: 1px solid #dee2e6;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>图片提交测试</h1>
+    
+    <div class="test-section">
+        <h3>问题描述</h3>
+        <p>在图片专用模式下，点击"发送到云端"时出现错误："保存失败: 内容不能为空"</p>
+        <p><strong>原因：</strong>服务器端验证content字段不能为空，但图片专用模式下textarea为空</p>
+        <p><strong>解决方案：</strong>为纯图片内容生成默认描述文本</p>
+    </div>
+
+    <div class="mock-form">
+        <h3>模拟表单数据生成</h3>
+        
+        <div class="form-group">
+            <label for="contentType">内容类型</label>
+            <select id="contentType" onchange="updateFormData()">
+                <option value="text">纯文本</option>
+                <option value="image">纯图片</option>
+                <option value="mixed">混合内容</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="textContent">文本内容</label>
+            <textarea id="textContent" placeholder="输入文本内容..." onchange="updateFormData()"></textarea>
+        </div>
+        
+        <div class="form-group">
+            <label for="imageCount">图片数量</label>
+            <input type="number" id="imageCount" value="1" min="0" max="10" onchange="updateFormData()">
+        </div>
+        
+        <div class="form-group">
+            <button onclick="updateFormData()">生成表单数据</button>
+            <button onclick="simulateSubmit()">模拟提交</button>
+        </div>
+        
+        <div id="status"></div>
+        
+        <div class="form-group">
+            <label>生成的表单数据预览：</label>
+            <div id="formDataPreview" class="form-data-preview"></div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h3>测试场景</h3>
+        <ol>
+            <li><strong>纯文本：</strong>只有文本内容，无图片</li>
+            <li><strong>纯图片：</strong>只有图片，无文本（应该生成默认描述）</li>
+            <li><strong>混合内容：</strong>既有文本又有图片</li>
+        </ol>
+    </div>
+
+    <script>
+        function showStatus(message, type) {
+            const status = document.getElementById('status');
+            status.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+
+        function updateFormData() {
+            const contentType = document.getElementById('contentType').value;
+            const textContent = document.getElementById('textContent').value.trim();
+            const imageCount = parseInt(document.getElementById('imageCount').value) || 0;
+            
+            // 模拟表单数据生成逻辑
+            const formData = new FormData();
+            let content = '';
+            let hasImages = imageCount > 0;
+            
+            // 根据内容类型设置
+            switch(contentType) {
+                case 'text':
+                    content = textContent || '示例文本内容';
+                    hasImages = false;
+                    break;
+                case 'image':
+                    content = textContent || '';
+                    hasImages = true;
+                    break;
+                case 'mixed':
+                    content = textContent || '示例文本内容';
+                    hasImages = true;
+                    break;
+            }
+            
+            // 应用修复后的逻辑
+            if (content) {
+                formData.append('content', content);
+            } else if (hasImages) {
+                // 如果只有图片没有文本，添加默认描述作为内容
+                const defaultContent = `[图片内容] ${imageCount}张图片`;
+                formData.append('content', defaultContent);
+            }
+            
+            // 添加图片数据（模拟）
+            if (hasImages) {
+                const mockImagesData = Array(imageCount).fill(null).map((_, i) => ({
+                    base64: `data:image/png;base64,mock_image_${i+1}`,
+                    type: 'image/png',
+                    size: 1024 * (i + 1)
+                }));
+                formData.append('images', JSON.stringify(mockImagesData));
+                
+                if (content && content !== `[图片内容] ${imageCount}张图片`) {
+                    formData.append('content_type', 'mixed');
+                } else {
+                    formData.append('content_type', 'image');
+                }
+            } else {
+                formData.append('content_type', 'text');
+            }
+            
+            // 显示表单数据
+            let preview = '';
+            for (let [key, value] of formData.entries()) {
+                if (key === 'images') {
+                    preview += `${key}: [${imageCount}张图片的JSON数据]\n`;
+                } else {
+                    preview += `${key}: ${value}\n`;
+                }
+            }
+            
+            document.getElementById('formDataPreview').textContent = preview;
+            
+            // 验证内容
+            const finalContent = formData.get('content');
+            if (!finalContent || finalContent.trim() === '') {
+                showStatus('❌ 错误：content字段为空，服务器会拒绝请求', 'error');
+            } else {
+                showStatus('✅ 成功：content字段有值，可以正常提交', 'success');
+            }
+        }
+        
+        function simulateSubmit() {
+            const formData = document.getElementById('formDataPreview').textContent;
+            if (formData.includes('content: ') && !formData.includes('content: \n')) {
+                showStatus('✅ 模拟提交成功！表单数据有效', 'success');
+            } else {
+                showStatus('❌ 模拟提交失败！content字段为空', 'error');
+            }
+        }
+        
+        // 页面加载时初始化
+        window.addEventListener('load', () => {
+            updateFormData();
+        });
+    </script>
+</body>
+</html>
