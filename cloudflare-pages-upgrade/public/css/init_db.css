@@ -261,3 +261,285 @@ body {
     transform: none;
     box-shadow: none;
 }
+
+/* 表结构检查样式 */
+.table-structure-check {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px 0;
+    text-align: left;
+}
+
+.table-structure-check h3 {
+    margin-bottom: 15px;
+    color: #333;
+    text-align: center;
+}
+
+.check-btn {
+    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: block;
+    margin: 15px auto 0;
+}
+
+.check-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 15px rgba(23, 162, 184, 0.3);
+}
+
+.check-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* 表结构信息显示 */
+.structure-info {
+    margin-top: 15px;
+}
+
+.structure-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    font-weight: 500;
+}
+
+.structure-status.exists {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.structure-status.not-exists {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.fields-analysis h5,
+.compatibility-check h5 {
+    margin: 15px 0 10px 0;
+    color: #495057;
+    font-size: 1rem;
+}
+
+.fields-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.field-item {
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 12px;
+    transition: border-color 0.2s;
+}
+
+.field-item.field-exists {
+    border-left: 4px solid #28a745;
+}
+
+.field-item.field-missing {
+    border-left: 4px solid #dc3545;
+}
+
+.field-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 5px;
+}
+
+.field-name {
+    font-weight: 600;
+    color: #333;
+}
+
+.field-type {
+    font-size: 0.8rem;
+    color: #6c757d;
+    background: #e9ecef;
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
+.field-description {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-bottom: 5px;
+}
+
+.field-status-text {
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.field-exists .field-status-text {
+    color: #28a745;
+}
+
+.field-missing .field-status-text {
+    color: #dc3545;
+}
+
+.compatibility-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 8px;
+}
+
+.compatibility-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.compatibility-item.compatible {
+    background: #d4edda;
+    color: #155724;
+}
+
+.compatibility-item.incompatible {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+/* 修复建议样式 */
+.fix-suggestions {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.fix-suggestions h3 {
+    margin-bottom: 15px;
+    color: #856404;
+    text-align: center;
+}
+
+.suggestions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.suggestion-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 15px;
+    background: white;
+    border-radius: 6px;
+    border: 1px solid #ffeaa7;
+}
+
+.suggestion-item.action {
+    background: #e7f3ff;
+    border-color: #b3d9ff;
+}
+
+.suggestion-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.suggestion-content h4 {
+    margin: 0 0 5px 0;
+    color: #333;
+    font-size: 1rem;
+}
+
+.suggestion-content p {
+    margin: 5px 0;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.suggestion-content code {
+    background: #f8f9fa;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    color: #e83e8c;
+}
+
+/* 功能状态显示 */
+.feature-status {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.feature-item {
+    background: rgba(255, 255, 255, 0.8);
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+/* 加载状态 */
+.loading {
+    text-align: center;
+    padding: 20px;
+    color: #6c757d;
+    font-style: italic;
+}
+
+.structure-error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    border-radius: 6px;
+    padding: 15px;
+    text-align: center;
+}
+
+.structure-error h4 {
+    margin-bottom: 8px;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .fields-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .compatibility-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .suggestion-item {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .suggestion-icon {
+        align-self: center;
+    }
+}

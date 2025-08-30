@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,16 +8,17 @@
     <link rel="stylesheet" href="css/init_db.css">
     <link rel="stylesheet" href="css/auth.css">
 </head>
+
 <body>
     <div class="container">
         <div class="header">
             <h1>数据库初始化</h1>
             <p>云剪贴板数据库设置</p>
         </div>
-        
+
         <div class="content">
             <div id="message-container"></div>
-            
+
             <!-- 详细存储信息 -->
             <div class="storage-details">
                 <h3>当前存储配置</h3>
@@ -24,7 +26,16 @@
                     <!-- 存储信息将通过JavaScript动态加载 -->
                 </div>
             </div>
-            
+
+            <!-- 数据库表结构检查 -->
+            <div class="table-structure-check">
+                <h3>数据库表结构检查</h3>
+                <div id="table-structure-info">
+                    <!-- 表结构信息将通过JavaScript动态加载 -->
+                </div>
+                <button type="button" class="check-btn" onclick="checkTableStructure()">🔍 检查表结构</button>
+            </div>
+
             <div class="init-form">
                 <div id="db-status" class="db-status">
                     <!-- 数据库状态将通过JavaScript动态加载 -->
@@ -35,22 +46,36 @@
                 <form id="upgrade-form" style="display: none;">
                     <button type="submit" class="upgrade-btn">升级数据库结构</button>
                 </form>
-
             </div>
-            
+
+            <!-- 修复建议 -->
+            <div id="fix-suggestions" class="fix-suggestions" style="display: none;">
+                <h3>修复建议</h3>
+                <div id="fix-suggestions-content">
+                    <!-- 修复建议将通过JavaScript动态生成 -->
+                </div>
+            </div>
+
             <div class="info">
-                <h3>说明</h3>
-                <p>请确保config/config.php中的配置信息正确无误。点击上方按钮创建或更新数据库表结构。</p>
+                <h3>功能说明</h3>
+                <ul>
+                    <li><strong>表结构检查：</strong>检测当前数据库表的字段完整性</li>
+                    <li><strong>自动升级：</strong>自动添加缺失的字段（如images字段）</li>
+                    <li><strong>兼容性检查：</strong>确保支持图片下载等新功能</li>
+                    <li><strong>数据完整性：</strong>验证现有数据的完整性</li>
+                </ul>
+                <p><strong>注意：</strong>升级操作是安全的，不会删除现有数据。</p>
             </div>
         </div>
     </div>
-    
+
     <!-- 返回首页链接 -->
     <div class="back-to-home">
         <a href="./index.html">↩️ 返回云剪贴板首页</a>
     </div>
-    
+
     <script src="js/auth.js"></script>
     <script src="js/init_db.js"></script>
 </body>
+
 </html>

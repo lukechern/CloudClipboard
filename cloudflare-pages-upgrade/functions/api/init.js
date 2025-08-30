@@ -71,6 +71,13 @@ export async function onRequestPost(context) {
                 `).run();
             }
             
+            // 添加缺失的images字段
+            if (!columnNames.includes('images')) {
+                await env.DB.prepare(`
+                    ALTER TABLE ${env.TABLE_NAME} ADD COLUMN images TEXT
+                `).run();
+            }
+            
             return new Response(JSON.stringify({ 
                 success: true, 
                 message: '数据库表结构升级成功' 
@@ -85,7 +92,8 @@ export async function onRequestPost(context) {
                     content TEXT NOT NULL,
                     length INTEGER NOT NULL,
                     timestamp TEXT DEFAULT CURRENT_TIMESTAMP,
-                    archived INTEGER DEFAULT 0
+                    archived INTEGER DEFAULT 0,
+                    images TEXT
                 )
             `).run();
             
@@ -141,7 +149,7 @@ export async function onRequestGet(context) {
             `).all();
             
             const columnNames = columns.results.map(col => col.name);
-            const requiredColumns = ['id', 'content', 'length', 'timestamp', 'archived'];
+            const requiredColumns = ['id', 'content', 'length', 'timestamp', 'archived', 'images'];
             
             missingColumns = requiredColumns.filter(col => !columnNames.includes(col));
             needsUpgrade = missingColumns.length > 0;
