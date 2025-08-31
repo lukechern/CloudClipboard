@@ -1,35 +1,29 @@
 // 内容管理模块入口文件
 // 该文件负责加载所有内容相关的功能模块
 
-// 动态加载模块的函数
-function loadContentModule(modulePath) {
-    return new Promise((resolve, reject) => {
-        const script = document.createElement('script');
-        script.src = modulePath;
-        script.onload = resolve;
-        script.onerror = reject;
-        document.head.appendChild(script);
-    });
+// 使用同步方式加载模块，确保顺序正确
+function loadContentModuleSync(modulePath) {
+    console.log('同步加载模块:', modulePath);
+    const script = document.createElement('script');
+    script.src = modulePath;
+    script.async = false; // 确保按顺序执行
+    document.head.appendChild(script);
 }
 
-// 按顺序加载所有内容模块
-async function loadContentModules() {
-    try {
-        // 按依赖顺序加载模块
-        await loadContentModule('js/content/pull-to-refresh.js');
-        await loadContentModule('js/content/content-toggle.js');
-        await loadContentModule('js/content/image-viewer.js');
-        await loadContentModule('js/content/records-loader.js');
-        await loadContentModule('js/content/archive-manager.js');
-        await loadContentModule('js/content/tab-manager.js');
-        await loadContentModule('js/content/debug-helper.js');
-        await loadContentModule('js/content/content-main.js');
-        
-        console.log('所有内容模块加载完成');
-    } catch (error) {
-        console.error('加载内容模块失败:', error);
-    }
-}
+// 立即同步加载所有模块
+console.log('开始加载内容模块...');
 
-// 立即开始加载模块
-loadContentModules();
+// 按依赖顺序加载模块
+loadContentModuleSync('js/content/pull-to-refresh.js');
+loadContentModuleSync('js/content/content-toggle.js');
+loadContentModuleSync('js/content/image-viewer.js');
+loadContentModuleSync('js/content/records-loader.js');
+loadContentModuleSync('js/content/archive-manager.js');
+loadContentModuleSync('js/content/tab-manager.js');
+loadContentModuleSync('js/content/debug-helper.js');
+loadContentModuleSync('js/content/content-main.js');
+
+// 设置全局标志
+window.contentModulesReady = true;
+
+console.log('内容模块加载脚本已执行完成');

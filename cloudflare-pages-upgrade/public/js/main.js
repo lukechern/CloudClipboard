@@ -5,30 +5,13 @@ window.initialDataLoaded = false;
 document.addEventListener('DOMContentLoaded', function () {
     // 监听认证成功事件
     window.addEventListener('authSuccess', function () {
-        // console.log('认证成功事件触发，initialDataLoaded:', window.initialDataLoaded);
+        console.log('认证成功事件触发，initialDataLoaded:', window.initialDataLoaded);
         // 认证成功后，如果还没有进行初始数据加载，则加载数据
         if (!window.initialDataLoaded) {
-            // console.log('认证成功后加载数据');
-            if (typeof loadRecords === 'function') {
-                loadRecords();
-            }
-            if (typeof loadStorageInfo === 'function') {
-                loadStorageInfo();
-            }
-            window.initialDataLoaded = true;
-        }
-    });
-
-    // 延迟检查认证状态，避免与认证管理器初始化冲突
-    setTimeout(() => {
-        // console.log('检查认证状态，authManager存在:', !!window.authManager, 
-        //            '已认证:', window.authManager?.isAuthenticated, 
-        //            'initialDataLoaded:', window.initialDataLoaded);
-
-        // 如果没有认证管理器或者已经认证成功，直接加载数据
-        if (!window.authManager || window.authManager.isAuthenticated) {
-            if (!window.initialDataLoaded) {
-                // console.log('页面加载时加载数据');
+            console.log('认证成功后加载数据');
+            
+            // 确保内容模块已加载
+            function loadDataAfterAuth() {
                 if (typeof loadRecords === 'function') {
                     loadRecords();
                 }
@@ -37,15 +20,69 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
                 window.initialDataLoaded = true;
             }
+            
+            // 检查函数是否就绪
+            function checkAndLoadAfterAuth() {
+                if (typeof loadRecords === 'function') {
+                    loadDataAfterAuth();
+                } else {
+                    setTimeout(checkAndLoadAfterAuth, 50);
+                }
+            }
+            
+            checkAndLoadAfterAuth();
+        }
+    });
+
+    // 等待内容模块加载完成后再初始化
+    function initializeAfterModulesLoaded() {
+        console.log('开始初始化，检查认证状态');
+        console.log('authManager存在:', !!window.authManager);
+        console.log('已认证:', window.authManager?.isAuthenticated);
+        console.log('initialDataLoaded:', window.initialDataLoaded);
+        console.log('loadRecords函数存在:', typeof loadRecords === 'function');
+
+        // 如果没有认证管理器或者已经认证成功，直接加载数据
+        if (!window.authManager || window.authManager.isAuthenticated) {
+            if (!window.initialDataLoaded) {
+                console.log('开始加载初始数据');
+                if (typeof loadRecords === 'function') {
+                    loadRecords();
+                } else {
+                    console.error('loadRecords函数不存在！');
+                }
+                if (typeof loadStorageInfo === 'function') {
+                    loadStorageInfo();
+                } else {
+                    console.error('loadStorageInfo函数不存在！');
+                }
+                window.initialDataLoaded = true;
+            } else {
+                console.log('初始数据已经加载过了');
+            }
         } else {
+            console.log('需要认证，隐藏存储信息');
             // 如果需要认证但还未认证，隐藏存储信息
             const storageSection = document.querySelector('.storage-info');
             if (storageSection) {
                 storageSection.style.display = 'none';
             }
         }
-        // 如果需要认证但还未认证，等待认证成功事件
-    }, 200);
+    }
+
+    // 延迟检查，等待模块加载
+    function checkAndInitialize() {
+        if (typeof loadRecords === 'function') {
+            console.log('loadRecords函数已就绪，开始初始化');
+            initializeAfterModulesLoaded();
+        } else {
+            console.log('loadRecords函数尚未就绪，继续等待...');
+            setTimeout(checkAndInitialize, 100);
+        }
+    }
+
+    // 开始检查
+    setTimeout(checkAndInitialize, 100);
 
     // 检查是否有成功消息
     const urlParams = new URLSearchParams(window.location.search);
