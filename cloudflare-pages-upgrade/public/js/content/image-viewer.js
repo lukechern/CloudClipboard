@@ -3,17 +3,9 @@
 // 图片查看功能
 function viewImage(recordId, imageIndex) {
     try {
-        // 从全局存储中获取图片数据
-        const recordData = window.recordsData.get(recordId);
-        if (!recordData || !recordData.images || !recordData.images[imageIndex]) {
-            showNotification('图片不存在');
-            return;
-        }
+        console.log('用户点击缩略图，立即显示加载模态框');
 
-        const img = recordData.images[imageIndex];
-        const base64 = img.base64;
-
-        // 创建加载状态的模态框
+        // 立即创建并显示加载状态的模态框
         const modal = document.createElement('div');
         modal.className = 'image-modal';
         modal.innerHTML = `
@@ -26,8 +18,6 @@ function viewImage(recordId, imageIndex) {
                 </div>
             </div>
         `;
-        
-        console.log('创建了加载模态框:', modal);
 
         // 确保spin动画可用
         if (!document.querySelector('#spin-animation-style')) {
@@ -46,7 +36,7 @@ function viewImage(recordId, imageIndex) {
         modal.querySelector('.image-modal-backdrop').addEventListener('click', closeImageModal);
         modal.querySelector('.image-modal-close').addEventListener('click', closeImageModal);
 
-        // 将模态框添加到文档并处理页面滚动
+        // 立即将模态框添加到文档并处理页面滚动
         document.body.appendChild(modal);
         document.body.style.overflow = 'hidden';
 
@@ -59,52 +49,68 @@ function viewImage(recordId, imageIndex) {
         };
         document.addEventListener('keydown', handleEsc);
 
-        // 预加载图片
-        const imageElement = new Image();
-        const startTime = Date.now();
-        const minLoadingTime = 500; // 最小显示500ms的加载状态
+        console.log('加载模态框已显示，开始获取图片数据');
 
-        console.log('开始加载图片，显示加载状态');
+        // 现在开始获取图片数据
+        setTimeout(() => {
+            const recordData = window.recordsData.get(recordId);
+            if (!recordData || !recordData.images || !recordData.images[imageIndex]) {
+                showNotification('图片不存在');
+                closeImageModal();
+                return;
+            }
 
-        imageElement.onload = function() {
-            console.log('图片加载完成');
-            const loadTime = Date.now() - startTime;
-            const remainingTime = Math.max(0, minLoadingTime - loadTime);
+            const img = recordData.images[imageIndex];
+            const base64 = img.base64;
 
-            // 确保加载状态至少显示500ms
-            setTimeout(() => {
-                console.log('替换为实际图片');
-                // 图片加载完成，替换加载状态为实际图片
-                const modalContent = modal.querySelector('.image-modal-content');
-                if (modalContent) {
-                    modalContent.innerHTML = `
-                        <button class="image-modal-close">&times;</button>
-                        <img src="${base64}" alt="查看图片" />
-                        <div class="image-modal-actions">
-                            <button class="download-single-btn" data-record-id="${recordId}" data-image-index="${imageIndex}">下载图片</button>
-                        </div>
-                    `;
+            console.log('获取到图片数据，开始预加载');
 
-                    // 重新绑定事件监听器
-                    modalContent.querySelector('.image-modal-close').addEventListener('click', closeImageModal);
-                    modalContent.querySelector('.download-single-btn').addEventListener('click', function () {
-                        downloadSingleImage(recordId, imageIndex);
-                    });
-                }
-            }, remainingTime);
-        };
+            // 预加载图片
+            const imageElement = new Image();
+            const startTime = Date.now();
+            const minLoadingTime = 800; // 最小显示800ms的加载状态，让用户能看到
 
-        imageElement.onerror = function() {
-            console.log('图片加载失败');
-            // 图片加载失败
-            showNotification('图片加载失败');
-            closeImageModal();
-        };
+            imageElement.onload = function () {
+                console.log('图片预加载完成');
+                const loadTime = Date.now() - startTime;
+                const remainingTime = Math.max(0, minLoadingTime - loadTime);
 
-        // 开始加载图片
-        imageElement.src = base64;
+                // 确保加载状态至少显示足够时间
+                setTimeout(() => {
+                    console.log('替换为实际图片');
+                    // 图片加载完成，替换加载状态为实际图片
+                    const modalContent = modal.querySelector('.image-modal-content');
+                    if (modalContent) {
+                        modalContent.innerHTML = `
+                            <button class="image-modal-close">&times;</button>
+                            <img src="${base64}" alt="查看图片" />
+                            <div class="image-modal-actions">
+                                <button class="download-single-btn" data-record-id="${recordId}" data-image-index="${imageIndex}">下载图片</button>
+                            </div>
+                        `;
+
+                        // 重新绑定事件监听器
+                        modalContent.querySelector('.image-modal-close').addEventListener('click', closeImageModal);
+                        modalContent.querySelector('.download-single-btn').addEventListener('click', function () {
+                            downloadSingleImage(recordId, imageIndex);
+                        });
+                    }
+                }, remainingTime);
+            };
+
+            imageElement.onerror = function () {
+                console.log('图片加载失败');
+                showNotification('图片加载失败');
+                closeImageModal();
+            };
+
+            // 开始预加载图片
+            imageElement.src = base64;
+
+        }, 50); // 给一点时间让模态框先显示
 
     } catch (error) {
+        console.error('viewImage error:', error);
         showNotification('无法查看图片');
         return;
     }
