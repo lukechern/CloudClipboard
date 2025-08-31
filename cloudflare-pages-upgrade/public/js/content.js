@@ -15,7 +15,7 @@ function startRefreshAnimation() {
     if (refreshBtn) {
         refreshBtn.classList.add('refreshing');
         refreshBtn.disabled = true;
-        
+
         // 直接设置内联样式确保动画工作
         const icon = refreshBtn.querySelector('.icon');
         if (icon) {
@@ -23,7 +23,7 @@ function startRefreshAnimation() {
             icon.style.transform = 'none';
             icon.style.transition = 'none';
         }
-        
+
         // 强制重绘以确保动画立即开始
         refreshBtn.offsetHeight;
     }
@@ -37,7 +37,7 @@ function stopRefreshAnimation() {
     if (refreshBtn) {
         refreshBtn.classList.remove('refreshing');
         refreshBtn.disabled = false;
-        
+
         // 清除内联样式，恢复CSS控制
         const icon = refreshBtn.querySelector('.icon');
         if (icon) {
@@ -96,7 +96,7 @@ function triggerRefresh() {
     // 刷新当前过滤器的记录
     try {
         loadRecords(window.currentFilter || 'cache');
-        
+
         // 显示刷新提示
         if (typeof showNotification === 'function') {
             showNotification('正在刷新记录...');
@@ -104,7 +104,7 @@ function triggerRefresh() {
     } catch (error) {
         console.error('刷新记录时出错:', error);
         stopRefreshAnimation();
-        
+
         if (typeof showNotification === 'function') {
             showNotification('刷新失败，请重试');
         }
@@ -142,28 +142,28 @@ window.currentFilter = 'cache';
 function debugMobileIssues() {
     const isMobile = window.innerWidth <= 768;
     if (!isMobile) return;
-    
+
     console.log('=== 手机版调试信息 ===');
     console.log('屏幕宽度:', window.innerWidth);
     console.log('认证管理器存在:', !!window.authManager);
     console.log('已认证:', window.authManager?.isAuthenticated);
     console.log('初始数据已加载:', window.initialDataLoaded);
     console.log('当前过滤器:', window.currentFilter);
-    
+
     // 检查关键元素
     const refreshBtn = document.getElementById('refreshRecords');
     const recordsContainer = document.getElementById('records-container');
     const loadingElement = document.getElementById('records-loading');
-    
+
     console.log('刷新按钮存在:', !!refreshBtn);
     console.log('记录容器存在:', !!recordsContainer);
     console.log('加载元素存在:', !!loadingElement);
-    
+
     if (refreshBtn) {
         console.log('刷新按钮可见:', refreshBtn.offsetParent !== null);
         console.log('刷新按钮禁用状态:', refreshBtn.disabled);
     }
-    
+
     // 如果记录没有加载，尝试手动触发
     if (!window.initialDataLoaded && (!window.authManager || window.authManager.isAuthenticated)) {
         console.log('尝试手动加载记录...');
@@ -177,7 +177,7 @@ function debugMobileIssues() {
 }
 
 // 页面加载完成后运行调试
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     setTimeout(debugMobileIssues, 2000);
 });
 
@@ -196,10 +196,10 @@ function viewImage(base64, type) {
             </div>
         </div>
     `;
-    
+
     document.body.appendChild(modal);
     document.body.style.overflow = 'hidden';
-    
+
     // 添加ESC键关闭功能
     const handleEsc = (e) => {
         if (e.key === 'Escape') {
@@ -226,7 +226,7 @@ function downloadImage(base64, type) {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        
+
         if (typeof showNotification === 'function') {
             showNotification('图片下载已开始');
         }
@@ -243,7 +243,7 @@ function downloadRecordImages(recordId, encodedImagesData) {
     try {
         // 解码图片数据
         const imagesData = JSON.parse(decodeURIComponent(escape(atob(encodedImagesData))));
-        
+
         if (!Array.isArray(imagesData) || imagesData.length === 0) {
             if (typeof showNotification === 'function') {
                 showNotification('没有找到可下载的图片');
@@ -267,7 +267,7 @@ function downloadRecordImages(recordId, encodedImagesData) {
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
-                    
+
                     downloadCount++;
                     if (downloadCount === imagesData.length) {
                         if (typeof showNotification === 'function') {
@@ -368,7 +368,7 @@ function loadRecords(filter = 'cache') {
         })
         .then(data => {
             console.log('记录加载成功，数据长度:', data?.length || 0);
-            
+
             // 停止刷新动画
             stopRefreshAnimation();
 
@@ -386,7 +386,7 @@ function loadRecords(filter = 'cache') {
             // 隐藏加载状态
             loadingElement.style.display = 'none';
             container.style.display = 'block';
-            
+
             // 显示加载完成的通知
             if (typeof showNotification === 'function') {
                 showNotification('记录已刷新');
@@ -407,7 +407,7 @@ function loadRecords(filter = 'cache') {
                         let hasImages = false;
                         let images = [];
                         let thumbnails = [];
-                        
+
                         if (record.images) {
                             try {
                                 images = typeof record.images === 'string' ? JSON.parse(record.images) : record.images;
@@ -415,15 +415,15 @@ function loadRecords(filter = 'cache') {
                                 if (record.thumbnails) {
                                     thumbnails = typeof record.thumbnails === 'string' ? JSON.parse(record.thumbnails) : record.thumbnails;
                                 }
-                                
+
                                 if (Array.isArray(images) && images.length > 0) {
                                     hasImages = true;
                                     imagesHTML = '<div class="record-images">';
                                     images.forEach((img, index) => {
                                         // 优先使用缩略图，如果没有则使用原图
-                                        const displayImage = (thumbnails[index] && thumbnails[index].base64) ? 
-                                                           thumbnails[index].base64 : img.base64;
-                                        
+                                        const displayImage = (thumbnails[index] && thumbnails[index].base64) ?
+                                            thumbnails[index].base64 : img.base64;
+
                                         imagesHTML += `
                                             <div class="record-image" onclick="viewImage('${img.base64}', '${img.type}')">
                                                 <img src="${displayImage}" alt="图片 ${index + 1}" />
@@ -501,7 +501,7 @@ function loadRecords(filter = 'cache') {
                             '<img src="img/length.svg" class="meta-icon" width="14" height="14" title="长度">' +
                             actualLength +
                             '</span>' +
-                            (hasImages ? 
+                            (hasImages ?
                                 '<span class="meta-item">' +
                                 '<img src="img/image.svg" class="meta-icon" width="14" height="14" title="图片数量">' +
                                 imageCount + '张图片' +
@@ -519,9 +519,9 @@ function loadRecords(filter = 'cache') {
                             '</div>' +
                             '</div>' +
                             '<div class="record-actions">' +
-                            (isPureImageContent ? 
+                            (isPureImageContent ?
                                 // 纯图片内容显示下载按钮
-                                '<button class="download-btn" onclick="downloadRecordImages(' + record.id + ', \'' + 
+                                '<button class="download-btn" onclick="downloadRecordImages(' + record.id + ', \'' +
                                 btoa(unescape(encodeURIComponent(JSON.stringify(images)))) + '\')" title="下载图片">' +
                                 '<img src="img/download.svg" class="icon download-icon">' +
                                 '<span class="download-text">下载</span>' +
@@ -571,7 +571,7 @@ function loadRecords(filter = 'cache') {
             loadingElement.style.display = 'none';
             container.style.display = 'block';
             container.innerHTML = '<p style="text-align: center; color: #666; padding: 40px 0;">加载记录失败: ' + error.message + '</p>';
-            
+
             // 显示错误通知
             if (typeof showNotification === 'function') {
                 showNotification('加载失败: ' + error.message);
@@ -692,7 +692,7 @@ document.addEventListener('DOMContentLoaded', function () {
             console.log('刷新按钮被点击');
             triggerRefresh();
         });
-        
+
         // 为手机版添加触摸事件支持
         refreshBtn.addEventListener('touchend', function (e) {
             e.preventDefault();
@@ -700,12 +700,12 @@ document.addEventListener('DOMContentLoaded', function () {
             console.log('刷新按钮触摸结束');
             triggerRefresh();
         });
-        
+
         // 防止触摸时的默认行为
         refreshBtn.addEventListener('touchstart', function (e) {
             e.stopPropagation();
         });
-        
+
         refreshBtn.addEventListener('touchmove', function (e) {
             e.stopPropagation();
         });
@@ -725,17 +725,17 @@ document.addEventListener('DOMContentLoaded', function () {
     document.addEventListener('touchstart', function (e) {
         // 检查是否点击了刷新按钮或其他交互元素
         const target = e.target;
-        const isInteractiveElement = target.closest('.refresh-btn') || 
-                                   target.closest('button') || 
-                                   target.closest('a') || 
-                                   target.closest('.record-actions') ||
-                                   target.closest('.tab-btn');
-        
+        const isInteractiveElement = target.closest('.refresh-btn') ||
+            target.closest('button') ||
+            target.closest('a') ||
+            target.closest('.record-actions') ||
+            target.closest('.tab-btn');
+
         if (isInteractiveElement) {
             console.log('触摸到交互元素，跳过下拉刷新');
             return;
         }
-        
+
         if (checkIfAtTop()) {
             touchStartY = e.touches[0].clientY;
             isAtTop = true;
@@ -748,12 +748,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // 检查是否在交互元素上
         const target = e.target;
-        const isInteractiveElement = target.closest('.refresh-btn') || 
-                                   target.closest('button') || 
-                                   target.closest('a') || 
-                                   target.closest('.record-actions') ||
-                                   target.closest('.tab-btn');
-        
+        const isInteractiveElement = target.closest('.refresh-btn') ||
+            target.closest('button') ||
+            target.closest('a') ||
+            target.closest('.record-actions') ||
+            target.closest('.tab-btn');
+
         if (isInteractiveElement) {
             return;
         }

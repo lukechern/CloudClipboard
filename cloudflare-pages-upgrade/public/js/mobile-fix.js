@@ -8,7 +8,7 @@
     
     if (!isMobile && !isTouch) return;
     
-    console.log('应用手机版修复...');
+
     
     // 修复1: 防止iOS Safari的双击缩放
     let lastTouchEnd = 0;
