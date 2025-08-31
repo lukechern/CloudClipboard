@@ -189,7 +189,7 @@ function renderRecords(data, container) {
                             thumbnails[index].base64 : img.base64;
 
                         imagesHTML += `
-                            <div class="record-image" onclick="viewImage(${record.id}, ${index})">
+                            <div class="record-image" data-record-id="${record.id}" data-image-index="${index}">
                                 <img src="${displayImage}" alt="图片 ${index + 1}" />
                                 <div class="image-overlay">
                                     <span>查看</span>
@@ -280,22 +280,22 @@ function renderRecords(data, container) {
             formatTime(record.timestamp) +
             '</span>' +
             (hasArchivedField ?
-                '<button class="archive-btn" onclick="toggleArchive(' + record.id + ', ' + (isArchived ? 'false' : 'true') + ')" title="' + starTitle + '">' +
+                '<button class="archive-btn" data-record-id="' + record.id + '" data-archive="' + (isArchived ? 'false' : 'true') + '" title="' + starTitle + '">' +
                 '<img src="img/' + starIcon + '" class="icon archive-icon" width="16" height="16">' +
                 '<span class="archive-text">' + starText + '</span>' +
                 '</button>' : '') +
-            (isLongContent ? '<button class="expand-btn" onclick="toggleContent(' + record.id + ')">' + buttonText + '</button>' : '') +
+            (isLongContent ? '<button class="expand-btn" data-record-id="' + record.id + '">' + buttonText + '</button>' : '') +
             '</div>' +
             '</div>' +
             '<div class="record-actions">' +
             (isPureImageContent ?
                 // 纯图片内容显示下载按钮
-                '<button class="download-btn" onclick="downloadRecordImages(' + record.id + ')" title="下载图片">' +
+                '<button class="download-btn" data-record-id="' + record.id + '" title="下载图片">' +
                 '<img src="img/download.svg" class="icon download-icon">' +
                 '<span class="download-text">下载</span>' +
                 '</button>' :
                 // 普通内容显示复制按钮
-                '<button class="copy-btn" onclick="copyToClipboard(' + record.id + ')" title="复制">' +
+                '<button class="copy-btn" data-record-id="' + record.id + '" title="复制">' +
                 '<img src="img/copy.svg" class="icon copy-icon">' +
                 '<span class="copy-text">复制</span>' +
                 '</button>'
@@ -306,14 +306,70 @@ function renderRecords(data, container) {
     recordsHTML += '</ul>';
     container.innerHTML = recordsHTML;
 
+    // 添加事件委托处理按钮点击
+    setupRecordEventListeners(container);
+
     // 如果在批量模式下，更新记录项
     if (document.body.classList.contains('batch-mode')) {
         updateRecordItemsForBatchMode(true);
     }
 }
 
+// 设置记录事件监听器
+function setupRecordEventListeners(container) {
+    // 移除之前的事件监听器（如果存在）
+    container.removeEventListener('click', handleRecordClick);
+    
+    // 添加事件委托
+    container.addEventListener('click', handleRecordClick);
+}
+
+// 处理记录相关的点击事件
+function handleRecordClick(event) {
+    const target = event.target.closest('button, .record-image');
+    if (!target) return;
+
+    const recordId = target.dataset.recordId;
+    if (!recordId) return;
+
+    // 存档按钮
+    if (target.classList.contains('archive-btn')) {
+        event.preventDefault();
+        const archive = target.dataset.archive === 'true';
+        console.log('存档按钮被点击，记录ID:', recordId, '存档状态:', archive);
+        toggleArchive(parseInt(recordId), archive);
+    }
+    // 展开/收起按钮
+    else if (target.classList.contains('expand-btn')) {
+        event.preventDefault();
+        console.log('展开按钮被点击，记录ID:', recordId);
+        toggleContent(parseInt(recordId));
+    }
+    // 下载按钮
+    else if (target.classList.contains('download-btn')) {
+        event.preventDefault();
+        console.log('下载按钮被点击，记录ID:', recordId);
+        downloadRecordImages(parseInt(recordId));
+    }
+    // 复制按钮
+    else if (target.classList.contains('copy-btn')) {
+        event.preventDefault();
+        console.log('复制按钮被点击，记录ID:', recordId);
+        copyToClipboard(parseInt(recordId));
+    }
+    // 图片点击
+    else if (target.classList.contains('record-image')) {
+        event.preventDefault();
+        const imageIndex = parseInt(target.dataset.imageIndex);
+        console.log('图片被点击，记录ID:', recordId, '图片索引:', imageIndex);
+        viewImage(parseInt(recordId), imageIndex);
+    }
+}
+
 // 确保函数在全局作用域中可用
 window.loadRecords = loadRecords;
 window.renderRecords = renderRecords;
+window.setupRecordEventListeners = setupRecordEventListeners;
+window.handleRecordClick = handleRecordClick;
 
 console.log('记录加载模块已加载，相关函数已注册到全局作用域');

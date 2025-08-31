@@ -17,15 +17,22 @@ function viewImage(recordId, imageIndex) {
         const modal = document.createElement('div');
         modal.className = 'image-modal';
         modal.innerHTML = `
-            <div class="image-modal-backdrop" onclick="closeImageModal()"></div>
+            <div class="image-modal-backdrop"></div>
             <div class="image-modal-content">
-                <button class="image-modal-close" onclick="closeImageModal()">&times;</button>
+                <button class="image-modal-close">&times;</button>
                 <img src="${base64}" alt="查看图片" />
                 <div class="image-modal-actions">
-                    <button onclick="downloadSingleImage(${recordId}, ${imageIndex})" class="download-btn">下载图片</button>
+                    <button class="download-single-btn" data-record-id="${recordId}" data-image-index="${imageIndex}">下载图片</button>
                 </div>
             </div>
         `;
+        
+        // 添加事件监听器
+        modal.querySelector('.image-modal-backdrop').addEventListener('click', closeImageModal);
+        modal.querySelector('.image-modal-close').addEventListener('click', closeImageModal);
+        modal.querySelector('.download-single-btn').addEventListener('click', function() {
+            downloadSingleImage(recordId, imageIndex);
+        });
     } catch (error) {
         showNotification('无法查看图片');
         return;
