@@ -52,7 +52,7 @@ class UIController {
         const { header, backToTopBtn, container } = this.elements;
 
         window.addEventListener('scroll', () => {
-            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const scrollTop = window.scrollY || document.documentElement.scrollTop;
 
             // 固定标题栏逻辑
             if (scrollTop > header.offsetTop) {
@@ -191,6 +191,11 @@ class UIController {
         const records = document.querySelectorAll('.record-item');
         records.forEach(record => {
             record.classList.add('batch-mode');
+            // 确保复选框存在并可见
+            const checkbox = record.querySelector('.record-checkbox');
+            if (checkbox) {
+                checkbox.style.display = 'block';
+            }
         });
 
         this.updateBatchToolbarCount();
@@ -211,6 +216,7 @@ class UIController {
             const checkbox = record.querySelector('.record-checkbox');
             if (checkbox) {
                 checkbox.checked = false;
+                checkbox.style.display = 'none';
             }
         });
     }
@@ -219,14 +225,14 @@ class UIController {
     updateBatchToolbarCount() {
         const checkboxes = document.querySelectorAll('.record-checkbox:checked');
         const count = checkboxes.length;
-        
+
         const countElement = document.querySelector('.batch-toolbar .count');
         const deleteBtn = document.querySelector('.batch-toolbar .delete-btn');
-        
+
         if (countElement) {
             countElement.textContent = `已选择 ${count} 项`;
         }
-        
+
         if (deleteBtn) {
             deleteBtn.disabled = count === 0;
         }
