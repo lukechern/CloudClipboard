@@ -482,14 +482,8 @@ function loadRecords(filter = 'cache') {
 
                         // 计算实际长度（包含图片）
                         let imageCount = 0;
-                        let images = [];
-                        if (hasImages && record.images) {
-                            try {
-                                images = typeof record.images === 'string' ? JSON.parse(record.images) : record.images;
-                                imageCount = Array.isArray(images) ? images.length : 0;
-                            } catch (e) {
-                                imageCount = 0;
-                            }
+                        if (hasImages && images) {
+                            imageCount = Array.isArray(images) ? images.length : 0;
                         }
                         const actualLength = record.length || (trimmedContent.length + (imageCount * 50));
 
