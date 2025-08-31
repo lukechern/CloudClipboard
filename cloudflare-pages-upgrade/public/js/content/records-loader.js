@@ -311,3 +311,9 @@ function renderRecords(data, container) {
         updateRecordItemsForBatchMode(true);
     }
 }
+
+// 确保函数在全局作用域中可用
+window.loadRecords = loadRecords;
+window.renderRecords = renderRecords;
+
+console.log('记录加载模块已加载，相关函数已注册到全局作用域');

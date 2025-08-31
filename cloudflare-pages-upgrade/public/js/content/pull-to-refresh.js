@@ -223,3 +223,11 @@ function initPullToRefresh() {
         touchCurrentY = 0;
     }, { passive: true });
 }
+
+// 确保关键函数在全局作用域中可用
+window.startRefreshAnimation = startRefreshAnimation;
+window.stopRefreshAnimation = stopRefreshAnimation;
+window.triggerRefresh = triggerRefresh;
+window.initPullToRefresh = initPullToRefresh;
+
+console.log('下拉刷新模块已加载，相关函数已注册到全局作用域');

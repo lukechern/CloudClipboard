@@ -301,3 +301,15 @@ function restoreButtonState(button) {
     button.classList.remove('loading');
     button.textContent = '发送到云端';
 }
+
+// 确保函数在全局作用域中可用
+window.copyToClipboard = copyToClipboard;
+window.downloadRecordImages = downloadRecordImages;
+window.downloadImage = downloadImage;
+window.downloadSingleImage = downloadSingleImage;
+window.showConfirm = showConfirm;
+window.showNotification = showNotification;
+window.showLoadingState = showLoadingState;
+window.restoreButtonState = restoreButtonState;
+
+console.log('工具函数模块已加载，相关函数已注册到全局作用域');

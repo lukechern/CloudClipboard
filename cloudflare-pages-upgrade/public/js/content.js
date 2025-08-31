@@ -27,3 +27,26 @@ loadContentModuleSync('js/content/content-main.js');
 window.contentModulesReady = true;
 
 console.log('内容模块加载脚本已执行完成');
+
+// 添加一个验证函数，检查所有关键函数是否已注册
+function verifyGlobalFunctions() {
+    const requiredFunctions = [
+        'toggleArchive',
+        'toggleContent', 
+        'viewImage',
+        'closeImageModal',
+        'loadRecords',
+        'copyToClipboard',
+        'downloadRecordImages',
+        'triggerRefresh'
+    ];
+    
+    console.log('验证全局函数注册状态:');
+    requiredFunctions.forEach(funcName => {
+        const exists = typeof window[funcName] === 'function';
+        console.log(`${funcName}: ${exists ? '✓' : '✗'}`);
+    });
+}
+
+// 延迟验证，确保所有模块都已加载
+setTimeout(verifyGlobalFunctions, 1000);

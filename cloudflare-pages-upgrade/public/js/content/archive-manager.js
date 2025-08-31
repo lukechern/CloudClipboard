@@ -2,6 +2,7 @@
 
 // 切换存档状态
 function toggleArchive(id, archive) {
+    console.log('toggleArchive 被调用，ID:', id, '存档状态:', archive);
     const formData = new FormData();
     formData.append('id', id);
     formData.append('archived', archive ? '1' : '0');
@@ -68,3 +69,9 @@ function checkArchiveSupport() {
             }
         });
 }
+
+// 确保函数在全局作用域中可用
+window.toggleArchive = toggleArchive;
+window.checkArchiveSupport = checkArchiveSupport;
+
+console.log('存档管理模块已加载，toggleArchive函数已注册到全局作用域');

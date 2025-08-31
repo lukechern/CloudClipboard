@@ -51,3 +51,9 @@ function closeImageModal() {
         document.body.style.overflow = '';
     }
 }
+
+// 确保函数在全局作用域中可用
+window.viewImage = viewImage;
+window.closeImageModal = closeImageModal;
+
+console.log('图片查看模块已加载，相关函数已注册到全局作用域');

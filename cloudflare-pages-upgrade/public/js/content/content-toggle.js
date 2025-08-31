@@ -2,6 +2,7 @@
 
 // 切换内容展开/收起状态
 function toggleContent(id) {
+    console.log('toggleContent 被调用，ID:', id);
     const contentElement = document.querySelector(`.record-content[data-id="${id}"]`);
     if (!contentElement) return;
 
@@ -23,3 +24,8 @@ function toggleContent(id) {
         }
     }
 }
+
+// 确保函数在全局作用域中可用
+window.toggleContent = toggleContent;
+
+console.log('内容切换模块已加载，toggleContent函数已注册到全局作用域');

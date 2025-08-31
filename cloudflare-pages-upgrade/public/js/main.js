@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // 认证成功后，如果还没有进行初始数据加载，则加载数据
         if (!window.initialDataLoaded) {
             console.log('认证成功后加载数据');
-            
+
             // 确保内容模块已加载
             function loadDataAfterAuth() {
                 if (typeof loadRecords === 'function') {
@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
                 window.initialDataLoaded = true;
             }
-            
+
             // 检查函数是否就绪
             function checkAndLoadAfterAuth() {
                 if (typeof loadRecords === 'function') {
@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     setTimeout(checkAndLoadAfterAuth, 50);
                 }
             }
-            
+
             checkAndLoadAfterAuth();
         }
     });
@@ -189,7 +189,7 @@ document.addEventListener('DOMContentLoaded', function () {
         function updateClearButtonVisibility() {
             const hasText = textarea.value.trim().length > 0;
             const hasImages = window.clipboardHandler && window.clipboardHandler.hasImages();
-            
+
             if (hasText || hasImages) {
                 textareaContainer.classList.add('has-content');
             } else {
@@ -268,7 +268,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // 创建请求数据
             const formData = new FormData();
-            
+
             // 添加文本内容
             if (content) {
                 formData.append('content', content);
@@ -282,23 +282,23 @@ document.addEventListener('DOMContentLoaded', function () {
             // 添加图片数据
             if (hasImages) {
                 const imagesData = window.clipboardHandler.getImagesData();
-                
+
                 // 分离原图和缩略图数据
                 const originalImages = imagesData.map(img => ({
                     base64: img.base64,
                     type: img.type,
                     size: img.size
                 }));
-                
+
                 const thumbnailImages = imagesData.map(img => ({
                     base64: img.thumbnail || img.base64, // 如果没有缩略图，使用原图
                     type: img.type,
                     size: img.size
                 }));
-                
+
                 formData.append('images', JSON.stringify(originalImages));
                 formData.append('thumbnails', JSON.stringify(thumbnailImages));
-                
+
                 if (content) {
                     formData.append('content_type', 'mixed'); // 标识为混合内容
                 } else {
@@ -526,7 +526,7 @@ async function autoReadClipboard() {
                     const text = await navigator.clipboard.readText();
                     if (text && text.trim()) {
                         contentInput.value = text.trim();
-                        
+
                         // 更新清空按钮状态
                         const textareaContainer = document.querySelector('.textarea-container');
                         if (textareaContainer) {

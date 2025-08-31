@@ -65,3 +65,9 @@ function initRefreshButton() {
         });
     }
 }
+
+// 确保函数在全局作用域中可用
+window.initTabManager = initTabManager;
+window.initRefreshButton = initRefreshButton;
+
+console.log('标签管理模块已加载，相关函数已注册到全局作用域');

@@ -37,3 +37,8 @@ function debugMobileIssues() {
         }, 1000);
     }
 }
+
+// 确保函数在全局作用域中可用
+window.debugMobileIssues = debugMobileIssues;
+
+console.log('调试助手模块已加载，相关函数已注册到全局作用域');
