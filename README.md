@@ -9,7 +9,7 @@
 ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-2.5-blue.svg?style=for-the-badge)](https://github.com/your-username/cloudclipboard)
+[![Version](https://img.shields.io/badge/version-3.0-blue.svg?style=for-the-badge)](https://github.com/your-username/cloudclipboard)
 
 </div>
 
@@ -24,7 +24,9 @@
 ### 功能特点
 
 - 在线保存文本内容到云端
+- **图片支持**: 支持图片粘贴、上传和下载功能
 - 实时查看历史记录
+- 批量操作：支持批量选择和删除记录
 - 支持删除指定记录
 - 基于 Cloudflare D1 数据库，安全可靠
 - 支持本地部署和 Cloudflare Pages 部署双重部署方式
@@ -65,10 +67,23 @@
 
 ### 使用方法
 
+#### 文本操作
 1. 访问主页，在输入框中输入需要保存的文本内容
 2. 点击"保存"按钮或按回车键保存
 3. 在列表中查看已保存的内容
 4. 可以点击"删除"按钮删除不需要的记录
+
+#### 图片操作
+1. **粘贴图片**: 直接使用 Ctrl+V 粘贴剪贴板中的图片
+2. **上传图片**: 点击上传按钮选择本地图片文件
+3. **拖拽上传**: 将图片文件直接拖拽到输入区域
+4. **下载图片**: 点击历史记录中的图片可以查看和下载
+
+#### 批量操作
+1. 点击"批量操作"按钮进入批量模式
+2. 选择需要操作的记录（复选框会显示）
+3. 点击"批量删除"删除选中的记录
+4. 点击"完成"退出批量模式
 
 ### 注意事项
 
@@ -85,6 +100,7 @@
 感谢以下工具和平台对本项目的支持：
 
 - [Visual Studio Code](https://code.visualstudio.com/) - 优秀的代码编辑器
+- [Kiro](https://kiro.ai/) - 智能AI编程助手和IDE，提供强大的代码生成和优化功能
 - [Cline](https://github.com/cline/cline.git) - AI助手工具
 - [通义灵码](https://tongyi.aliyun.com/lingma/) - 阿里巴巴智能编码助手
 - [Qwen3-Coder](https://tongyi.aliyun.com/qianwen/) - 阿里巴巴通义实验室研发的超大规模语言模型
@@ -134,7 +150,9 @@ An online clipboard tool based on Cloudflare D1 database for storing and managin
 ### Features
 
 - Save text content online to the cloud
+- **Image Support**: Support for image paste, upload, and download functionality
 - View history records in real-time
+- Batch Operations: Support for batch selection and deletion of records
 - Support for deleting specific records
 - Based on Cloudflare D1 database, secure and reliable
 - Supports both local deployment and Cloudflare Pages deployment
@@ -175,10 +193,23 @@ An online clipboard tool based on Cloudflare D1 database for storing and managin
 
 ### Usage
 
+#### Text Operations
 1. Visit the homepage and enter the text content you want to save in the input box
 2. Click the "Save" button or press Enter to save
 3. View saved content in the list
 4. Click the "Delete" button to remove unwanted records
+
+#### Image Operations
+1. **Paste Images**: Use Ctrl+V to paste images directly from clipboard
+2. **Upload Images**: Click the upload button to select local image files
+3. **Drag & Drop**: Drag image files directly to the input area
+4. **Download Images**: Click on images in history records to view and download
+
+#### Batch Operations
+1. Click the "Batch Operation" button to enter batch mode
+2. Select records you want to operate on (checkboxes will appear)
+3. Click "Batch Delete" to remove selected records
+4. Click "Complete" to exit batch mode
 
 ### Important Notes
 
@@ -214,6 +245,7 @@ This project is licensed under the MIT License. See [LICENSE](file:///LICENSE) f
 Thanks to the following tools and platforms for their support:
 
 - [Visual Studio Code](https://code.visualstudio.com/) - Excellent code editor
+- [Kiro](https://kiro.ai/) - Intelligent AI programming assistant and IDE with powerful code generation and optimization features
 - [Cline](https://github.com/cline/cline.git) - AI assistant tool
 - [Tongyi Lingma](https://tongyi.aliyun.com/lingma/) - Alibaba intelligent coding assistant
 - [Qwen3-Coder](https://tongyi.aliyun.com/qianwen/) - Large-scale language model developed by Alibaba Tongyi Lab
