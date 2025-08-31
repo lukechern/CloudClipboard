@@ -9,10 +9,10 @@ function viewImage(recordId, imageIndex) {
             showNotification('图片不存在');
             return;
         }
-        
+
         const img = recordData.images[imageIndex];
         const base64 = img.base64;
-        
+
         // 创建模态框
         const modal = document.createElement('div');
         modal.className = 'image-modal';
@@ -26,11 +26,11 @@ function viewImage(recordId, imageIndex) {
                 </div>
             </div>
         `;
-        
+
         // 添加事件监听器
         modal.querySelector('.image-modal-backdrop').addEventListener('click', closeImageModal);
         modal.querySelector('.image-modal-close').addEventListener('click', closeImageModal);
-        modal.querySelector('.download-single-btn').addEventListener('click', function() {
+        modal.querySelector('.download-single-btn').addEventListener('click', function () {
             downloadSingleImage(recordId, imageIndex);
         });
 

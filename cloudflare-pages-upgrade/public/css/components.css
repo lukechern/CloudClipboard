@@ -235,6 +235,28 @@
     background: #f8f9fa;
 }
 
+.download-single-btn {
+    background: transparent;
+    border: 2px solid #705DBC;
+    border-radius: 6px;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: #705DBC;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.download-single-btn:hover {
+    background: #705DBC;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(112, 93, 188, 0.3);
+}
+
 
 
 /* 移动端优化 */
