@@ -153,6 +153,7 @@ export async function onRequestGet(context) {
     try {
         const url = new URL(request.url);
         const filter = url.searchParams.get('filter') || 'cache'; // 默认显示缓存（非存档）
+        const includeFullImages = url.searchParams.get('includeFullImages') === 'true'; // 是否包含完整图片数据
         
         // 首先检查表结构，看是否有archived字段
         let hasArchivedColumn = false;
@@ -188,12 +189,43 @@ export async function onRequestGet(context) {
         const result = await env.DB.prepare(query).all();
 
         if (result.success) {
-            // 清理记录内容
-            const records = result.results.map(record => ({
-                ...record,
-                content: record.content.trim(),
-                archived: record.archived || 0
-            }));
+            // 清理记录内容并优化图片数据
+            const records = result.results.map(record => {
+                const processedRecord = {
+                    ...record,
+                    content: record.content.trim(),
+                    archived: record.archived || 0
+                };
+
+                // 如果不需要完整图片数据，只保留缩略图
+                if (!includeFullImages && record.images) {
+                    // 移除完整图片数据，只保留缩略图用于列表显示
+                    if (record.thumbnails) {
+                        // 如果有缩略图，保留缩略图数据但移除原图
+                        processedRecord.images = null; // 清空原图数据
+                        // thumbnails 字段保持不变，用于列表显示
+                    } else {
+                        // 如果没有缩略图，需要从原图生成简化的元数据
+                        try {
+                            const images = typeof record.images === 'string' ? JSON.parse(record.images) : record.images;
+                            if (Array.isArray(images) && images.length > 0) {
+                                // 只保留图片的基本信息，不包含base64数据
+                                const imageMetadata = images.map((img, index) => ({
+                                    index: index,
+                                    type: img.type || 'image/jpeg',
+                                    size: img.size || 0
+                                }));
+                                processedRecord.imageMetadata = JSON.stringify(imageMetadata);
+                            }
+                        } catch (e) {
+                            console.error('处理图片元数据失败:', e);
+                        }
+                        processedRecord.images = null; // 清空原图数据
+                    }
+                }
+
+                return processedRecord;
+            });
 
             return new Response(JSON.stringify(records), {
                 headers: { 'Content-Type': 'application/json' }
