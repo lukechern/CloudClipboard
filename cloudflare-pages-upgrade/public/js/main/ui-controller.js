@@ -293,4 +293,12 @@ class UIController {
                         }
                     }
                 } catch (textErr) {
-                    console.log('无法读取剪贴板文本:', textEr
+                    console.log('无法读取剪贴板文本:', textErr.message);
+                }
+            }
+        }
+    }
+}
+
+// 导出到全局
+window.UIController = UIController;
