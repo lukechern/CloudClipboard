@@ -66,7 +66,8 @@ function loadRecords(filter = 'cache') {
                     if (needsAuth && !window.authManager.isAuthenticated) {
                         console.log('需要重新登录');
                         window.authManager.showAuthModal();
-                        return; // 不抛出错误，等待用户重新登录
+                        // 抛出错误以进入catch分支，确保隐藏加载状态并提示用户
+                        throw new Error('需要认证，请登录后重试');
                     }
 
                     // 尝试刷新token
@@ -90,14 +91,16 @@ function loadRecords(filter = 'cache') {
             console.log('记录加载成功，数据长度:', data?.length || 0);
 
             // 停止刷新动画
-            stopRefreshAnimation();
+            if (typeof stopRefreshAnimation === 'function') {
+                stopRefreshAnimation();
+            }
 
             // 隐藏下拉刷新指示器
-            if (refreshIndicator) {
+            if (typeof refreshIndicator !== 'undefined' && refreshIndicator) {
                 refreshIndicator.classList.remove('refreshing');
                 refreshIndicator.style.opacity = '0';
                 setTimeout(() => {
-                    if (refreshIndicator) {
+                    if (typeof refreshIndicator !== 'undefined' && refreshIndicator) {
                         refreshIndicator.style.display = 'none';
                     }
                 }, 300);
@@ -129,14 +132,16 @@ function loadRecords(filter = 'cache') {
             console.error('加载记录失败:', error);
 
             // 停止刷新动画
-            stopRefreshAnimation();
+            if (typeof stopRefreshAnimation === 'function') {
+                stopRefreshAnimation();
+            }
 
             // 隐藏下拉刷新指示器
-            if (refreshIndicator) {
+            if (typeof refreshIndicator !== 'undefined' && refreshIndicator) {
                 refreshIndicator.classList.remove('refreshing');
                 refreshIndicator.style.opacity = '0';
                 setTimeout(() => {
-                    if (refreshIndicator) {
+                    if (typeof refreshIndicator !== 'undefined' && refreshIndicator) {
                         refreshIndicator.style.display = 'none';
                     }
                 }, 300);
