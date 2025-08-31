@@ -289,17 +289,29 @@ function showNotification(message) {
 }
 
 // 显示加载状态
-function showLoadingState(button) {
+function showLoadingState(button, customText_7ree) {
+    // 记录按钮原始内容，便于恢复（仅首次记录）_7ree
+    if (!button._originalHtml_7ree) {
+        button._originalHtml_7ree = button.innerHTML;
+    }
     button.disabled = true;
     button.classList.add('loading');
-    button.innerHTML = '<img src="./img/spinner.svg" class="spinner" alt="Loading"> 发送中请稍候...';
+    const loadingText_7ree = typeof customText_7ree === 'string' && customText_7ree.length > 0 ? customText_7ree : '请稍候...';
+    button.innerHTML = '<img src="./img/spinner.svg" class="spinner" alt="Loading"> ' + loadingText_7ree;
 }
 
 // 恢复按钮状态
 function restoreButtonState(button) {
     button.disabled = false;
     button.classList.remove('loading');
-    button.textContent = '发送到云端';
+    if (button._originalHtml_7ree) {
+        // 优先恢复为按钮自身的原始内容 _7ree
+        button.innerHTML = button._originalHtml_7ree;
+        try { delete button._originalHtml_7ree; } catch (e) { button._originalHtml_7ree = null; }
+    } else {
+        // 兼容旧逻辑（无记录时回退）_7ree
+        button.textContent = '发送到云端';
+    }
 }
 
 // 确保函数在全局作用域中可用
