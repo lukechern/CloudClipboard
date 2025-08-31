@@ -48,26 +48,70 @@ function downloadRecordImages(recordId) {
             return;
         }
 
+        // 调试信息：检查图片数据格式
+        console.log('准备下载图片，记录ID:', recordId);
+        console.log('图片数据:', imagesData);
+        
+        // 验证图片数据格式
+        for (let i = 0; i < imagesData.length; i++) {
+            const img = imagesData[i];
+            if (!img || !img.base64 || !img.type) {
+                console.error(`第 ${i + 1} 张图片数据不完整:`, img);
+                showNotification(`第 ${i + 1} 张图片数据不完整，无法下载`);
+                return;
+            }
+        }
+
         // 如果只有一张图片，直接下载
         if (imagesData.length === 1) {
             const img = imagesData[0];
+            console.log('下载单张图片:', img.type, img.base64.substring(0, 50) + '...');
             downloadImage(img.base64, img.type);
         } else {
             // 多张图片，依次下载
             let downloadCount = 0;
+            let successCount = 0;
+            
             imagesData.forEach((img, index) => {
                 setTimeout(() => {
-                    const link = document.createElement('a');
-                    link.href = img.base64;
-                    const extension = img.type.split('/')[1] || 'png';
-                    link.download = `image_${recordId}_${index + 1}.${extension}`;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
+                    try {
+                        // 确保 base64 数据格式正确
+                        let dataUrl = img.base64;
+                        
+                        // 如果 base64 数据不包含 data: 前缀，添加它
+                        if (!img.base64.startsWith('data:')) {
+                            dataUrl = `data:${img.type};base64,${img.base64}`;
+                        }
+                        
+                        // 验证 base64 格式
+                        const base64Part = dataUrl.split(',')[1];
+                        if (!base64Part) {
+                            throw new Error('Invalid base64 format');
+                        }
+                        
+                        // 尝试解码以验证格式
+                        atob(base64Part);
+                        
+                        const link = document.createElement('a');
+                        link.href = dataUrl;
+                        const extension = img.type.split('/')[1] || 'png';
+                        link.download = `image_${recordId}_${index + 1}.${extension}`;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        
+                        successCount++;
+                    } catch (error) {
+                        console.error(`下载第 ${index + 1} 张图片失败:`, error);
+                    }
                     
                     downloadCount++;
                     if (downloadCount === imagesData.length) {
-                        showNotification(`已开始下载 ${imagesData.length} 张图片`);
+                        if (successCount > 0) {
+                            showNotification(`已开始下载 ${successCount}/${imagesData.length} 张图片`);
+                        } else {
+                            showNotification('所有图片下载失败，请检查图片数据');
+                        }
                     }
                 }, index * 500); // 每张图片间隔500ms下载，避免浏览器限制
             });
@@ -80,8 +124,52 @@ function downloadRecordImages(recordId) {
 // 下载单张图片的辅助函数
 function downloadImage(base64, type) {
     try {
+        console.log('开始下载图片，类型:', type);
+        console.log('Base64 数据长度:', base64.length);
+        console.log('Base64 前缀:', base64.substring(0, 30));
+        
+        // 确保 base64 数据格式正确
+        let dataUrl = base64;
+        
+        // 如果 base64 数据不包含 data: 前缀，添加它
+        if (!base64.startsWith('data:')) {
+            console.log('添加 data: 前缀');
+            dataUrl = `data:${type};base64,${base64}`;
+        }
+        
+        // 验证 base64 格式
+        try {
+            // 提取 base64 部分进行验证
+            const base64Part = dataUrl.split(',')[1];
+            if (!base64Part) {
+                throw new Error('Invalid base64 format: no comma separator found');
+            }
+            
+            console.log('Base64 部分长度:', base64Part.length);
+            console.log('Base64 部分前缀:', base64Part.substring(0, 20));
+            
+            // 检查 base64 字符串是否只包含有效字符
+            const base64Regex = /^[A-Za-z0-9+/]*={0,2}$/;
+            if (!base64Regex.test(base64Part)) {
+                throw new Error('Invalid base64 characters found');
+            }
+            
+            // 尝试解码以验证格式
+            atob(base64Part);
+            console.log('Base64 验证成功');
+        } catch (decodeError) {
+            console.error('Base64 decode error:', decodeError);
+            console.error('问题数据:', {
+                originalBase64: base64.substring(0, 100),
+                dataUrl: dataUrl.substring(0, 100),
+                base64Part: dataUrl.split(',')[1]?.substring(0, 100)
+            });
+            showNotification('图片数据格式错误，无法下载');
+            return;
+        }
+        
         const link = document.createElement('a');
-        link.href = base64;
+        link.href = dataUrl;
         link.download = `image_${Date.now()}.${type.split('/')[1] || 'png'}`;
         document.body.appendChild(link);
         link.click();
@@ -89,7 +177,8 @@ function downloadImage(base64, type) {
         
         showNotification('图片下载已开始');
     } catch (error) {
-        showNotification('下载图片失败');
+        console.error('Download image error:', error);
+        showNotification('下载图片失败: ' + error.message);
     }
 }
 
@@ -105,7 +194,8 @@ function downloadSingleImage(recordId, imageIndex) {
         const img = recordData.images[imageIndex];
         downloadImage(img.base64, img.type);
     } catch (error) {
-        showNotification('下载图片失败');
+        console.error('Download single image error:', error);
+        showNotification('下载图片失败: ' + error.message);
     }
 }
 
