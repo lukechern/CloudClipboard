@@ -83,6 +83,11 @@
     border: 1px solid #dee2e6;
     cursor: pointer;
     transition: transform 0.2s;
+    max-width: 200px;
+    max-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .record-content .record-image:hover {
@@ -90,9 +95,9 @@
 }
 
 .record-content .record-image img {
-    width: 80px;
-    height: 60px;
-    object-fit: cover;
+    max-width: 200px;
+    max-height: 200px;
+    object-fit: contain;
     display: block;
 }
 
@@ -164,8 +169,9 @@
 
 
 /* 下载按钮样式 - 与复制按钮保持一致 */
-.copy-btn, .download-btn {
-    background: transparent;
+.copy-btn,
+.download-btn {
+    background: #FFFFFF;
     border: none;
     border-radius: 6px;
     padding: 8px;
@@ -179,18 +185,22 @@
     height: 60px;
 }
 
-.copy-btn:hover, .download-btn:hover {
-    background-color: rgba(112, 93, 188, 0.1);
+.copy-btn:hover,
+.download-btn:hover {
+    background-color: #F8F7FC;
+    border-radius: 8px;
 }
 
-.copy-btn .icon, .download-btn .icon {
+.copy-btn .icon,
+.download-btn .icon {
     width: 16px;
     height: 16px;
     margin-bottom: 4px;
     filter: invert(35%) sepia(45%) saturate(1500%) hue-rotate(240deg) brightness(90%) contrast(90%);
 }
 
-.copy-btn .copy-text, .download-btn .download-text {
+.copy-btn .copy-text,
+.download-btn .download-text {
     font-size: 12px;
     font-weight: normal;
     color: #705DBC;
@@ -250,7 +260,7 @@
         background-color: #e8ecff;
         transform: scale(0.9);
     }
-    
+
     .refresh-btn:focus {
         outline: 2px solid #667eea;
         outline-offset: 2px;
