@@ -105,9 +105,9 @@
     gap: 6px;
 }
 
-.copy-btn {
-    background: #ffffff;
-    border: 2px solid #ffffff;
+.copy-btn, .download-btn {
+    background: transparent;
+    border: none;
     border-radius: 6px;
     padding: 8px;
     cursor: pointer;
@@ -120,17 +120,19 @@
     height: 60px;
 }
 
-.copy-btn:hover {
-    border-color: #E1E5E9;
+.copy-btn:hover, .download-btn:hover {
+    background-color: rgba(112, 93, 188, 0.1);
 }
 
-.copy-btn .icon {
+.copy-btn .icon, .download-btn .icon {
     width: 16px;
     height: 16px;
     margin-bottom: 4px;
+    filter: invert(35%) sepia(45%) saturate(1500%) hue-rotate(240deg) brightness(90%) contrast(90%);
 }
 
-.copy-btn .copy-text {
+.copy-btn .copy-text, .download-btn .download-text {
     font-size: 12px;
     font-weight: normal;
+    color: #705DBC;
 }
