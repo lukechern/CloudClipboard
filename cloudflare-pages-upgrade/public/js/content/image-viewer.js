@@ -20,12 +20,27 @@ function viewImage(recordId, imageIndex) {
             <div class="image-modal-backdrop"></div>
             <div class="image-modal-content">
                 <button class="image-modal-close">&times;</button>
-                <div class="image-loading">
-                    <div class="loading-spinner"></div>
-                    <div class="loading-text">载入中，请稍候…</div>
+                <div class="image-loading" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 40px; min-height: 200px; background: white;">
+                    <div class="loading-spinner" style="width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #705DBC; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px;"></div>
+                    <div class="loading-text" style="color: #666; font-size: 16px; font-weight: 500; text-align: center;">载入中，请稍候…</div>
                 </div>
             </div>
         `;
+        
+        console.log('创建了加载模态框:', modal);
+
+        // 确保spin动画可用
+        if (!document.querySelector('#spin-animation-style')) {
+            const style = document.createElement('style');
+            style.id = 'spin-animation-style';
+            style.textContent = `
+                @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+            `;
+            document.head.appendChild(style);
+        }
 
         // 添加基本事件监听器
         modal.querySelector('.image-modal-backdrop').addEventListener('click', closeImageModal);
@@ -46,25 +61,41 @@ function viewImage(recordId, imageIndex) {
 
         // 预加载图片
         const imageElement = new Image();
-        imageElement.onload = function() {
-            // 图片加载完成，替换加载状态为实际图片
-            const modalContent = modal.querySelector('.image-modal-content');
-            modalContent.innerHTML = `
-                <button class="image-modal-close">&times;</button>
-                <img src="${base64}" alt="查看图片" />
-                <div class="image-modal-actions">
-                    <button class="download-single-btn" data-record-id="${recordId}" data-image-index="${imageIndex}">下载图片</button>
-                </div>
-            `;
+        const startTime = Date.now();
+        const minLoadingTime = 500; // 最小显示500ms的加载状态
 
-            // 重新绑定事件监听器
-            modalContent.querySelector('.image-modal-close').addEventListener('click', closeImageModal);
-            modalContent.querySelector('.download-single-btn').addEventListener('click', function () {
-                downloadSingleImage(recordId, imageIndex);
-            });
+        console.log('开始加载图片，显示加载状态');
+
+        imageElement.onload = function() {
+            console.log('图片加载完成');
+            const loadTime = Date.now() - startTime;
+            const remainingTime = Math.max(0, minLoadingTime - loadTime);
+
+            // 确保加载状态至少显示500ms
+            setTimeout(() => {
+                console.log('替换为实际图片');
+                // 图片加载完成，替换加载状态为实际图片
+                const modalContent = modal.querySelector('.image-modal-content');
+                if (modalContent) {
+                    modalContent.innerHTML = `
+                        <button class="image-modal-close">&times;</button>
+                        <img src="${base64}" alt="查看图片" />
+                        <div class="image-modal-actions">
+                            <button class="download-single-btn" data-record-id="${recordId}" data-image-index="${imageIndex}">下载图片</button>
+                        </div>
+                    `;
+
+                    // 重新绑定事件监听器
+                    modalContent.querySelector('.image-modal-close').addEventListener('click', closeImageModal);
+                    modalContent.querySelector('.download-single-btn').addEventListener('click', function () {
+                        downloadSingleImage(recordId, imageIndex);
+                    });
+                }
+            }, remainingTime);
         };
 
         imageElement.onerror = function() {
+            console.log('图片加载失败');
             // 图片加载失败
             showNotification('图片加载失败');
             closeImageModal();
