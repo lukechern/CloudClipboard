@@ -52,16 +52,32 @@ function viewImage(recordId, imageIndex) {
         console.log('加载模态框已显示，开始获取图片数据');
 
         // 现在开始获取图片数据
-        setTimeout(() => {
-            const recordData = window.recordsData.get(recordId);
-            if (!recordData || !recordData.images || !recordData.images[imageIndex]) {
+        setTimeout(async () => {
+            let recordIdInt_7ree = parseInt(recordId);
+            let recordData_7ree = window.recordsData ? window.recordsData.get(recordIdInt_7ree) : null;
+            let imgData_7ree = recordData_7ree && recordData_7ree.images && recordData_7ree.images[imageIndex];
+
+            // 若本地无完整图片数据，先异步按需加载（保持模态框已显示）
+            if (!imgData_7ree || !imgData_7ree.base64) {
+                try {
+                    if (typeof window.ensureFullImageData_7ree === 'function') {
+                        await window.ensureFullImageData_7ree(recordIdInt_7ree);
+                        // 重新读取数据
+                        recordData_7ree = window.recordsData ? window.recordsData.get(recordIdInt_7ree) : null;
+                        imgData_7ree = recordData_7ree && recordData_7ree.images && recordData_7ree.images[imageIndex];
+                    }
+                } catch (e) {
+                    console.error('ensureFullImageData_7ree 调用失败:', e);
+                }
+            }
+
+            if (!imgData_7ree || !imgData_7ree.base64) {
                 showNotification('图片不存在');
                 closeImageModal();
                 return;
             }
 
-            const img = recordData.images[imageIndex];
-            const base64 = img.base64;
+            const base64 = imgData_7ree.base64;
 
             console.log('获取到图片数据，开始预加载');
 
@@ -77,22 +93,25 @@ function viewImage(recordId, imageIndex) {
 
                 // 确保加载状态至少显示足够时间
                 setTimeout(() => {
+                    // 如果用户已关闭模态框，则不再渲染
+                    const modalCurrent_7ree = document.querySelector('.image-modal');
+                    if (!modalCurrent_7ree) return;
+
                     console.log('替换为实际图片');
-                    // 图片加载完成，替换加载状态为实际图片
-                    const modalContent = modal.querySelector('.image-modal-content');
+                    const modalContent = modalCurrent_7ree.querySelector('.image-modal-content');
                     if (modalContent) {
                         modalContent.innerHTML = `
                             <button class="image-modal-close">&times;</button>
                             <img src="${base64}" alt="查看图片" />
                             <div class="image-modal-actions">
-                                <button class="download-single-btn" data-record-id="${recordId}" data-image-index="${imageIndex}">下载图片</button>
+                                <button class="download-single-btn" data-record-id="${recordIdInt_7ree}" data-image-index="${imageIndex}">下载图片</button>
                             </div>
                         `;
 
                         // 重新绑定事件监听器
                         modalContent.querySelector('.image-modal-close').addEventListener('click', closeImageModal);
                         modalContent.querySelector('.download-single-btn').addEventListener('click', function () {
-                            downloadSingleImage(recordId, imageIndex);
+                            downloadSingleImage(recordIdInt_7ree, imageIndex);
                         });
                     }
                 }, remainingTime);

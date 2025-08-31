@@ -284,8 +284,8 @@ function renderRecords(data, container) {
         const hasArchivedField = record.hasOwnProperty('archived');
         const isArchived = hasArchivedField && record.archived === 1;
         const starIcon = isArchived ? 'star-filled.svg' : 'star-outline.svg';
-        const starTitle = isArchived ? '移出存档' : '移入存档';
-        const starText = isArchived ? '移出存档' : '移入存档';
+        const starTitle = isArchived ? '移出' : '存档';
+        const starText = isArchived ? '移出' : '存档';
 
         // 构建内容区域
         let contentHTML = '';
@@ -320,7 +320,7 @@ function renderRecords(data, container) {
             (hasImages ?
                 '<span class="meta-item">' +
                 '<img src="img/image.svg" class="meta-icon" width="14" height="14" title="图片数量">' +
-                imageCount + '张图片' +
+                imageCount + '张' +
                 '</span>' : '') +
             '<span class="meta-item">' +
             '<img src="img/time.svg" class="meta-icon" width="14" height="14" title="时间">' +
