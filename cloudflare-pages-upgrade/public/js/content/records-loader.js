@@ -417,14 +417,7 @@ function setupRecordEventListeners(container) {
         event.preventDefault();
         const imageIndex = parseInt(target.dataset.imageIndex);
         console.log('图片被点击，记录ID:', recordId, '图片索引:', imageIndex);
-       // 按需加载完整图片数据后再查看 _7ree
-       const ok_7ree = await ensureFullImageData_7ree(parseInt(recordId));
-       if (!ok_7ree) {
-           if (typeof showNotification === 'function') {
-               showNotification('加载图片数据失败');
-           }
-           return;
-       }
+        // 先立即展示模态框，再由 viewImage 内部按需加载完整图片数据 _7ree
         viewImage(parseInt(recordId), imageIndex);
     }
 }

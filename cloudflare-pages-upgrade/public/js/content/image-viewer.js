@@ -53,6 +53,37 @@ function viewImage(recordId, imageIndex) {
 
         // 现在开始获取图片数据
         setTimeout(async () => {
+            // 支持直接传入 base64 dataURL 的场景（如本地预览点击）_7ree
+            const isDataUrl_7ree = typeof recordId === 'string' && recordId.startsWith('data:image');
+            if (isDataUrl_7ree) {
+                const base64_7ree = recordId;
+                const imageElement_7ree = new Image();
+                const startTime_7ree = Date.now();
+                const minLoadingTime_7ree = 500;
+                imageElement_7ree.onload = function () {
+                    const loadTime_7ree = Date.now() - startTime_7ree;
+                    const remainingTime_7ree = Math.max(0, minLoadingTime_7ree - loadTime_7ree);
+                    setTimeout(() => {
+                        const modalCurrent_7ree = document.querySelector('.image-modal');
+                        if (!modalCurrent_7ree) return;
+                        const modalContent_7ree = modalCurrent_7ree.querySelector('.image-modal-content');
+                        if (modalContent_7ree) {
+                            modalContent_7ree.innerHTML = `
+                                <button class="image-modal-close">&times;</button>
+                                <img src="${base64_7ree}" alt="查看图片" />
+                            `;
+                            modalContent_7ree.querySelector('.image-modal-close').addEventListener('click', closeImageModal);
+                        }
+                    }, remainingTime_7ree);
+                };
+                imageElement_7ree.onerror = function () {
+                    showNotification('图片加载失败');
+                    closeImageModal();
+                };
+                imageElement_7ree.src = base64_7ree;
+                return;
+            }
+
             let recordIdInt_7ree = parseInt(recordId);
             let recordData_7ree = window.recordsData ? window.recordsData.get(recordIdInt_7ree) : null;
             let imgData_7ree = recordData_7ree && recordData_7ree.images && recordData_7ree.images[imageIndex];
