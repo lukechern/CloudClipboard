@@ -235,21 +235,7 @@
     background: #f8f9fa;
 }
 
-.download-btn {
-    background: #667eea;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 500;
-    transition: background-color 0.2s;
-}
 
-.download-btn:hover {
-    background: #5a6fd8;
-}
 
 /* 移动端优化 */
 @media (max-width: 768px) {
