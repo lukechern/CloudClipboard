@@ -237,72 +237,8 @@ function closeImageModal() {
     }
 }
 
-function downloadImage(base64, type) {
-    try {
-        const link = document.createElement('a');
-        link.href = base64;
-        link.download = `image_${Date.now()}.${type.split('/')[1] || 'png'}`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
 
-        if (typeof showNotification === 'function') {
-            showNotification('图片下载已开始');
-        }
-    } catch (error) {
-        console.error('下载图片失败:', error);
-        if (typeof showNotification === 'function') {
-            showNotification('下载图片失败');
-        }
-    }
-}
 
-// 下载记录中的图片
-function downloadRecordImages(recordId, encodedImagesData) {
-    try {
-        // 解码图片数据
-        const imagesData = JSON.parse(decodeURIComponent(escape(atob(encodedImagesData))));
-
-        if (!Array.isArray(imagesData) || imagesData.length === 0) {
-            if (typeof showNotification === 'function') {
-                showNotification('没有找到可下载的图片');
-            }
-            return;
-        }
-
-        // 如果只有一张图片，直接下载
-        if (imagesData.length === 1) {
-            const img = imagesData[0];
-            downloadImage(img.base64, img.type);
-        } else {
-            // 多张图片，依次下载
-            let downloadCount = 0;
-            imagesData.forEach((img, index) => {
-                setTimeout(() => {
-                    const link = document.createElement('a');
-                    link.href = img.base64;
-                    const extension = img.type.split('/')[1] || 'png';
-                    link.download = `image_${recordId}_${index + 1}.${extension}`;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-
-                    downloadCount++;
-                    if (downloadCount === imagesData.length) {
-                        if (typeof showNotification === 'function') {
-                            showNotification(`已开始下载 ${imagesData.length} 张图片`);
-                        }
-                    }
-                }, index * 500); // 每张图片间隔500ms下载，避免浏览器限制
-            });
-        }
-    } catch (error) {
-        console.error('下载图片失败:', error);
-        if (typeof showNotification === 'function') {
-            showNotification('下载图片失败: ' + error.message);
-        }
-    }
-}
 
 // 加载记录
 function loadRecords(filter = 'cache') {

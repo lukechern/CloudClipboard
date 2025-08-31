@@ -26,7 +26,6 @@
     
     /* 确保按钮有足够的触摸区域 */
     button, .btn, .tab-btn, .refresh-btn {
-        min-height: 44px;
         min-width: 44px;
         touch-action: manipulation;
     }
