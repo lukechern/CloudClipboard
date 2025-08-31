@@ -33,22 +33,23 @@ function viewImage(recordId, imageIndex) {
         modal.querySelector('.download-single-btn').addEventListener('click', function() {
             downloadSingleImage(recordId, imageIndex);
         });
+
+        // 将模态框添加到文档并处理页面滚动
+        document.body.appendChild(modal);
+        document.body.style.overflow = 'hidden';
+
+        // 添加ESC键关闭功能
+        const handleEsc = (e) => {
+            if (e.key === 'Escape') {
+                closeImageModal();
+                document.removeEventListener('keydown', handleEsc);
+            }
+        };
+        document.addEventListener('keydown', handleEsc);
     } catch (error) {
         showNotification('无法查看图片');
         return;
     }
-
-    document.body.appendChild(modal);
-    document.body.style.overflow = 'hidden';
-
-    // 添加ESC键关闭功能
-    const handleEsc = (e) => {
-        if (e.key === 'Escape') {
-            closeImageModal();
-            document.removeEventListener('keydown', handleEsc);
-        }
-    };
-    document.addEventListener('keydown', handleEsc);
 }
 
 function closeImageModal() {
