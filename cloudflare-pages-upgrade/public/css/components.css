@@ -257,29 +257,56 @@
     box-shadow: 0 4px 12px rgba(112, 93, 188, 0.3);
 }
 
-/* 图片加载状态样式 */
+/* 下载原图按钮（与 .download-single-btn 保持一致风格） */
+.download-origin-btn_7ree {
+    background: transparent;
+    border: 2px solid #705DBC;
+    border-radius: 6px;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: #705DBC;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.download-origin-btn_7ree:hover {
+    background: #705DBC;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(112, 93, 188, 0.3);
+}
+
+/* 图片加载状态样式优化：确保完全居中与更好的可读性 _7ree */
 .image-modal .image-loading {
     display: flex !important;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     padding: 60px 40px;
-    min-height: 200px;
-    background: white;
+    min-height: 220px;
+    background: #ffffff;
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+    gap: 12px;
 }
 
 .image-modal .loading-spinner {
     width: 40px;
     height: 40px;
-    border: 4px solid #f3f3f3;
+    border: 4px solid #f0f0f0;
     border-top: 4px solid #705DBC;
     border-radius: 50%;
     animation: spin 1s linear infinite;
-    margin-bottom: 20px;
+    margin-bottom: 6px;
 }
 
 .image-modal .loading-text {
-    color: #666;
+    color: #333; /* 加深颜色，提升对比度 */
     font-size: 16px;
     font-weight: 500;
     text-align: center;

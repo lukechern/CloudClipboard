@@ -177,7 +177,7 @@ function renderRecords(data, container) {
         if (record.thumbnails) {
             try {
                 thumbnails = typeof record.thumbnails === 'string' ? JSON.parse(record.thumbnails) : record.thumbnails;
-                
+
                 if (Array.isArray(thumbnails) && thumbnails.length > 0) {
                     hasImages = true;
                     imagesHTML = '<div class="record-images">';
@@ -201,7 +201,7 @@ function renderRecords(data, container) {
         else if (record.imageMetadata) {
             try {
                 const imageMetadata = typeof record.imageMetadata === 'string' ? JSON.parse(record.imageMetadata) : record.imageMetadata;
-                
+
                 if (Array.isArray(imageMetadata) && imageMetadata.length > 0) {
                     hasImages = true;
                     imagesHTML = '<div class="record-images">';
@@ -298,8 +298,26 @@ function renderRecords(data, container) {
 
         // 计算实际长度（包含图片）
         let imageCount = 0;
-        if (hasImages && images) {
-            imageCount = Array.isArray(images) ? images.length : 0;
+        if (hasImages) {
+            // 优先使用缩略图数据计算数量
+            if (thumbnails && Array.isArray(thumbnails)) {
+                imageCount = thumbnails.length;
+            }
+            // 如果没有缩略图，使用图片元数据
+            else if (record.imageMetadata) {
+                try {
+                    const imageMetadata = typeof record.imageMetadata === 'string' ? JSON.parse(record.imageMetadata) : record.imageMetadata;
+                    if (Array.isArray(imageMetadata)) {
+                        imageCount = imageMetadata.length;
+                    }
+                } catch (e) {
+                    console.error('解析图片元数据失败:', e);
+                }
+            }
+            // 兼容旧数据：使用完整图片数据
+            else if (images && Array.isArray(images)) {
+                imageCount = images.length;
+            }
         }
         const actualLength = record.length || (trimmedContent.length + (imageCount * 50));
 
@@ -366,13 +384,13 @@ function renderRecords(data, container) {
 function setupRecordEventListeners(container) {
     // 移除之前的事件监听器（如果存在）
     container.removeEventListener('click', handleRecordClick);
-    
+
     // 添加事件委托
     container.addEventListener('click', handleRecordClick);
 }
 
 // 处理记录相关的点击事件
- async function handleRecordClick(event) {
+async function handleRecordClick(event) {
     const target = event.target.closest('button, .record-image');
     if (!target) return;
 
@@ -396,14 +414,14 @@ function setupRecordEventListeners(container) {
     else if (target.classList.contains('download-btn')) {
         event.preventDefault();
         console.log('下载按钮被点击，记录ID:', recordId);
-      // 按需加载完整图片数据 _7ree
-      const ok_7ree = await ensureFullImageData_7ree(parseInt(recordId));
-      if (!ok_7ree) {
-          if (typeof showNotification === 'function') {
-              showNotification('加载图片数据失败');
-          }
-          return;
-      }
+        // 按需加载完整图片数据 _7ree
+        const ok_7ree = await ensureFullImageData_7ree(parseInt(recordId));
+        if (!ok_7ree) {
+            if (typeof showNotification === 'function') {
+                showNotification('加载图片数据失败');
+            }
+            return;
+        }
         downloadRecordImages(parseInt(recordId));
     }
     // 复制按钮
@@ -435,20 +453,20 @@ async function loadFullImageData(recordId) {
     }
 
     console.log('异步加载完整图片数据，记录ID:', recordId);
-    
+
     try {
         const fetchPromise = window.authManager ?
             window.authManager.smartFetch(`/api/records/${recordId}/images`, { method: 'GET' }) :
             fetch(`/api/records/${recordId}/images`);
 
         const response = await fetchPromise;
-        
+
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         const data = await response.json();
-        
+
         if (data.error) {
             throw new Error(data.error);
         }
@@ -476,21 +494,21 @@ async function loadFullImageData(recordId) {
 
 // 异步确保完整图片数据已就绪（按需加载） _7ree
 async function ensureFullImageData_7ree(recordId) {
-     try {
-         const cached = window.recordsData.get(recordId);
-         if (cached && Array.isArray(cached.images) && cached.images.length > 0 && cached.images[0] && cached.images[0].base64) {
-             return true;
-         }
-         const images = await loadFullImageData(recordId);
-         if (images && Array.isArray(images) && images.length > 0) {
-             const data = window.recordsData.get(recordId) || {};
-             data.images = images;
-             window.recordsData.set(recordId, data);
-             return true;
-         }
-         return false;
-     } catch (e) {
-         console.error('ensureFullImageData_7ree 错误:', e);
-         return false;
-     }
- }
+    try {
+        const cached = window.recordsData.get(recordId);
+        if (cached && Array.isArray(cached.images) && cached.images.length > 0 && cached.images[0] && cached.images[0].base64) {
+            return true;
+        }
+        const images = await loadFullImageData(recordId);
+        if (images && Array.isArray(images) && images.length > 0) {
+            const data = window.recordsData.get(recordId) || {};
+            data.images = images;
+            window.recordsData.set(recordId, data);
+            return true;
+        }
+        return false;
+    } catch (e) {
+        console.error('ensureFullImageData_7ree 错误:', e);
+        return false;
+    }
+}

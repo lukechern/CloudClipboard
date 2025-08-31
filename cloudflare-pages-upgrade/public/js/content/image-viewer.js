@@ -12,14 +12,14 @@ function viewImage(recordId, imageIndex) {
             <div class="image-modal-backdrop"></div>
             <div class="image-modal-content">
                 <button class="image-modal-close">&times;</button>
-                <div class="image-loading" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 40px; min-height: 200px; background: white;">
-                    <div class="loading-spinner" style="width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #705DBC; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px;"></div>
-                    <div class="loading-text" style="color: #666; font-size: 16px; font-weight: 500; text-align: center;">载入中，请稍候…</div>
+                <div class="image-loading">
+                    <div class="loading-spinner"></div>
+                    <div class="loading-text">载入中，请稍候…</div>
                 </div>
             </div>
         `;
 
-        // 确保spin动画可用
+        // 确保spin动画可用（与全局样式互不冲突）
         if (!document.querySelector('#spin-animation-style')) {
             const style = document.createElement('style');
             style.id = 'spin-animation-style';
