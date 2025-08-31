@@ -1,548 +1,117 @@
-// 全局标志，防止初始加载时重复调用
+/**
+ * 主入口文件 - 负责加载和初始化所有功能模块
+ * 重构后的模块化架构，将原有的庞大文件拆分为三个专门的功能模块
+ */
+
+// 模块实例
+let uiController = null;
+let formManager = null;
+let storageHandler = null;
+
+// 全局兼容性支持（保持向后兼容）
 window.initialDataLoaded = false;
+window.currentFilter = 'cache';
 
-// 页面加载完成后的处理
-document.addEventListener('DOMContentLoaded', function () {
-    // 监听认证成功事件
-    window.addEventListener('authSuccess', function () {
-        console.log('认证成功事件触发，initialDataLoaded:', window.initialDataLoaded);
-        // 认证成功后，如果还没有进行初始数据加载，则加载数据
-        if (!window.initialDataLoaded) {
-            console.log('认证成功后加载数据');
-
-            // 确保内容模块已加载
-            function loadDataAfterAuth() {
-                if (typeof loadRecords === 'function') {
-                    loadRecords();
-                }
-                if (typeof loadStorageInfo === 'function') {
-                    loadStorageInfo();
-                }
-                window.initialDataLoaded = true;
-            }
-
-            // 检查函数是否就绪
-            function checkAndLoadAfterAuth() {
-                if (typeof loadRecords === 'function') {
-                    loadDataAfterAuth();
-                } else {
-                    setTimeout(checkAndLoadAfterAuth, 50);
-                }
-            }
-
-            checkAndLoadAfterAuth();
-        }
+// 动态加载模块
+function loadModule(src) {
+    return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = src;
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
     });
+}
 
-    // 等待内容模块加载完成后再初始化
-    function initializeAfterModulesLoaded() {
-        console.log('开始初始化，检查认证状态');
-        console.log('authManager存在:', !!window.authManager);
-        console.log('已认证:', window.authManager?.isAuthenticated);
-        console.log('initialDataLoaded:', window.initialDataLoaded);
-        console.log('loadRecords函数存在:', typeof loadRecords === 'function');
-
-        // 如果没有认证管理器或者已经认证成功，直接加载数据
-        if (!window.authManager || window.authManager.isAuthenticated) {
-            if (!window.initialDataLoaded) {
-                console.log('开始加载初始数据');
-                if (typeof loadRecords === 'function') {
-                    loadRecords();
-                } else {
-                    console.error('loadRecords函数不存在！');
-                }
-                if (typeof loadStorageInfo === 'function') {
-                    loadStorageInfo();
-                } else {
-                    console.error('loadStorageInfo函数不存在！');
-                }
-                window.initialDataLoaded = true;
-            } else {
-                console.log('初始数据已经加载过了');
-            }
-        } else {
-            console.log('需要认证，隐藏存储信息');
-            // 如果需要认证但还未认证，隐藏存储信息
-            const storageSection = document.querySelector('.storage-info');
-            if (storageSection) {
-                storageSection.style.display = 'none';
-            }
+// 初始化所有模块
+function initializeModules() {
+    console.log('初始化功能模块...');
+    
+    // 实例化各个模块
+    try {
+        if (window.UIController) {
+            uiController = new window.UIController();
+            console.log('UI控制器模块已初始化');
         }
+        
+        if (window.FormManager) {
+            formManager = new window.FormManager();
+            console.log('表单管理器模块已初始化');
+        }
+        
+        if (window.StorageHandler) {
+            storageHandler = new window.StorageHandler();
+            console.log('存储处理器模块已初始化');
+        }
+        
+        console.log('所有模块初始化完成');
+    } catch (error) {
+        console.error('模块初始化失败:', error);
     }
+}
 
-    // 延迟检查，等待模块加载
-    function checkAndInitialize() {
-        if (typeof loadRecords === 'function') {
-            console.log('loadRecords函数已就绪，开始初始化');
-            initializeAfterModulesLoaded();
-        } else {
-            console.log('loadRecords函数尚未就绪，继续等待...');
-            setTimeout(checkAndInitialize, 100);
-        }
-    }
-
-    // 开始检查
-    setTimeout(checkAndInitialize, 100);
-
-    // 检查是否有成功消息
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('saved')) {
-        showNotification('内容已保存到云端');
-    }
-
-    // 自动读取剪贴板
-    setTimeout(function () {
-        autoReadClipboard();
-    }, 500);
-
-    // 获取相关元素
-    const header = document.querySelector('.header');
-    const backToTopBtn = document.getElementById('backToTop');
-    const batchOperationBtn = document.getElementById('batchOperation');
-    const container = document.querySelector('.container');
-
-    // 创建批量操作工具栏
-    const batchToolbar = document.createElement('div');
-    batchToolbar.id = 'batchToolbar';
-    batchToolbar.className = 'batch-toolbar';
-    batchToolbar.innerHTML =
-        '<div class="actions">' +
-        '<button class="complete-btn">' +
-        '<img src="img/complete.svg" class="icon" alt="完成" width="16" height="16">' +
-        '完成' +
-        '</button>' +
-        '<span class="count">已选择 0 项</span>' +
-        '</div>' +
-        '<div class="actions">' +
-        '<button class="delete-btn" disabled>' +
-        '<img src="img/delete.svg" class="icon" alt="删除" width="16" height="16">' +
-        '批量删除' +
-        '</button>' +
-        '</div>';
-    document.body.appendChild(batchToolbar);
-
-    // 监听滚动事件
-    window.addEventListener('scroll', function () {
-        // 获取滚动位置
-        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-
-        // 固定标题栏逻辑
-        if (scrollTop > header.offsetTop) {
-            header.classList.add('header-fixed');
-            // 添加顶部边距以防止内容跳动
-            container.style.paddingTop = header.offsetHeight + 'px';
-        } else {
-            header.classList.remove('header-fixed');
-            container.style.paddingTop = '0';
-        }
-
-        // 显示/隐藏回到顶部按钮
-        if (scrollTop > 300) {
-            backToTopBtn.classList.add('show');
-        } else {
-            backToTopBtn.classList.remove('show');
-        }
-    });
-
-    // 回到顶部按钮点击事件
-    backToTopBtn.addEventListener('click', function () {
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-        });
-    });
-
-    // 批量操作按钮点击事件
-    batchOperationBtn.addEventListener('click', function () {
-        enterBatchMode();
-    });
-
-    // 完成按钮点击事件
-    document.querySelector('.batch-toolbar .complete-btn').addEventListener('click', function () {
-        exitBatchMode();
-    });
-
-    // 批量删除按钮点击事件
-    document.querySelector('.batch-toolbar .delete-btn').addEventListener('click', function () {
-        const checkboxes = document.querySelectorAll('.record-checkbox:checked');
-        const ids = Array.from(checkboxes).map(cb => cb.dataset.id);
-
-        if (ids.length > 0) {
-            batchDeleteRecords(ids);
-        }
-    });
-
-    // 监听复选框变化以更新计数
-    document.addEventListener('change', function (e) {
-        if (e.target.classList.contains('record-checkbox')) {
-            updateBatchToolbarCount();
-        }
-    });
-
-    // 处理清空按钮功能
-    const textarea = document.getElementById('content-input');
-    const clearBtn = document.getElementById('clearBtn');
-    const textareaContainer = document.querySelector('.textarea-container');
-
-    if (textarea && clearBtn && textareaContainer) {
-        // 监听textarea内容变化
-        function updateClearButtonVisibility() {
-            const hasText = textarea.value.trim().length > 0;
-            const hasImages = window.clipboardHandler && window.clipboardHandler.hasImages();
-
-            if (hasText || hasImages) {
-                textareaContainer.classList.add('has-content');
-            } else {
-                textareaContainer.classList.remove('has-content');
-            }
-        }
-
-        // 监听输入事件
-        textarea.addEventListener('input', updateClearButtonVisibility);
-        textarea.addEventListener('paste', function () {
-            setTimeout(() => {
-                updateClearButtonVisibility();
-
-            }, 10);
-        });
-
-        // 清空内容的函数
-        function clearTextarea() {
-            if (window.clipboardHandler) {
-                window.clipboardHandler.clearAll();
-            } else {
-                textarea.value = '';
-                updateClearButtonVisibility();
-            }
-            textarea.focus();
-            if (typeof showNotification === 'function') {
-                showNotification('内容已清空');
-            }
-        }
-
-        // 清空按钮点击事件
-        clearBtn.addEventListener('click', function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            clearTextarea();
-        });
-
-        // 键盘快捷键支持
-        textarea.addEventListener('keydown', function (e) {
-            if ((e.ctrlKey || e.metaKey) && e.key === 'Delete') {
-                e.preventDefault();
-                clearTextarea();
-            }
-        });
-
-        // 初始化时检查内容
-        updateClearButtonVisibility();
+// 页面加载完成后开始加载模块
+document.addEventListener('DOMContentLoaded', async function() {
+    console.log('开始加载主功能模块...');
+    
+    try {
+        // 并行加载所有模块
+        await Promise.all([
+            loadModule('./js/main/ui-controller.js'),
+            loadModule('./js/main/form-manager.js'),
+            loadModule('./js/main/storage-handler.js')
+        ]);
+        
+        // 等待模块脚本执行
+        setTimeout(initializeModules, 100);
+        
+    } catch (error) {
+        console.error('模块加载失败:', error);
+        // 降级处理：提供基本功能
+        console.warn('使用降级模式运行');
     }
 });
 
-
-// 处理表单提交
-document.addEventListener('DOMContentLoaded', function () {
-    const form = document.querySelector('.input-section form');
-    if (form) {
-        form.addEventListener('submit', function (e) {
-            e.preventDefault();
-
-            const textarea = form.querySelector('textarea');
-            const submitBtn = form.querySelector('button[type="submit"]');
-
-            // 获取表单数据
-            const content = textarea.value.trim();
-            const hasImages = window.clipboardHandler && window.clipboardHandler.hasImages();
-
-            // 验证内容是否为空
-            if (!content && !hasImages) {
-                showNotification('请输入要保存的内容或添加图片');
-                return;
-            }
-
-            // 添加加载状态
-            if (submitBtn) {
-                showLoadingState(submitBtn);
-            }
-
-            // 创建请求数据
-            const formData = new FormData();
-
-            // 添加文本内容
-            if (content) {
-                formData.append('content', content);
-            } else if (hasImages) {
-                // 如果只有图片没有文本，添加默认描述作为内容
-                const imageCount = window.clipboardHandler.getImageCount();
-                const defaultContent = `[图片内容] ${imageCount}张图片`;
-                formData.append('content', defaultContent);
-            }
-
-            // 添加图片数据
-            if (hasImages) {
-                const imagesData = window.clipboardHandler.getImagesData();
-
-                // 分离原图和缩略图数据
-                const originalImages = imagesData.map(img => ({
-                    base64: img.base64,
-                    type: img.type,
-                    size: img.size
-                }));
-
-                const thumbnailImages = imagesData.map(img => ({
-                    base64: img.thumbnail || img.base64, // 如果没有缩略图，使用原图
-                    type: img.type,
-                    size: img.size
-                }));
-
-                formData.append('images', JSON.stringify(originalImages));
-                formData.append('thumbnails', JSON.stringify(thumbnailImages));
-
-                if (content) {
-                    formData.append('content_type', 'mixed'); // 标识为混合内容
-                } else {
-                    formData.append('content_type', 'image'); // 标识为纯图片
-                }
-            } else {
-                formData.append('content_type', 'text'); // 标识为纯文本
-            }
-
-            // 发送请求 - 使用智能fetch自动处理token刷新
-            const fetchPromise = window.authManager ?
-                window.authManager.smartFetch('/api/records', {
-                    method: 'POST',
-                    body: formData
-                }) :
-                fetch('/api/records', {
-                    method: 'POST',
-                    body: formData
-                });
-
-            fetchPromise
-                .then(async response => {
-                    console.log('保存请求响应状态:', response.status);
-
-                    if (!response.ok) {
-                        // 尝试获取详细错误信息
-                        let errorMessage = '网络响应失败';
-                        try {
-                            const errorData = await response.json();
-                            if (errorData.error) {
-                                errorMessage = errorData.error;
-                            }
-                        } catch (e) {
-                            // 如果无法解析JSON，使用状态码信息
-                            errorMessage = `网络响应失败 (状态码: ${response.status})`;
-                        }
-                        throw new Error(errorMessage);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    // console.log('保存响应数据:', data);
-
-                    // 检查服务器返回的是否是错误信息
-                    if (data.error) {
-                        throw new Error(data.error);
-                    }
-
-                    // 清空表单内容
-                    if (window.clipboardHandler) {
-                        window.clipboardHandler.clearAll();
-                    } else {
-                        textarea.value = '';
-                        const textareaContainer = document.querySelector('.textarea-container');
-                        if (textareaContainer) {
-                            textareaContainer.classList.remove('has-content');
-                        }
-                    }
-
-                    if (submitBtn) {
-                        restoreButtonState(submitBtn);
-                    }
-
-                    // 重新加载当前过滤器的记录
-                    if (typeof loadRecords === 'function') {
-                        loadRecords(window.currentFilter || 'cache');
-                    }
-
-                    // 显示成功消息
-                    let successMessage = '内容已保存到云端';
-                    if (hasImages && !content) {
-                        successMessage = '图片已保存到云端';
-                    } else if (hasImages && content) {
-                        successMessage = '文本和图片已保存到云端';
-                    }
-                    showNotification(successMessage);
-                })
-                .catch(error => {
-                    console.error('保存错误详情:', error);
-                    console.error('认证管理器状态:', {
-                        isAuthenticated: window.authManager?.isAuthenticated,
-                        hasAuthToken: !!window.authManager?.authToken,
-                        hasCSRFToken: !!window.authManager?.csrfToken,
-                        usesCookies: window.authManager?.usesCookies
-                    });
-
-                    showNotification('保存失败: ' + (error.message || '未知错误'));
-
-                    if (submitBtn) {
-                        restoreButtonState(submitBtn);
-                    }
-                });
-        });
-    }
-});
-// 加载存储信息
+// 向后兼容性函数（保持原有的全局函数可用）
 function loadStorageInfo() {
-    const requestConfig = window.authManager ?
-        window.authManager.getRequestConfig() : {};
-
-    fetch('/api/storage', requestConfig)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            // 检查是否有错误信息
-            if (data.error) {
-                throw new Error(data.error);
-            }
-            displayStorageInfo(data);
-        })
-        .catch(error => {
-            console.error('加载存储信息失败:', error);
-            // 如果加载失败，显示默认信息
-            displayStorageInfo({
-                type: 'Cloudflare',
-                location: 'D1数据库',
-                description: 'Cloudflare (云端 D1 数据库)',
-                status: '获取失败'
-            });
-        });
-}
-
-// 显示存储信息（简化版，只显示存储位置）
-function displayStorageInfo(storageInfo) {
-    const container = document.getElementById('storage-info-container');
-    const storageSection = document.querySelector('.storage-info');
-
-    if (!container || !storageSection) return;
-
-    // 检查是否已登录
-    if (!window.authManager || !window.authManager.isAuthenticated) {
-        // 未登录时隐藏整个存储信息区域
-        storageSection.style.display = 'none';
-        return;
-    }
-
-    // 已登录时显示存储信息
-    storageSection.style.display = 'block';
-
-    // 处理可能的undefined值
-    const type = storageInfo.type || 'Cloudflare';
-    const location = storageInfo.location || 'D1数据库';
-    const description = storageInfo.description || `${type} (${location})`;
-
-    const html = `
-        <div class="storage-info-item">
-            <span class="storage-info-label">数据存储位置:</span>
-            <span class="storage-info-value"><a href="./init_db.html" target="_blank">${description}</a></span>
-        </div>
-        <div class="logout-section">
-            <a href="#" id="logoutLink" class="logout-link">退出登录</a>
-        </div>
-    `;
-
-    container.innerHTML = html;
-
-    // 绑定退出链接事件
-    const logoutLink = document.getElementById('logoutLink');
-    if (logoutLink) {
-        logoutLink.addEventListener('click', handleLogout);
+    if (storageHandler && storageHandler.loadStorageInfo) {
+        storageHandler.loadStorageInfo();
+    } else {
+        console.error('StorageHandler 模块未正确加载');
     }
 }
 
-// 处理退出登录
-function handleLogout(e) {
-    e.preventDefault();
-
-    if (window.authManager) {
-        // 使用自定义确认对话框，带有退出登录的特殊样式
-        showConfirm(
-            '退出登录',
-            '确定要退出登录吗？这将清除所有本地认证信息，您需要重新输入密码才能继续使用。',
-            () => {
-                window.authManager.logout();
-            },
-            {
-                type: 'logout',
-                confirmText: '退出登录',
-                cancelText: '取消'
-            }
-        );
+function autoReadClipboard() {
+    if (storageHandler && storageHandler.autoReadClipboard) {
+        storageHandler.autoReadClipboard();
+    } else {
+        console.error('StorageHandler 模块未正确加载');
     }
 }
 
-
-// 自动读取剪贴板功能
-async function autoReadClipboard() {
-    // 检查是否为HTTPS环境
-    if (window.location.protocol !== 'https:') {
-        console.log('需要HTTPS环境才能访问剪贴板');
-        return;
-    }
-
-    // 检查浏览器是否支持剪贴板API
-    if (!navigator.clipboard) {
-        console.log('浏览器不支持剪贴板API');
-        return;
-    }
-
-    const contentInput = document.getElementById('content-input');
-    if (!contentInput) {
-        console.log('未找到内容输入框');
-        return;
-    }
-
-    // 如果输入框已有内容或已有图片，不覆盖
-    if (contentInput.value.trim() || (window.clipboardHandler && window.clipboardHandler.hasImages())) {
-        console.log('已有内容，跳过自动读取剪贴板');
-        return;
-    }
-
-    // 尝试使用剪贴板处理器自动读取
-    if (window.clipboardHandler) {
-        try {
-            await window.clipboardHandler.readClipboard();
-        } catch (err) {
-            console.log('自动读取剪贴板失败:', err.message);
-            // 如果新API失败，尝试只读取文本
-            try {
-                if (navigator.clipboard.readText) {
-                    const text = await navigator.clipboard.readText();
-                    if (text && text.trim()) {
-                        contentInput.value = text.trim();
-
-                        // 更新清空按钮状态
-                        const textareaContainer = document.querySelector('.textarea-container');
-                        if (textareaContainer) {
-                            textareaContainer.classList.add('has-content');
-                        }
-
-                        // 显示提示信息
-                        if (typeof showNotification === 'function') {
-                            showNotification('已自动读取剪贴板文本');
-                        }
-                    }
-                }
-            } catch (textErr) {
-                console.log('无法读取剪贴板文本:', textErr.message);
-            }
-        }
+// 批量操作相关函数（向后兼容）
+function enterBatchMode() {
+    if (uiController && uiController.enterBatchMode) {
+        uiController.enterBatchMode();
     }
 }
+
+function exitBatchMode() {
+    if (uiController && uiController.exitBatchMode) {
+        uiController.exitBatchMode();
+    }
+}
+
+function updateBatchToolbarCount() {
+    if (uiController && uiController.updateBatchToolbarCount) {
+        uiController.updateBatchToolbarCount();
+    }
+}
+
+// 导出到全局以便其他模块使用
+window.mainApp = {
+    uiController: () => uiController,
+    formManager: () => formManager,
+    storageHandler: () => storageHandler
+};
 
