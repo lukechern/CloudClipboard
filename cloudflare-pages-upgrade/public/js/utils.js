@@ -92,13 +92,21 @@ function downloadRecordImages(recordId) {
                         // 尝试解码以验证格式
                         atob(base64Part);
                         
-                        const link = document.createElement('a');
-                        link.href = dataUrl;
-                        const extension = img.type.split('/')[1] || 'png';
-                        link.download = `image_${recordId}_${index + 1}.${extension}`;
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
+                        // 检查是否在Android WebView环境中
+                        if (typeof AndroidClipboard !== 'undefined' && AndroidClipboard.downloadDataUrl) {
+                            const extension = img.type.split('/')[1] || 'png';
+                            const fileName = `image_${recordId}_${index + 1}.${extension}`;
+                            AndroidClipboard.downloadDataUrl(dataUrl, fileName);
+                        } else {
+                            // 使用标准浏览器下载方式
+                            const link = document.createElement('a');
+                            link.href = dataUrl;
+                            const extension = img.type.split('/')[1] || 'png';
+                            link.download = `image_${recordId}_${index + 1}.${extension}`;
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                        }
                         
                         successCount++;
                     } catch (error) {
@@ -168,14 +176,27 @@ function downloadImage(base64, type) {
             return;
         }
         
-        const link = document.createElement('a');
-        link.href = dataUrl;
-        link.download = `image_${Date.now()}.${type.split('/')[1] || 'png'}`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        
-        showNotification('图片下载已开始');
+        // 检查是否在Android WebView环境中
+        if (typeof AndroidClipboard !== 'undefined' && AndroidClipboard.downloadDataUrl) {
+            console.log('使用Android WebView下载接口');
+            const fileName = `image_${Date.now()}.${type.split('/')[1] || 'png'}`;
+            const success = AndroidClipboard.downloadDataUrl(dataUrl, fileName);
+            if (success) {
+                showNotification('开始下载图片');
+            } else {
+                showNotification('下载失败，请重试');
+            }
+        } else {
+            // 使用标准浏览器下载方式
+            console.log('使用标准浏览器下载方式');
+            const link = document.createElement('a');
+            link.href = dataUrl;
+            link.download = `image_${Date.now()}.${type.split('/')[1] || 'png'}`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showNotification('图片下载已开始');
+        }
     } catch (error) {
         console.error('Download image error:', error);
         showNotification('下载图片失败: ' + error.message);
