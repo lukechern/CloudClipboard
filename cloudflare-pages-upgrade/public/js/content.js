@@ -138,6 +138,9 @@ function toggleContent(id) {
 // 当前过滤器状态
 window.currentFilter = 'cache';
 
+// 全局记录数据存储，避免在DOM中传递长参数
+window.recordsData = new Map();
+
 // 手机版调试和修复函数
 function debugMobileIssues() {
     const isMobile = window.innerWidth <= 768;
@@ -182,20 +185,36 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 // 图片查看功能
-function viewImage(base64, type) {
-    // 创建模态框
-    const modal = document.createElement('div');
-    modal.className = 'image-modal';
-    modal.innerHTML = `
-        <div class="image-modal-backdrop" onclick="closeImageModal()"></div>
-        <div class="image-modal-content">
-            <button class="image-modal-close" onclick="closeImageModal()">&times;</button>
-            <img src="${base64}" alt="查看图片" />
-            <div class="image-modal-actions">
-                <button onclick="downloadImage('${base64}', '${type}')" class="download-btn">下载图片</button>
+function viewImage(recordId, imageIndex) {
+    try {
+        // 从全局存储中获取图片数据
+        const recordData = window.recordsData.get(recordId);
+        if (!recordData || !recordData.images || !recordData.images[imageIndex]) {
+            showNotification('图片不存在');
+            return;
+        }
+        
+        const img = recordData.images[imageIndex];
+        const base64 = img.base64;
+        const type = img.type;
+        
+        // 创建模态框
+        const modal = document.createElement('div');
+        modal.className = 'image-modal';
+        modal.innerHTML = `
+            <div class="image-modal-backdrop" onclick="closeImageModal()"></div>
+            <div class="image-modal-content">
+                <button class="image-modal-close" onclick="closeImageModal()">&times;</button>
+                <img src="${base64}" alt="查看图片" />
+                <div class="image-modal-actions">
+                    <button onclick="downloadSingleImage(${recordId}, ${imageIndex})" class="download-btn">下载图片</button>
+                </div>
             </div>
-        </div>
-    `;
+        `;
+    } catch (error) {
+        showNotification('无法查看图片');
+        return;
+    }
 
     document.body.appendChild(modal);
     document.body.style.overflow = 'hidden';
@@ -287,7 +306,8 @@ function downloadRecordImages(recordId, encodedImagesData) {
 
 // 加载记录
 function loadRecords(filter = 'cache') {
-    // console.log('loadRecords() 被调用，过滤器:', filter);
+    // 清空之前的记录数据存储
+    window.recordsData.clear();
 
     window.currentFilter = filter;
 
@@ -425,7 +445,7 @@ function loadRecords(filter = 'cache') {
                                             thumbnails[index].base64 : img.base64;
 
                                         imagesHTML += `
-                                            <div class="record-image" onclick="viewImage('${img.base64}', '${img.type}')">
+                                            <div class="record-image" onclick="viewImage(${record.id}, ${index})">
                                                 <img src="${displayImage}" alt="图片 ${index + 1}" />
                                                 <div class="image-overlay">
                                                     <span>查看</span>
@@ -440,8 +460,13 @@ function loadRecords(filter = 'cache') {
                             }
                         }
 
-                        // 使用Base64编码内容，避免特殊字符问题
-                        const encodedContent = btoa(unescape(encodeURIComponent(trimmedContent)));
+                        // 将记录数据存储到全局变量中
+                        window.recordsData.set(record.id, {
+                            content: trimmedContent,
+                            images: images,
+                            thumbnails: thumbnails,
+                            hasImages: hasImages
+                        });
 
                         // 检查内容是否超过3行（大约60个字符）
                         const isLongContent = trimmedContent.length > 60 || (trimmedContent.match(/\n/g) || []).length > 2;
@@ -521,14 +546,12 @@ function loadRecords(filter = 'cache') {
                             '<div class="record-actions">' +
                             (isPureImageContent ?
                                 // 纯图片内容显示下载按钮
-                                '<button class="download-btn" onclick="downloadRecordImages(' + record.id + ', \'' +
-                                btoa(unescape(encodeURIComponent(JSON.stringify(images)))) + '\')" title="下载图片">' +
+                                '<button class="download-btn" onclick="downloadRecordImages(' + record.id + ')" title="下载图片">' +
                                 '<img src="img/download.svg" class="icon download-icon">' +
                                 '<span class="download-text">下载</span>' +
                                 '</button>' :
                                 // 普通内容显示复制按钮
-                                '<button class="copy-btn" onclick="copyToClipboard(' + record.id + ', \'' + encodedContent +
-                                '\')" title="复制">' +
+                                '<button class="copy-btn" onclick="copyToClipboard(' + record.id + ')" title="复制">' +
                                 '<img src="img/copy.svg" class="icon copy-icon">' +
                                 '<span class="copy-text">复制</span>' +
                                 '</button>'

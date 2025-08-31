@@ -1,24 +1,112 @@
 // 复制到剪贴板功能
-function copyToClipboard(id, encodedContent) {
-    // 解码内容
-    const content = decodeURIComponent(escape(atob(encodedContent)));
-    
-    // 创建临时文本区域
-    const textArea = document.createElement('textarea');
-    textArea.value = content;
-    document.body.appendChild(textArea);
-    textArea.select();
-    
-    // 执行复制
+function copyToClipboard(recordId) {
     try {
-        document.execCommand('copy');
-        showNotification('已复制到剪贴板');
-    } catch (err) {
+        // 从全局存储中获取内容
+        const recordData = window.recordsData.get(recordId);
+        if (!recordData || !recordData.content) {
+            showNotification('复制失败：内容不存在');
+            return;
+        }
+        
+        const content = recordData.content;
+        
+        // 创建临时文本区域
+        const textArea = document.createElement('textarea');
+        textArea.value = content;
+        document.body.appendChild(textArea);
+        textArea.select();
+        
+        // 执行复制
+        try {
+            document.execCommand('copy');
+            showNotification('已复制到剪贴板');
+        } catch (err) {
+            showNotification('复制失败');
+        }
+        
+        // 移除临时元素
+        document.body.removeChild(textArea);
+    } catch (error) {
         showNotification('复制失败');
     }
-    
-    // 移除临时元素
-    document.body.removeChild(textArea);
+}
+
+// 下载记录中的图片
+function downloadRecordImages(recordId) {
+    try {
+        // 从全局存储中获取图片数据
+        const recordData = window.recordsData.get(recordId);
+        if (!recordData || !recordData.images) {
+            showNotification('没有找到可下载的图片');
+            return;
+        }
+
+        const imagesData = recordData.images;
+        
+        if (!Array.isArray(imagesData) || imagesData.length === 0) {
+            showNotification('没有找到可下载的图片');
+            return;
+        }
+
+        // 如果只有一张图片，直接下载
+        if (imagesData.length === 1) {
+            const img = imagesData[0];
+            downloadImage(img.base64, img.type);
+        } else {
+            // 多张图片，依次下载
+            let downloadCount = 0;
+            imagesData.forEach((img, index) => {
+                setTimeout(() => {
+                    const link = document.createElement('a');
+                    link.href = img.base64;
+                    const extension = img.type.split('/')[1] || 'png';
+                    link.download = `image_${recordId}_${index + 1}.${extension}`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    
+                    downloadCount++;
+                    if (downloadCount === imagesData.length) {
+                        showNotification(`已开始下载 ${imagesData.length} 张图片`);
+                    }
+                }, index * 500); // 每张图片间隔500ms下载，避免浏览器限制
+            });
+        }
+    } catch (error) {
+        showNotification('下载图片失败');
+    }
+}
+
+// 下载单张图片的辅助函数
+function downloadImage(base64, type) {
+    try {
+        const link = document.createElement('a');
+        link.href = base64;
+        link.download = `image_${Date.now()}.${type.split('/')[1] || 'png'}`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        showNotification('图片下载已开始');
+    } catch (error) {
+        showNotification('下载图片失败');
+    }
+}
+
+// 从记录中下载单张图片
+function downloadSingleImage(recordId, imageIndex) {
+    try {
+        const recordData = window.recordsData.get(recordId);
+        if (!recordData || !recordData.images || !recordData.images[imageIndex]) {
+            showNotification('图片不存在');
+            return;
+        }
+        
+        const img = recordData.images[imageIndex];
+        downloadImage(img.base64, img.type);
+    } catch (error) {
+        showNotification('下载图片失败');
+    }
 }
 
 // 显示自定义确认对话框
