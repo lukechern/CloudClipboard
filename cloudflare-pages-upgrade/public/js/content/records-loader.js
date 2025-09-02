@@ -273,8 +273,11 @@ function renderRecords(data, container) {
                     const fullTime = timestamp.substring(0, 16); // YYYY-MM-DD HH:MM
                     return fullTime.substring(5); // 去掉年份，保留 MM-DD HH:MM
                 } else {
-                    // 桌面端：显示完整时间 YYYY-MM-DD HH:MM
-                    return timestamp.substring(0, 16);
+                    // 桌面端：显示两位年份时间 YY-MM-DD HH:MM
+                    const fullTime = timestamp.substring(0, 16); // YYYY-MM-DD HH:MM
+                    const year = fullTime.substring(2, 4); // 取年份的后两位
+                    const monthDayTime = fullTime.substring(4); // 取 -MM-DD HH:MM 部分
+                    return year + monthDayTime; // 组合成 YY-MM-DD HH:MM
                 }
             }
             return timestamp;
