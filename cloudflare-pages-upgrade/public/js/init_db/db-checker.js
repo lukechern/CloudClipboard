@@ -7,7 +7,8 @@ class DatabaseChecker {
             'length': { type: 'INTEGER', description: '内容长度', required: true },
             'timestamp': { type: 'TEXT', description: '创建时间', required: true },
             'archived': { type: 'INTEGER', description: '存档状态', required: false },
-            'images': { type: 'TEXT', description: '图片数据', required: false }
+            'images': { type: 'TEXT', description: '图片数据', required: false },
+            'thumbnails': { type: 'TEXT', description: '图片缩略图数据', required: false }
         };
     }
 
@@ -72,6 +73,7 @@ class DatabaseChecker {
                         <div class="feature-status">
                             <span class="feature-item">📝 文本存储</span>
                             <span class="feature-item">🖼️ 图片存储</span>
+                            <span class="feature-item">🔍 图片缩略图</span>
                             <span class="feature-item">📁 记录存档</span>
                             <span class="feature-item">⬇️ 图片下载</span>
                         </div>
@@ -87,7 +89,7 @@ class DatabaseChecker {
                 <div class="status-info info">
                     <h4>ℹ️ 数据库未初始化</h4>
                     <p>数据表不存在，需要创建完整的表结构</p>
-                    <p>创建后将支持：文本存储、图片存储、记录存档、图片下载等功能</p>
+                    <p>创建后将支持：文本存储、图片存储、图片缩略图、记录存档、图片下载等功能</p>
                 </div>
             `;
             initForm.style.display = 'block';
@@ -122,7 +124,20 @@ class DatabaseChecker {
                     <div class="suggestion-content">
                         <h4>图片功能支持</h4>
                         <p>缺少 <code>images</code> 字段，无法存储图片数据</p>
-                        <p><strong>影响：</strong>无法保存图片、无法显示下载按钮、无法预览图片缩略图</p>
+                        <p><strong>影响：</strong>无法保存图片、无法显示下载按钮</p>
+                    </div>
+                </div>
+            `;
+        }
+        
+        if (missingColumns.includes('thumbnails')) {
+            suggestions += `
+                <div class="suggestion-item">
+                    <div class="suggestion-icon">🔍</div>
+                    <div class="suggestion-content">
+                        <h4>缩略图功能支持</h4>
+                        <p>缺少 <code>thumbnails</code> 字段，无法存储图片缩略图数据</p>
+                        <p><strong>影响：</strong>无法预览图片缩略图、图片加载性能较差</p>
                     </div>
                 </div>
             `;
@@ -265,6 +280,10 @@ class DatabaseChecker {
                         <div class="compatibility-item ${existingFields.includes('images') ? 'compatible' : 'incompatible'}">
                             <span class="compat-icon">${existingFields.includes('images') ? '✅' : '❌'}</span>
                             <span>图片下载</span>
+                        </div>
+                        <div class="compatibility-item ${existingFields.includes('thumbnails') ? 'compatible' : 'incompatible'}">
+                            <span class="compat-icon">${existingFields.includes('thumbnails') ? '✅' : '❌'}</span>
+                            <span>图片缩略图</span>
                         </div>
                         <div class="compatibility-item ${existingFields.includes('archived') ? 'compatible' : 'incompatible'}">
                             <span class="compat-icon">${existingFields.includes('archived') ? '✅' : '❌'}</span>
