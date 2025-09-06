@@ -10,12 +10,24 @@ class FormManager {
 
     // 设置表单提交处理
     setupFormSubmission() {
-        document.addEventListener('DOMContentLoaded', () => {
+        const bindFormSubmission_7ree = () => {
             const form = document.querySelector('.input-section form');
             if (form) {
-                form.addEventListener('submit', (e) => this.handleFormSubmit(e));
+                // 防止重复绑定
+                if (this._formSubmitHandler_7ree) {
+                    form.removeEventListener('submit', this._formSubmitHandler_7ree);
+                }
+                this._formSubmitHandler_7ree = (e) => this.handleFormSubmit(e);
+                form.addEventListener('submit', this._formSubmitHandler_7ree);
             }
-        });
+        };
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', bindFormSubmission_7ree);
+        } else {
+            // 如果DOMContentLoaded已触发，立即绑定
+            bindFormSubmission_7ree();
+        }
     }
 
     // 处理表单提交
@@ -214,11 +226,15 @@ class FormManager {
             restoreButtonState(button);
         } else {
             button.disabled = false;
-            const originalText = button.dataset.originalText || '保存';
-            button.textContent = originalText;
+            const originalText = button.dataset.originalText;
+            if (originalText) {
+                button.textContent = originalText;
+                delete button.dataset.originalText;
+            } else {
+                button.textContent = '发送到云端';
+            }
         }
     }
 }
 
-// 导出到全局
 window.FormManager = FormManager;
