@@ -394,6 +394,27 @@ function setupRecordEventListeners(container) {
 
 // 处理记录相关的点击事件
 async function handleRecordClick(event) {
+    // 批量模式下：点击记录项任意空白区域也可选中/取消选中 _7ree
+    if (document.body.classList.contains('batch-mode')) {
+        const recordItem_7ree = event.target.closest('.record-item');
+        if (recordItem_7ree) {
+            // 排除点击在交互控件上的情况（按钮、操作区、复选框、链接、图片等）_7ree
+            const excluded_7ree = event.target.closest('button, .record-actions, .record-checkbox, a, .archive-btn, .expand-btn, .copy-btn, .download-btn, .record-image');
+            if (!excluded_7ree) {
+                const checkbox_7ree = recordItem_7ree.querySelector('.record-checkbox');
+                if (checkbox_7ree) {
+                    checkbox_7ree.checked = !checkbox_7ree.checked;
+                    if (typeof updateBatchToolbarCount === 'function') {
+                        updateBatchToolbarCount();
+                    }
+                    event.preventDefault();
+                    event.stopPropagation();
+                    return; // 已处理批量选择切换 _7ree
+                }
+            }
+        }
+    }
+
     const target = event.target.closest('button, .record-image');
     if (!target) return;
 
