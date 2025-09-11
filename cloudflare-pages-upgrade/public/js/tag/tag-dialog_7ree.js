@@ -7,6 +7,25 @@ class TagDialog_7ree {
 
     // 显示tag编辑对话框
     show(recordId, currentTag = '默认tag') {
+        // 验证记录是否存在于前端缓存中
+        const recordIdInt = Number.parseInt(recordId, 10);
+        const cachedRecord = window.recordsData ? window.recordsData.get(recordIdInt) : null;
+        
+        console.log('显示标签编辑对话框:');
+        console.log('  记录ID:', recordId, '类型:', typeof recordId);
+        console.log('  整数ID:', recordIdInt);
+        console.log('  当前标签:', currentTag);
+        console.log('  缓存记录:', cachedRecord);
+        console.log('  全局记录数据大小:', window.recordsData ? window.recordsData.size : 0);
+        
+        if (!cachedRecord) {
+            console.warn('警告：记录在前端缓存中不存在，可能需要刷新列表');
+            if (typeof showNotification === 'function') {
+                showNotification('记录数据不同步，请先刷新列表', 'warning');
+            }
+            // 仍然允许显示对话框，但给出警告
+        }
+        
         this.currentRecordId = recordId;
         this.currentTag = currentTag;
         
@@ -112,6 +131,24 @@ class TagDialog_7ree {
             }
         } catch (error) {
             console.error('保存标签时出错:', error);
+            
+            // 如果是记录不存在的错误，尝试刷新记录列表
+            if (error.message && error.message.includes('记录不存在')) {
+                console.log('记录不存在，尝试刷新记录列表...');
+                this.showMessage('记录不存在，正在刷新列表...', 'warning');
+                
+                // 关闭对话框
+                this.hide();
+                
+                // 刷新记录列表
+                if (typeof loadRecords === 'function') {
+                    loadRecords(window.currentFilter || 'cache', window.currentTagFilter_7ree || 'all');
+                } else {
+                    console.error('loadRecords 函数不可用');
+                }
+                return;
+            }
+            
             this.showMessage('保存失败：' + error.message, 'error');
         } finally {
             // 恢复按钮状态
@@ -129,7 +166,18 @@ class TagDialog_7ree {
 
         const doRequest_7ree = async () => {
             const csrfToken_7ree = getCSRF_7ree();
-
+            
+            // 调试：检查recordId和全局存储的数据
+            console.log('调试信息 - 准备保存标签:');
+            console.log('  记录ID:', recordId, '类型:', typeof recordId);
+            console.log('  标签:', tag);
+            console.log('  全局记录数据:', window.recordsData);
+            
+            // 检查记录是否存在于前端缓存中
+            const recordIdInt = Number.parseInt(recordId, 10);
+            const cachedRecord = window.recordsData ? window.recordsData.get(recordIdInt) : null;
+            console.log('  前端缓存中的记录:', cachedRecord);
+            
             // 统一通过authManager封装请求（自动带Authorization/CSRF/credentials）
             const baseHeaders_7ree = {
                 'Content-Type': 'application/json'
@@ -139,16 +187,20 @@ class TagDialog_7ree {
                 ? { 'X-CSRF-Token': csrfToken_7ree }
                 : {};
 
+            const requestBody = {
+                id: recordIdInt,
+                tag_7ree: tag
+            };
+            
+            console.log('  请求体:', requestBody);
+
             const options_7ree = {
                 method: 'POST',
                 headers: {
                     ...baseHeaders_7ree,
                     ...extraHeaders_7ree
                 },
-                body: JSON.stringify({
-                    id: Number.parseInt(recordId, 10),
-                    tag_7ree: tag
-                })
+                body: JSON.stringify(requestBody)
             };
 
             let response;
@@ -251,7 +303,15 @@ class TagDialog_7ree {
         if (typeof showNotification === 'function') {
             showNotification(message);
         } else {
-            alert(message);
+            // 如果是记录不存在的错误，显示更友好的提示
+            if (message.includes('记录不存在')) {
+                const confirmRefresh = confirm('记录不存在，可能已被删除或数据不同步。\n\n是否立即刷新页面以获取最新数据？');
+                if (confirmRefresh) {
+                    location.reload();
+                }
+            } else {
+                alert(message);
+            }
         }
     }
 

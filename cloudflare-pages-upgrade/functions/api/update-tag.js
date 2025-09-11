@@ -72,10 +72,11 @@ export async function onRequestPost(context) {
         const { id, tag_7ree } = requestData;
         const idNum_7ree = Number.parseInt(id, 10);
         
-        console.log('收到tag更新请求:', { id, tag_7ree });
+        console.log('收到tag更新请求:', { id, tag_7ree, idNum_7ree });
         console.log('环境变量检查:', { 
             TABLE_NAME: env.TABLE_NAME, 
-            DB_exists: !!env.DB 
+            DB_exists: !!env.DB,
+            env_keys: Object.keys(env)
         });
 
         // 预检查数据库绑定与表存在性
@@ -176,13 +177,35 @@ export async function onRequestPost(context) {
         }
         
         // 检查记录是否存在
+        console.log('检查记录是否存在:', { tableName, idNum_7ree });
         const checkStmt = env.DB.prepare(`SELECT id FROM ${tableName} WHERE id = ?`);
         const existingRecord = await checkStmt.bind(idNum_7ree).first();
         
+        console.log('数据库查询结果:', existingRecord);
+        
+        // 调试：查询表中所有记录的ID
+        try {
+            const allRecordsStmt = env.DB.prepare(`SELECT id FROM ${tableName} ORDER BY id DESC LIMIT 10`);
+            const allRecords = await allRecordsStmt.all();
+            console.log('表中最近的10条记录的ID:', allRecords?.results?.map(r => r.id) || []);
+        } catch (debugError) {
+            console.error('调试查询失败:', debugError);
+        }
+        
         if (!existingRecord) {
+            console.log('记录不存在，记录ID:', idNum_7ree);
+            
+            // 提供更详细的错误信息
+            const errorMessage = `记录不存在（ID: ${idNum_7ree}）。请刷新页面后重试。`;
+            
             return new Response(JSON.stringify({
                 success: false,
-                error: '记录不存在'
+                error: errorMessage,
+                details: {
+                    requestedId: idNum_7ree,
+                    tableName: tableName,
+                    suggestion: '请刷新页面后重试'
+                }
             }), {
                 status: 404,
                 headers: {

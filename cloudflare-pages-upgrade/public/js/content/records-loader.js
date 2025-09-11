@@ -135,6 +135,17 @@ function loadRecords(filter = 'cache', tagFilter = 'all') {
                     container.innerHTML = `<p style="text-align: center; color: #666; padding: 40px 0;">${message}</p>`;
                 } else {
                     renderRecords(filteredData, container);
+                    
+                    // 调试：记录渲染后的情况
+                    console.log('记录渲染完成，数据量:', filteredData.length);
+                    if (filteredData.length > 0) {
+                        console.log('第一条记录ID:', filteredData[0].id);
+                        const tagButtons = container.querySelectorAll('.tag-btn-7ree');
+                        console.log('渲染的标签按钮数量:', tagButtons.length);
+                        if (tagButtons.length > 0) {
+                            console.log('第一个标签按钮的记录ID:', tagButtons[0].dataset.recordId);
+                        }
+                    }
                 }
             } catch (e) {
                 console.error('数据处理错误:', e);
