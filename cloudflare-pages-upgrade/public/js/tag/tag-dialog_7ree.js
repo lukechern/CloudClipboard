@@ -40,14 +40,20 @@ class TagDialog_7ree {
         const modalContainer = document.getElementById('modal-container') || document.body;
         modalContainer.insertAdjacentHTML('beforeend', modalHTML);
         
-        // 聚焦输入框
+        // 显示对话框
         setTimeout(() => {
+            const overlay = document.getElementById('tagModalOverlay_7ree');
+            if (overlay) {
+                overlay.classList.add('show');
+            }
+            
+            // 聚焦输入框
             const input = document.getElementById('tagInput_7ree');
             if (input) {
                 input.focus();
                 input.select();
             }
-        }, 100);
+        }, 10);
         
         // 添加键盘事件
         this.addKeyboardEvents();
@@ -57,7 +63,10 @@ class TagDialog_7ree {
     hide() {
         const modal = document.getElementById('tagModalOverlay_7ree');
         if (modal) {
-            modal.remove();
+            modal.classList.remove('show');
+            setTimeout(() => {
+                modal.remove();
+            }, 300); // 等待动画完成
         }
     }
 

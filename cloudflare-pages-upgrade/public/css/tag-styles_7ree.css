@@ -1,37 +1,42 @@
 /* Tag功能相关样式 */
 
 /* Tag按钮样式 */
-.tag-btn {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+.tag-btn-7ree {
+    background: transparent;
+    color: #6c757d;
     border: none;
-    border-radius: 6px;
-    padding: 6px 10px;
-    font-size: 12px;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 11px;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    transition: all 0.3s ease;
-    margin-right: 8px;
-    box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+    gap: 3px;
+    transition: all 0.2s ease;
+    margin-right: 6px;
+    outline: none;
 }
 
-.tag-btn:hover {
-    background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+.tag-btn-7ree:hover {
+    background: #f8f9fa;
+    color: #495057;
+    transform: none;
 }
 
-.tag-btn:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+.tag-btn-7ree:active {
+    background: #e9ecef;
+    transform: none;
 }
 
-.tag-btn svg {
-    width: 14px;
-    height: 14px;
+.tag-btn-7ree svg {
+    width: 12px;
+    height: 12px;
     fill: currentColor;
+}
+
+.tag-text-7ree {
+    font-size: 11px;
+    color: inherit;
 }
 
 /* Tag筛选按钮组样式 */
@@ -59,34 +64,33 @@
 }
 
 .tag-filter-btn {
-    background: #ffffff;
+    background: #f8f9fa;
     color: #6c757d;
     border: 1px solid #dee2e6;
-    border-radius: 20px;
-    padding: 6px 14px;
+    border-radius: 4px;
+    padding: 6px 12px;
     font-size: 12px;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     white-space: nowrap;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    outline: none;
 }
 
 .tag-filter-btn:hover {
     background: #e9ecef;
     border-color: #adb5bd;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    color: #495057;
 }
 
 .tag-filter-btn.active {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #007bff;
     color: white;
-    border-color: #667eea;
-    box-shadow: 0 2px 6px rgba(102, 126, 234, 0.3);
+    border-color: #007bff;
 }
 
 .tag-filter-btn.active:hover {
-    background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+    background: #0056b3;
+    border-color: #0056b3;
 }
 
 /* Tag编辑对话框样式 */
