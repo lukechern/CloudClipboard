@@ -165,7 +165,7 @@ export async function onRequestGet(context) {
             `).all();
             
             const columnNames = columns.results.map(col => col.name);
-            const requiredColumns = ['id', 'content', 'length', 'timestamp', 'archived', 'images', 'thumbnails'];
+            const requiredColumns = ['id', 'content', 'length', 'timestamp', 'archived', 'images', 'thumbnails', 'tag_7ree'];
             
             missingColumns = requiredColumns.filter(col => !columnNames.includes(col));
             needsUpgrade = missingColumns.length > 0;
