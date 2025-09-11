@@ -1,4 +1,7 @@
 // Tag编辑对话框组件
+// 版本: 2.0 - 使用 /api/records 端点
+console.log('tag-dialog_7ree.js 版本 2.0 已加载 - 使用 /api/records 端点');
+
 class TagDialog_7ree {
     constructor() {
         this.currentRecordId = null;
@@ -162,6 +165,10 @@ class TagDialog_7ree {
 
     // 保存标签到服务器
     async saveTagToServer(recordId, tag) {
+        // 强制确认使用正确的API端点
+        const API_ENDPOINT = '/api/records'; // 明确声明使用的端点
+        console.log('✅ 确认使用API端点:', API_ENDPOINT);
+        
         const doRequest_7ree = async () => {
             // 调试：检查recordId和全局存储的数据
             console.log('准备保存标签:');
@@ -179,21 +186,25 @@ class TagDialog_7ree {
             formData.append('tag_7ree', tag);
 
             let response;
+            console.log('即将调用API端点:', API_ENDPOINT, '(PUT方法)');
             if (window.authManager && typeof window.authManager.smartFetch === 'function') {
-                response = await window.authManager.smartFetch('/api/records', {
+                console.log('使用 authManager.smartFetch');
+                response = await window.authManager.smartFetch(API_ENDPOINT, {
                     method: 'PUT', // 使用PUT方法，与存档功能保持一致
                     body: formData
                 });
             } else if (window.authManager && typeof window.authManager.getRequestConfig === 'function') {
                 // 退化到getRequestConfig，确保credentials与认证头
+                console.log('使用 authManager.getRequestConfig');
                 const cfg = window.authManager.getRequestConfig({
                     method: 'PUT',
                     body: formData
                 });
-                response = await fetch('/api/records', cfg);
+                response = await fetch(API_ENDPOINT, cfg);
             } else {
                 // 最后兜底，直接fetch并携带Cookie
-                response = await fetch('/api/records', { 
+                console.log('使用直接 fetch');
+                response = await fetch(API_ENDPOINT, { 
                     method: 'PUT',
                     body: formData,
                     credentials: 'same-origin' 
