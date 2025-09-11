@@ -146,7 +146,7 @@ class TagDialog_7ree {
                     ...extraHeaders_7ree
                 },
                 body: JSON.stringify({
-                    id: recordId,
+                    id: Number.parseInt(recordId, 10),
                     tag_7ree: tag
                 })
             };
