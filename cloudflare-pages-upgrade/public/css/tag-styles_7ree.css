@@ -1,0 +1,314 @@
+/* Tag功能相关样式 */
+
+/* Tag按钮样式 */
+.tag-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 12px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.3s ease;
+    margin-right: 8px;
+    box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+}
+
+.tag-btn:hover {
+    background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+}
+
+.tag-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+}
+
+.tag-btn svg {
+    width: 14px;
+    height: 14px;
+    fill: currentColor;
+}
+
+/* Tag筛选按钮组样式 */
+.tag-filter-container {
+    margin: 15px 0;
+    padding: 0 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 12px 20px;
+    border: 1px solid #e9ecef;
+}
+
+.tag-filter-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.tag-filter-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.tag-filter-btn {
+    background: #ffffff;
+    color: #6c757d;
+    border: 1px solid #dee2e6;
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.tag-filter-btn:hover {
+    background: #e9ecef;
+    border-color: #adb5bd;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.tag-filter-btn.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-color: #667eea;
+    box-shadow: 0 2px 6px rgba(102, 126, 234, 0.3);
+}
+
+.tag-filter-btn.active:hover {
+    background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+}
+
+/* Tag编辑对话框样式 */
+.tag-dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.tag-dialog-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.tag-dialog {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    transform: scale(0.9) translateY(-20px);
+    transition: all 0.3s ease;
+}
+
+.tag-dialog-overlay.show .tag-dialog {
+    transform: scale(1) translateY(0);
+}
+
+.tag-dialog-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #212529;
+    margin-bottom: 16px;
+    text-align: center;
+}
+
+.tag-dialog-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.tag-dialog-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+    box-sizing: border-box;
+}
+
+.tag-dialog-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.tag-dialog-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+.tag-dialog-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 80px;
+}
+
+.tag-dialog-btn-cancel {
+    background: #6c757d;
+    color: white;
+}
+
+.tag-dialog-btn-cancel:hover {
+    background: #5a6268;
+    transform: translateY(-1px);
+}
+
+.tag-dialog-btn-save {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.tag-dialog-btn-save:hover {
+    background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+    transform: translateY(-1px);
+}
+
+.tag-dialog-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+/* Tag对话框消息提示 */
+.tag-dialog-message {
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    margin-bottom: 12px;
+    text-align: center;
+}
+
+.tag-dialog-message.success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.tag-dialog-message.error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .tag-filter-container {
+        margin: 10px 0;
+        padding: 10px 15px;
+    }
+    
+    .tag-filter-buttons {
+        gap: 6px;
+    }
+    
+    .tag-filter-btn {
+        padding: 5px 10px;
+        font-size: 11px;
+    }
+    
+    .tag-btn {
+        padding: 5px 8px;
+        font-size: 11px;
+    }
+    
+    .tag-btn svg {
+        width: 12px;
+        height: 12px;
+    }
+    
+    .tag-dialog {
+        padding: 20px;
+        margin: 20px;
+    }
+    
+    .tag-dialog-title {
+        font-size: 16px;
+    }
+    
+    .tag-dialog-input {
+        padding: 10px 12px;
+    }
+    
+    .tag-dialog-btn {
+        padding: 8px 16px;
+        font-size: 13px;
+        min-width: 70px;
+    }
+}
+
+/* 动画效果 */
+@keyframes tagButtonPulse {
+    0% {
+        box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+    }
+    50% {
+        box-shadow: 0 4px 8px rgba(102, 126, 234, 0.5);
+    }
+    100% {
+        box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+    }
+}
+
+.tag-btn.pulse {
+    animation: tagButtonPulse 1s ease-in-out;
+}
+
+/* 加载状态 */
+.tag-dialog-btn.loading {
+    position: relative;
+    color: transparent;
+}
+
+.tag-dialog-btn.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 16px;
+    height: 16px;
+    margin: -8px 0 0 -8px;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    color: white;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}

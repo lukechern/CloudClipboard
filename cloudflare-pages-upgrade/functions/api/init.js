@@ -85,6 +85,13 @@ export async function onRequestPost(context) {
                 `).run();
             }
             
+            // 添加缺失的tag_7ree字段
+            if (!columnNames.includes('tag_7ree')) {
+                await env.DB.prepare(`
+                    ALTER TABLE ${env.TABLE_NAME} ADD COLUMN tag_7ree TEXT DEFAULT '默认tag'
+                `).run();
+            }
+            
             return new Response(JSON.stringify({ 
                 success: true, 
                 message: '数据库表结构升级成功' 
@@ -101,7 +108,8 @@ export async function onRequestPost(context) {
                     timestamp TEXT DEFAULT CURRENT_TIMESTAMP,
                     archived INTEGER DEFAULT 0,
                     images TEXT,
-                    thumbnails TEXT
+                    thumbnails TEXT,
+                    tag_7ree TEXT DEFAULT '默认tag'
                 )
             `).run();
             

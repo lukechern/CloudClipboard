@@ -8,7 +8,8 @@ class DatabaseChecker {
             'timestamp': { type: 'TEXT', description: '创建时间', required: true },
             'archived': { type: 'INTEGER', description: '存档状态', required: false },
             'images': { type: 'TEXT', description: '图片数据', required: false },
-            'thumbnails': { type: 'TEXT', description: '图片缩略图数据', required: false }
+            'thumbnails': { type: 'TEXT', description: '图片缩略图数据', required: false },
+            'tag_7ree': { type: 'TEXT', description: '标签信息', required: false }
         };
     }
 

@@ -7,11 +7,12 @@ window.currentFilter = 'cache';
 window.recordsData = new Map();
 
 // 加载记录
-function loadRecords(filter = 'cache') {
+function loadRecords(filter = 'cache', tagFilter = 'all') {
     // 清空之前的记录数据存储
     window.recordsData.clear();
 
     window.currentFilter = filter;
+    window.currentTagFilter_7ree = tagFilter;
 
     // 控制批量操作按钮的显示/隐藏
     const batchOperationBtn = document.getElementById('batchOperation');
@@ -118,10 +119,22 @@ function loadRecords(filter = 'cache') {
 
             // 处理数据
             try {
-                if (data.length === 0) {
-                    container.innerHTML = '<p style="text-align: center; color: #666; padding: 40px 0;">暂无记录</p>';
+                // 更新tag筛选按钮（基于所有数据）
+                if (typeof tagFilter_7ree !== 'undefined') {
+                    tagFilter_7ree.updateTagButtons(data);
+                }
+                
+                // 应用tag筛选
+                let filteredData = data;
+                if (tagFilter !== 'all' && typeof tagFilter_7ree !== 'undefined') {
+                    filteredData = tagFilter_7ree.filterRecords(data);
+                }
+                
+                if (filteredData.length === 0) {
+                    const message = tagFilter === 'all' ? '暂无记录' : `暂无"${tagFilter}"标签的记录`;
+                    container.innerHTML = `<p style="text-align: center; color: #666; padding: 40px 0;">${message}</p>`;
                 } else {
-                    renderRecords(data, container);
+                    renderRecords(filteredData, container);
                 }
             } catch (e) {
                 console.error('数据处理错误:', e);
@@ -347,6 +360,10 @@ function renderRecords(data, container) {
             '<img src="img/time.svg" class="meta-icon" width="14" height="14" title="时间">' +
             formatTime(record.timestamp) +
             '</span>' +
+            '<button class="tag-btn-7ree" data-record-id="' + record.id + '" title="设置标签">' +
+            '<img src="img/tag.svg" class="icon tag-icon-7ree" width="16" height="16">' +
+            '<span class="tag-text-7ree">' + (record.tag_7ree || '默认tag') + '</span>' +
+            '</button>' +
             (hasArchivedField ?
                 '<button class="archive-btn" data-record-id="' + record.id + '" data-archive="' + (isArchived ? 'false' : 'true') + '" title="' + starTitle + '">' +
                 '<img src="img/' + starIcon + '" class="icon archive-icon" width="16" height="16">' +
@@ -421,8 +438,19 @@ async function handleRecordClick(event) {
     const recordId = target.dataset.recordId;
     if (!recordId) return;
 
+    // Tag按钮
+    if (target.classList.contains('tag-btn-7ree')) {
+        event.preventDefault();
+        console.log('Tag按钮被点击，记录ID:', recordId);
+        const currentTag = target.querySelector('.tag-text-7ree')?.textContent || '默认tag';
+        if (typeof tagDialog_7ree !== 'undefined') {
+            tagDialog_7ree.show(recordId, currentTag);
+        } else {
+            console.error('tagDialog_7ree 未定义，请确保已加载 tag-dialog_7ree.js');
+        }
+    }
     // 存档按钮
-    if (target.classList.contains('archive-btn')) {
+    else if (target.classList.contains('archive-btn')) {
         event.preventDefault();
         const archive = target.dataset.archive === 'true';
         console.log('存档按钮被点击，记录ID:', recordId, '存档状态:', archive);
