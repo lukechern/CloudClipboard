@@ -69,12 +69,17 @@ export async function onRequestPost(context) {
         
         // 解析请求数据
         const requestData = await request.json();
-        console.log('收到tag更新请求:', requestData);
-        
         const { id, tag_7ree } = requestData;
+        
+        console.log('收到tag更新请求:', { id, tag_7ree });
+        console.log('环境变量检查:', { 
+            TABLE_NAME: env.TABLE_NAME, 
+            DB_exists: !!env.DB 
+        });
         
         // 验证必需参数
         if (!id) {
+            console.error('缺少记录ID参数');
             return new Response(JSON.stringify({
                 success: false,
                 error: '缺少记录ID'
@@ -102,8 +107,11 @@ export async function onRequestPost(context) {
             });
         }
         
+        // 获取表名
+        const tableName = env.TABLE_NAME || 'records';
+        
         // 检查记录是否存在
-        const checkStmt = env.DB.prepare('SELECT id FROM records WHERE id = ?');
+        const checkStmt = env.DB.prepare(`SELECT id FROM ${tableName} WHERE id = ?`);
         const existingRecord = await checkStmt.bind(id).first();
         
         if (!existingRecord) {
@@ -120,8 +128,11 @@ export async function onRequestPost(context) {
         }
         
         // 更新tag字段
-        const updateStmt = env.DB.prepare('UPDATE records SET tag_7ree = ? WHERE id = ?');
+        console.log('准备执行SQL更新:', { tableName, tag, id });
+        const updateStmt = env.DB.prepare(`UPDATE ${tableName} SET tag_7ree = ? WHERE id = ?`);
         const result = await updateStmt.bind(tag, id).run();
+        
+        console.log('SQL执行结果:', result);
         
         if (result.success) {
             console.log('Tag更新成功，记录ID:', id, '新tag:', tag);
@@ -145,7 +156,7 @@ export async function onRequestPost(context) {
             
             return new Response(JSON.stringify({
                 success: false,
-                error: '数据库更新失败'
+                error: '数据库更新失败: ' + JSON.stringify(result)
             }), {
                 status: 500,
                 headers: {
