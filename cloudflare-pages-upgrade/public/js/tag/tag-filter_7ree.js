@@ -82,6 +82,26 @@ class TagFilter_7ree {
 
     // 更新标签按钮
     updateTagButtons(records) {
+        // 如果有TagManager，优先使用TagManager的功能
+        if (window.TagManager && typeof window.TagManager.updateTagFilterButtons === 'function') {
+            // 更新TagManager中的已存在标签
+            if (Array.isArray(records)) {
+                records.forEach(record => {
+                    if (record.tag_7ree && record.tag_7ree !== '默认tag') {
+                        window.TagManager.addExistingTag(record.tag_7ree);
+                    }
+                });
+            }
+            
+            // 使用TagManager更新按钮
+            window.TagManager.updateTagFilterButtons(records);
+            
+            // 恢复选中状态
+            this.updateButtonStates();
+            return;
+        }
+        
+        // 原有逻辑保持不变
         const tags = this.extractTagsFromRecords(records);
         const container = document.getElementById('tagFilterButtons_7ree');
         

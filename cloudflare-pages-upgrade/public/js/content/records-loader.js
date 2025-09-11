@@ -136,6 +136,19 @@ function loadRecords(filter = 'cache', tagFilter = 'all') {
                 } else {
                     renderRecords(filteredData, container);
                     
+                    // 初始化和更新标签管理器
+                    if (window.TagManager) {
+                        // 更新已存在的标签
+                        filteredData.forEach(record => {
+                            if (record.tag_7ree && record.tag_7ree !== '默认tag') {
+                                window.TagManager.addExistingTag(record.tag_7ree);
+                            }
+                        });
+                        
+                        // 更新标签过滤器按钮
+                        window.TagManager.updateTagFilterButtons(filteredData);
+                    }
+                    
                     // 调试：记录渲染后的情况
                     console.log('记录渲染完成，数据量:', filteredData.length);
                     if (filteredData.length > 0) {

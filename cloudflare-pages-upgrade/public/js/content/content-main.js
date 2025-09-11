@@ -4,6 +4,12 @@
 // 将初始化逻辑封装为独立函数，确保在DOMContentLoaded已触发的情况下也能立即执行
 function initContentModules_7ree() {
     // 初始化标签管理器
+    if (window.TagManager) {
+        console.log('初始化标签管理器...');
+        window.TagManager.init();
+    }
+    
+    // 初始化标签管理器
     initTabManager();
     
     // 初始化刷新按钮

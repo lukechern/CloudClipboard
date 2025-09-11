@@ -32,6 +32,16 @@ class TagDialog_7ree {
         this.currentRecordId = recordId;
         this.currentTag = currentTag;
         
+        // 获取建议标签（常用标签 + 已存在标签）
+        const suggestedTags = window.TagManager ? window.TagManager.getSuggestedTags() : [
+            '工作', '生活', '学习', '重要', '默认tag'
+        ];
+        
+        // 生成标签建议按钮
+        const tagSuggestionsHTML = suggestedTags.map(tag => 
+            `<button type="button" class="tag-suggestion-7ree" onclick="tagDialog_7ree.selectTag('${this.escapeHtml(tag)}')">${this.escapeHtml(tag)}</button>`
+        ).join('');
+        
         const modalHTML = `
             <div class="tag-dialog-overlay" id="tagModalOverlay_7ree">
                 <div class="tag-dialog">
@@ -42,12 +52,8 @@ class TagDialog_7ree {
                                value="${this.escapeHtml(currentTag)}" 
                                placeholder="请输入标签名称" maxlength="20">
                         <div class="tag-suggestions-7ree">
-                            <span class="suggestion-label-7ree">常用标签：</span>
-                            <button type="button" class="tag-suggestion-7ree" onclick="tagDialog_7ree.selectTag('工作')">工作</button>
-                            <button type="button" class="tag-suggestion-7ree" onclick="tagDialog_7ree.selectTag('生活')">生活</button>
-                            <button type="button" class="tag-suggestion-7ree" onclick="tagDialog_7ree.selectTag('学习')">学习</button>
-                            <button type="button" class="tag-suggestion-7ree" onclick="tagDialog_7ree.selectTag('重要')">重要</button>
-                            <button type="button" class="tag-suggestion-7ree" onclick="tagDialog_7ree.selectTag('默认tag')">默认tag</button>
+                            <span class="suggestion-label-7ree">建议标签：</span>
+                            ${tagSuggestionsHTML}
                         </div>
                         <div class="tag-dialog-buttons">
                             <button type="button" class="tag-dialog-btn tag-dialog-btn-cancel" onclick="tagDialog_7ree.hide()">取消</button>
@@ -125,8 +131,21 @@ class TagDialog_7ree {
             const success = await this.saveTagToServer(this.currentRecordId, newTag);
             
             if (success) {
+                // 更新TagManager中的已存在标签
+                if (window.TagManager) {
+                    window.TagManager.addExistingTag(newTag);
+                }
+                
                 // 更新UI中的标签显示
                 this.updateTagInUI(this.currentRecordId, newTag);
+                
+                // 更新标签过滤器按钮
+                if (window.TagManager && typeof loadRecords === 'function') {
+                    // 获取当前记录数据并更新过滤器
+                    const currentRecords = window.recordsData ? Array.from(window.recordsData.values()) : [];
+                    window.TagManager.updateTagFilterButtons(currentRecords);
+                }
+                
                 this.showMessage('标签保存成功', 'success');
                 this.hide();
             } else {

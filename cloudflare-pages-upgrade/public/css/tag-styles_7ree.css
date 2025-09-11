@@ -1,5 +1,85 @@
 /* Tag功能相关样式 */
 
+/* 统一标签按钮样式基类 - 与tab-btn保持一致 */
+.tag-btn-unified {
+    background: none;
+    border: none;
+    padding: 4px 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 14px;
+    color: #333;
+    font-weight: normal;
+    border: 1px solid #F0F0F0;
+    border-radius: 5px;
+    outline: none;
+}
+
+.tag-btn-unified:hover {
+    color: #667eea;
+}
+
+.tag-btn-unified.active {
+    color: #667eea;
+    font-weight: bold;
+    border-color: #667eea;
+    background-color: #FFFFFF;
+}
+
+/* Tag过滤器按钮样式 - 继承统一样式 */
+.tag-filter-btn-7ree {
+    background: none;
+    border: none;
+    padding: 4px 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 14px;
+    color: #333;
+    font-weight: normal;
+    border: 1px solid #F0F0F0;
+    border-radius: 5px;
+    outline: none;
+    white-space: nowrap;
+}
+
+.tag-filter-btn-7ree:hover {
+    color: #667eea;
+}
+
+.tag-filter-btn-7ree.active {
+    color: #667eea;
+    font-weight: bold;
+    border-color: #667eea;
+    background-color: #FFFFFF;
+}
+
+/* Tag建议按钮样式 - 继承统一样式 */
+.tag-suggestion-7ree {
+    background: none;
+    border: none;
+    padding: 4px 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 14px;
+    color: #333;
+    font-weight: normal;
+    border: 1px solid #F0F0F0;
+    border-radius: 5px;
+    outline: none;
+    margin: 2px 4px 2px 0;
+}
+
+.tag-suggestion-7ree:hover {
+    color: #667eea;
+}
+
+.tag-suggestion-7ree.active {
+    color: #667eea;
+    font-weight: bold;
+    border-color: #667eea;
+    background-color: #FFFFFF;
+}
+
 /* Tag按钮样式 */
 .tag-btn-7ree {
     background: transparent;
