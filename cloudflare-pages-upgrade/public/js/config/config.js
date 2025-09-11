@@ -59,8 +59,15 @@ const TagManager = {
     
     // 初始化标签管理器
     init() {
-        console.log('TagManager 已初始化');
+        console.log('TagManager 正在初始化...');
+        console.log('DOM状态:', document.readyState);
+        
+        // 检查容器是否存在
+        const container = document.getElementById('tagFilterButtons_7ree');
+        console.log('tagFilterButtons_7ree 容器:', container);
+        
         this.loadExistingTags();
+        console.log('TagManager 已初始化');
     },
     
     // 从记录数据中加载已存在的标签
@@ -104,16 +111,28 @@ const TagManager = {
     
     // 更新标签过滤器按钮
     updateTagFilterButtons(records = []) {
+        console.log('TagManager.updateTagFilterButtons 被调用');
+        console.log('传入的记录数:', records.length);
+        console.log('记录示例:', records.slice(0, 2));
+        
         const container = document.getElementById('tagFilterButtons_7ree');
-        if (!container) return;
+        if (!container) {
+            console.log('未找到 tagFilterButtons_7ree 容器');
+            return;
+        }
         
         // 从记录中提取所有标签
         const tagsInRecords = new Set();
         records.forEach(record => {
-            if (record.tag_7ree && record.tag_7ree !== '默认tag') {
+            if (record.tag_7ree) {
                 tagsInRecords.add(record.tag_7ree);
+            } else {
+                // 如果没有tag_7ree字段，默认为'默认tag'
+                tagsInRecords.add('默认tag');
             }
         });
+        
+        console.log('提取到的标签:', Array.from(tagsInRecords));
         
         // 清空现有按钮（保留"全部"按钮）
         const allButton = container.querySelector('.tag-filter-btn-7ree[data-tag="all"]');
@@ -134,15 +153,19 @@ const TagManager = {
         Array.from(tagsInRecords).sort().forEach(tag => {
             const btn = document.createElement('button');
             btn.className = 'tag-filter-btn-7ree';
-            btn.textContent = tag;
+            btn.textContent = tag === '默认tag' ? '默认TAG' : tag;
             btn.setAttribute('data-tag', tag);
             btn.onclick = () => this.filterByTag(tag);
             container.appendChild(btn);
         });
+        
+        console.log('标签过滤器按钮已更新，共添加了', tagsInRecords.size, '个标签按钮');
     },
     
     // 按标签过滤
     filterByTag(tag) {
+        console.log('按标签过滤:', tag);
+        
         // 更新按钮状态
         document.querySelectorAll('.tag-filter-btn-7ree').forEach(btn => {
             btn.classList.remove('active');
@@ -154,8 +177,10 @@ const TagManager = {
         }
         
         // 调用现有的过滤功能
-        if (typeof tagFilter_7ree !== 'undefined' && tagFilter_7ree.filterByTag) {
-            tagFilter_7ree.filterByTag(tag);
+        if (typeof tagFilter_7ree !== 'undefined' && tagFilter_7ree.selectTag) {
+            tagFilter_7ree.selectTag(tag);
+        } else {
+            console.warn('tagFilter_7ree 不可用或缺少 selectTag 方法');
         }
     }
 };

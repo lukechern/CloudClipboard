@@ -139,11 +139,13 @@ class TagDialog_7ree {
                 // 更新UI中的标签显示
                 this.updateTagInUI(this.currentRecordId, newTag);
                 
-                // 更新标签过滤器按钮
-                if (window.TagManager && typeof loadRecords === 'function') {
-                    // 获取当前记录数据并更新过滤器
-                    const currentRecords = window.recordsData ? Array.from(window.recordsData.values()) : [];
-                    window.TagManager.updateTagFilterButtons(currentRecords);
+                // 更新标签过滤器按钮 - 重新加载记录来更新过滤器
+                if (typeof loadRecords === 'function') {
+                    console.log('标签保存成功，重新加载记录以更新过滤器');
+                    // 使用当前的过滤器设置重新加载
+                    const currentFilter = window.currentFilter || 'cache';
+                    const currentTagFilter = window.currentTagFilter_7ree || 'all';
+                    loadRecords(currentFilter, currentTagFilter);
                 }
                 
                 this.showMessage('标签保存成功', 'success');

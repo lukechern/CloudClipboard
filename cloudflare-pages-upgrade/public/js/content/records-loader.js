@@ -119,6 +119,20 @@ function loadRecords(filter = 'cache', tagFilter = 'all') {
 
             // 处理数据
             try {
+                // 初始化和更新标签管理器（基于所有数据）
+                if (window.TagManager) {
+                    console.log('初始化TagManager，数据量:', data.length);
+                    // 更新已存在的标签（使用所有数据）
+                    data.forEach(record => {
+                        if (record.tag_7ree) {
+                            window.TagManager.addExistingTag(record.tag_7ree);
+                        }
+                    });
+                    
+                    // 更新标签过滤器按钮（传入所有数据）
+                    window.TagManager.updateTagFilterButtons(data);
+                }
+                
                 // 更新tag筛选按钮（基于所有数据）
                 if (typeof tagFilter_7ree !== 'undefined') {
                     tagFilter_7ree.updateTagButtons(data);
@@ -135,19 +149,6 @@ function loadRecords(filter = 'cache', tagFilter = 'all') {
                     container.innerHTML = `<p style="text-align: center; color: #666; padding: 40px 0;">${message}</p>`;
                 } else {
                     renderRecords(filteredData, container);
-                    
-                    // 初始化和更新标签管理器
-                    if (window.TagManager) {
-                        // 更新已存在的标签
-                        filteredData.forEach(record => {
-                            if (record.tag_7ree && record.tag_7ree !== '默认tag') {
-                                window.TagManager.addExistingTag(record.tag_7ree);
-                            }
-                        });
-                        
-                        // 更新标签过滤器按钮
-                        window.TagManager.updateTagFilterButtons(filteredData);
-                    }
                     
                     // 调试：记录渲染后的情况
                     console.log('记录渲染完成，数据量:', filteredData.length);
