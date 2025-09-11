@@ -13,7 +13,7 @@
 
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-3.0-blue.svg?style=for-the-badge)](https://github.com/your-username/cloudclipboard)
+[![Version](https://img.shields.io/badge/version-3.1.0-blue.svg?style=for-the-badge)](https://github.com/your-username/cloudclipboard)
 
 </div>
 
