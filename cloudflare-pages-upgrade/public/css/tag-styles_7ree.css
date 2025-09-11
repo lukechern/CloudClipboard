@@ -338,6 +338,11 @@
 
 /* 响应式设计 */
 @media (max-width: 768px) {
+    /* 手机版隐藏长度信息 */
+    .meta-length {
+        display: none;
+    }
+    
     .tag-filter-container-7ree {
         margin: 10px 0;
         padding: 10px 15px;

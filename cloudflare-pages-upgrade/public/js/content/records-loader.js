@@ -8,6 +8,32 @@ window.recordsData = new Map();
 
 // 加载记录
 function loadRecords(filter = 'cache', tagFilter = 'all') {
+    // 检查是否需要登录以及当前登录状态
+    if (window.authManager) {
+        // 如果需要登录但未登录，不加载记录
+        if (window.authManager.authRequired && !window.authManager.isAuthenticated) {
+            console.log('未登录且需要认证，不加载历史记录');
+            
+            const container = document.getElementById('records-container');
+            const loadingElement = document.getElementById('records-loading');
+            
+            // 隐藏加载状态
+            if (loadingElement) loadingElement.style.display = 'none';
+            
+            // 显示提示信息
+            if (container) {
+                container.style.display = 'block';
+                container.innerHTML = '<p style="text-align: center; color: #666; padding: 40px 0;">请先登录后查看历史记录</p>';
+            }
+            
+            // 清空标签过滤器
+            if (window.TagManager) {
+                window.TagManager.updateTagFilterButtons([]);
+            }
+            
+            return;
+        }
+    }
     // 清空之前的记录数据存储
     window.recordsData.clear();
 
@@ -372,7 +398,7 @@ function renderRecords(data, container) {
             contentHTML +
             '</div>' +
             '<div class="record-meta">' +
-            '<span class="meta-item">' +
+            '<span class="meta-item meta-length">' +
             '<img src="img/length.svg" class="meta-icon" width="14" height="14" title="长度">' +
             actualLength +
             '</span>' +

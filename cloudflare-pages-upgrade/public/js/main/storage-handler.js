@@ -84,8 +84,15 @@ class StorageHandler {
         console.log('initialDataLoaded:', this.initialDataLoaded);
         console.log('loadRecords函数存在:', typeof loadRecords === 'function');
 
-        // 如果没有认证管理器或者已经认证成功，直接加载数据
-        if (!window.authManager || window.authManager.isAuthenticated) {
+        // 检查是否需要认证
+        const authRequired = window.authManager && window.authManager.authRequired;
+        const isAuthenticated = window.authManager && window.authManager.isAuthenticated;
+        
+        console.log('需要认证:', authRequired);
+        console.log('已认证:', isAuthenticated);
+
+        // 如果不需要认证或者已经认证成功，才加载数据
+        if (!authRequired || isAuthenticated) {
             if (!this.initialDataLoaded) {
                 console.log('开始加载初始数据');
                 if (typeof loadRecords === 'function') {
@@ -104,11 +111,16 @@ class StorageHandler {
                 console.log('初始数据已经加载过了');
             }
         } else {
-            console.log('需要认证，隐藏存储信息');
+            console.log('需要认证但未认证，不加载记录，隐藏存储信息');
             // 如果需要认证但还未认证，隐藏存储信息
             const storageSection = document.querySelector('.storage-info');
             if (storageSection) {
                 storageSection.style.display = 'none';
+            }
+            
+            // 不加载记录，但调用loadRecords来显示登录提示
+            if (typeof loadRecords === 'function') {
+                loadRecords();
             }
         }
     }
