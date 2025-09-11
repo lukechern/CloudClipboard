@@ -11,32 +11,27 @@ class TagDialog_7ree {
         this.currentTag = currentTag;
         
         const modalHTML = `
-            <div class="modal-overlay-7ree" id="tagModalOverlay_7ree">
-                <div class="modal-content-7ree">
-                    <div class="modal-header-7ree">
-                        <h3>设置标签</h3>
-                        <button class="modal-close-7ree" onclick="tagDialog_7ree.hide()">&times;</button>
-                    </div>
-                    <div class="modal-body-7ree">
-                        <div class="form-group-7ree">
-                            <label for="tagInput_7ree">标签名称：</label>
-                            <input type="text" id="tagInput_7ree" class="tag-input-7ree" 
-                                   value="${this.escapeHtml(currentTag)}" 
-                                   placeholder="请输入标签名称" maxlength="20">
-                        </div>
+            <div class="tag-dialog-overlay" id="tagModalOverlay_7ree">
+                <div class="tag-dialog">
+                    <div class="tag-dialog-title">设置标签</div>
+                    <div id="tagDialogMessage_7ree"></div>
+                    <form class="tag-dialog-form">
+                        <input type="text" id="tagInput_7ree" class="tag-dialog-input" 
+                               value="${this.escapeHtml(currentTag)}" 
+                               placeholder="请输入标签名称" maxlength="20">
                         <div class="tag-suggestions-7ree">
                             <span class="suggestion-label-7ree">常用标签：</span>
-                            <button class="tag-suggestion-7ree" onclick="tagDialog_7ree.selectTag('工作')">工作</button>
-                            <button class="tag-suggestion-7ree" onclick="tagDialog_7ree.selectTag('生活')">生活</button>
-                            <button class="tag-suggestion-7ree" onclick="tagDialog_7ree.selectTag('学习')">学习</button>
-                            <button class="tag-suggestion-7ree" onclick="tagDialog_7ree.selectTag('重要')">重要</button>
-                            <button class="tag-suggestion-7ree" onclick="tagDialog_7ree.selectTag('默认tag')">默认tag</button>
+                            <button type="button" class="tag-suggestion-7ree" onclick="tagDialog_7ree.selectTag('工作')">工作</button>
+                            <button type="button" class="tag-suggestion-7ree" onclick="tagDialog_7ree.selectTag('生活')">生活</button>
+                            <button type="button" class="tag-suggestion-7ree" onclick="tagDialog_7ree.selectTag('学习')">学习</button>
+                            <button type="button" class="tag-suggestion-7ree" onclick="tagDialog_7ree.selectTag('重要')">重要</button>
+                            <button type="button" class="tag-suggestion-7ree" onclick="tagDialog_7ree.selectTag('默认tag')">默认tag</button>
                         </div>
-                    </div>
-                    <div class="modal-footer-7ree">
-                        <button class="btn-cancel-7ree" onclick="tagDialog_7ree.hide()">取消</button>
-                        <button class="btn-save-7ree" onclick="tagDialog_7ree.save()">保存</button>
-                    </div>
+                        <div class="tag-dialog-buttons">
+                            <button type="button" class="tag-dialog-btn tag-dialog-btn-cancel" onclick="tagDialog_7ree.hide()">取消</button>
+                            <button type="button" class="tag-dialog-btn tag-dialog-btn-save" onclick="tagDialog_7ree.save()">保存</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         `;

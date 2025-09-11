@@ -103,7 +103,7 @@ export async function onRequestPost(context) {
         }
         
         // 检查记录是否存在
-        const checkStmt = env.DB.prepare('SELECT id FROM clipboard WHERE id = ?');
+        const checkStmt = env.DB.prepare('SELECT id FROM records WHERE id = ?');
         const existingRecord = await checkStmt.bind(id).first();
         
         if (!existingRecord) {
@@ -120,7 +120,7 @@ export async function onRequestPost(context) {
         }
         
         // 更新tag字段
-        const updateStmt = env.DB.prepare('UPDATE clipboard SET tag_7ree = ? WHERE id = ?');
+        const updateStmt = env.DB.prepare('UPDATE records SET tag_7ree = ? WHERE id = ?');
         const result = await updateStmt.bind(tag, id).run();
         
         if (result.success) {
