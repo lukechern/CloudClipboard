@@ -125,25 +125,74 @@ class TagDialog_7ree {
 
     // 保存标签到服务器
     async saveTagToServer(recordId, tag) {
-        try {
-            const response = await fetch('/api/update-tag', {
+        const getCSRF_7ree = () => (window.authManager && window.authManager.csrfToken) || (this.getCookie_7ree ? this.getCookie_7ree('cc_csrf_token') : null);
+
+        const doRequest_7ree = async () => {
+            const csrfToken_7ree = getCSRF_7ree();
+
+            // 统一通过authManager封装请求（自动带Authorization/CSRF/credentials）
+            const baseHeaders_7ree = {
+                'Content-Type': 'application/json'
+            };
+            // 仅当全局authManager缺失CSRF时，用Cookie兜底加头，避免覆盖authManager已设置的头
+            const extraHeaders_7ree = (!window.authManager || !window.authManager.csrfToken) && csrfToken_7ree
+                ? { 'X-CSRF-Token': csrfToken_7ree }
+                : {};
+
+            const options_7ree = {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
+                    ...baseHeaders_7ree,
+                    ...extraHeaders_7ree
                 },
                 body: JSON.stringify({
                     id: recordId,
                     tag_7ree: tag
                 })
-            });
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+            };
+
+            let response;
+            if (window.authManager && typeof window.authManager.smartFetch === 'function') {
+                response = await window.authManager.smartFetch('/api/update-tag', options_7ree);
+            } else if (window.authManager && typeof window.authManager.getRequestConfig === 'function') {
+                // 退化到getRequestConfig，确保credentials与认证头
+                const cfg = window.authManager.getRequestConfig(options_7ree);
+                response = await fetch('/api/update-tag', cfg);
+            } else {
+                // 最后兜底，直接fetch并携带Cookie
+                response = await fetch('/api/update-tag', { ...options_7ree, credentials: 'same-origin' });
             }
-            
-            const result = await response.json();
-            return result.success === true;
+
+            let rawText = '';
+            try { rawText = await response.text(); } catch (_) {}
+
+            let json = null;
+            try { json = rawText ? JSON.parse(rawText) : null; } catch (_) {}
+
+            if (!response.ok) {
+                const msg = (json && (json.error || json.message)) || rawText || `HTTP ${response.status}`;
+                throw new Error(msg);
+            }
+
+            if (!json) json = { success: false };
+            return json.success === true;
+        };
+
+        try {
+            return await doRequest_7ree();
         } catch (error) {
+            // 如果是CSRF相关错误，尝试刷新后重试一次
+            const msg = String(error && error.message || '');
+            const needRetryCSRF_7ree = /CSRF/i.test(msg) && !!(window.authManager && window.authManager.refreshCSRFToken);
+            if (needRetryCSRF_7ree) {
+                try {
+                    await window.authManager.refreshCSRFToken();
+                    return await doRequest_7ree();
+                } catch (e2) {
+                    console.error('刷新CSRF后仍失败:', e2);
+                    throw e2;
+                }
+            }
             console.error('保存标签到服务器失败:', error);
             throw error;
         }
@@ -211,6 +260,22 @@ class TagDialog_7ree {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
+    }
+
+    // 读取Cookie
+    getCookie_7ree(name) {
+        const cookieStr = document.cookie || '';
+        const parts = cookieStr.split(';').map(s => s.trim());
+        for (const part of parts) {
+            if (!part) continue;
+            const eq = part.indexOf('=');
+            if (eq === -1) continue;
+            const k = decodeURIComponent(part.slice(0, eq));
+            if (k === name) {
+                return decodeURIComponent(part.slice(eq + 1));
+            }
+        }
+        return null;
     }
 }
 
