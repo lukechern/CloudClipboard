@@ -70,6 +70,7 @@ export async function onRequestPost(context) {
         // 解析请求数据
         const requestData = await request.json();
         const { id, tag_7ree } = requestData;
+        const idNum_7ree = Number.parseInt(id, 10);
         
         console.log('收到tag更新请求:', { id, tag_7ree });
         console.log('环境变量检查:', { 
@@ -145,11 +146,11 @@ export async function onRequestPost(context) {
         }
         
         // 验证必需参数
-        if (!id) {
-            console.error('缺少记录ID参数');
+        if (!Number.isInteger(idNum_7ree)) {
+            console.error('记录ID无效:', id);
             return new Response(JSON.stringify({
                 success: false,
-                error: '缺少记录ID'
+                error: '记录ID无效'
             }), {
                 status: 400,
                 headers: {
@@ -176,7 +177,7 @@ export async function onRequestPost(context) {
         
         // 检查记录是否存在
         const checkStmt = env.DB.prepare(`SELECT id FROM ${tableName} WHERE id = ?`);
-        const existingRecord = await checkStmt.bind(id).first();
+        const existingRecord = await checkStmt.bind(idNum_7ree).first();
         
         if (!existingRecord) {
             return new Response(JSON.stringify({
@@ -194,7 +195,7 @@ export async function onRequestPost(context) {
         // 更新tag字段
         console.log('准备执行SQL更新:', { tableName, tag, id });
         const updateStmt = env.DB.prepare(`UPDATE ${tableName} SET tag_7ree = ? WHERE id = ?`);
-        const result = await updateStmt.bind(tag, id).run();
+        const result = await updateStmt.bind(tag, idNum_7ree).run();
         
         console.log('SQL执行结果:', result);
         
@@ -205,7 +206,7 @@ export async function onRequestPost(context) {
                 success: true,
                 message: '标签更新成功',
                 data: {
-                    id: id,
+                    id: idNum_7ree,
                     tag_7ree: tag
                 }
             }), {
