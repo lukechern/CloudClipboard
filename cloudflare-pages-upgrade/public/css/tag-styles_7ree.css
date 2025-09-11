@@ -31,6 +31,8 @@
     background: none;
     border: none;
     padding: 4px 8px;
+    height: 30px;
+    margin: 10px 6px;
     cursor: pointer;
     transition: all 0.3s;
     font-size: 14px;
@@ -58,6 +60,7 @@
     background: none;
     border: none;
     padding: 4px 8px;
+    height:30px;
     cursor: pointer;
     transition: all 0.3s;
     font-size: 14px;
@@ -78,6 +81,35 @@
     font-weight: bold;
     border-color: #667eea;
     background-color: #FFFFFF;
+}
+
+/* Tag过滤器容器样式 */
+.tag-filter-container-7ree {
+    margin: 15px 0;
+    padding: 12px 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.tag-filter-label-7ree {
+    font-size: 14px;
+    font-weight: 600;
+    color: #495057;
+    margin: 0;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.tag-filter-buttons-7ree {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
 }
 
 /* Tag按钮样式 */
@@ -306,26 +338,31 @@
 
 /* 响应式设计 */
 @media (max-width: 768px) {
-    .tag-filter-container {
+    .tag-filter-container-7ree {
         margin: 10px 0;
         padding: 10px 15px;
-    }
-    
-    .tag-filter-buttons {
         gap: 6px;
     }
     
-    .tag-filter-btn {
-        padding: 5px 10px;
-        font-size: 11px;
+    .tag-filter-label-7ree {
+        font-size: 13px;
     }
     
-    .tag-btn {
+    .tag-filter-buttons-7ree {
+        gap: 6px;
+    }
+    
+    .tag-filter-btn-7ree {
+        padding: 3px 6px;
+        font-size: 13px;
+    }
+    
+    .tag-btn-7ree {
         padding: 5px 8px;
         font-size: 11px;
     }
     
-    .tag-btn svg {
+    .tag-btn-7ree svg {
         width: 12px;
         height: 12px;
     }
