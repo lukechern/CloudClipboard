@@ -162,57 +162,42 @@ class TagDialog_7ree {
 
     // 保存标签到服务器
     async saveTagToServer(recordId, tag) {
-        const getCSRF_7ree = () => (window.authManager && window.authManager.csrfToken) || (this.getCookie_7ree ? this.getCookie_7ree('cc_csrf_token') : null);
-
         const doRequest_7ree = async () => {
-            const csrfToken_7ree = getCSRF_7ree();
-            
             // 调试：检查recordId和全局存储的数据
-            console.log('调试信息 - 准备保存标签:');
+            console.log('准备保存标签:');
             console.log('  记录ID:', recordId, '类型:', typeof recordId);
             console.log('  标签:', tag);
-            console.log('  全局记录数据:', window.recordsData);
             
             // 检查记录是否存在于前端缓存中
             const recordIdInt = Number.parseInt(recordId, 10);
             const cachedRecord = window.recordsData ? window.recordsData.get(recordIdInt) : null;
             console.log('  前端缓存中的记录:', cachedRecord);
             
-            // 统一通过authManager封装请求（自动带Authorization/CSRF/credentials）
-            const baseHeaders_7ree = {
-                'Content-Type': 'application/json'
-            };
-            // 仅当全局authManager缺失CSRF时，用Cookie兜底加头，避免覆盖authManager已设置的头
-            const extraHeaders_7ree = (!window.authManager || !window.authManager.csrfToken) && csrfToken_7ree
-                ? { 'X-CSRF-Token': csrfToken_7ree }
-                : {};
-
-            const requestBody = {
-                id: recordIdInt,
-                tag_7ree: tag
-            };
-            
-            console.log('  请求体:', requestBody);
-
-            const options_7ree = {
-                method: 'POST',
-                headers: {
-                    ...baseHeaders_7ree,
-                    ...extraHeaders_7ree
-                },
-                body: JSON.stringify(requestBody)
-            };
+            // 使用 FormData 格式，与存档功能保持一致
+            const formData = new FormData();
+            formData.append('id', recordIdInt.toString());
+            formData.append('tag_7ree', tag);
 
             let response;
             if (window.authManager && typeof window.authManager.smartFetch === 'function') {
-                response = await window.authManager.smartFetch('/api/update-tag', options_7ree);
+                response = await window.authManager.smartFetch('/api/records', {
+                    method: 'PUT', // 使用PUT方法，与存档功能保持一致
+                    body: formData
+                });
             } else if (window.authManager && typeof window.authManager.getRequestConfig === 'function') {
                 // 退化到getRequestConfig，确保credentials与认证头
-                const cfg = window.authManager.getRequestConfig(options_7ree);
-                response = await fetch('/api/update-tag', cfg);
+                const cfg = window.authManager.getRequestConfig({
+                    method: 'PUT',
+                    body: formData
+                });
+                response = await fetch('/api/records', cfg);
             } else {
                 // 最后兜底，直接fetch并携带Cookie
-                response = await fetch('/api/update-tag', { ...options_7ree, credentials: 'same-origin' });
+                response = await fetch('/api/records', { 
+                    method: 'PUT',
+                    body: formData,
+                    credentials: 'same-origin' 
+                });
             }
 
             let rawText = '';

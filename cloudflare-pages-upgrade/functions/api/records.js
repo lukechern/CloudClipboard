@@ -264,6 +264,7 @@ export async function onRequestPut(context) {
         const formData = await request.formData();
         const id = formData.get('id');
         const archived = formData.get('archived');
+        const tag_7ree = formData.get('tag_7ree'); // 支持标签更新
 
         if (!id) {
             return new Response(JSON.stringify({ error: '缺少记录ID' }), {
@@ -272,43 +273,133 @@ export async function onRequestPut(context) {
             });
         }
 
-        // 检查表结构，看是否有archived字段
-        let hasArchivedColumn = false;
-        try {
-            const columns = await env.DB.prepare(`PRAGMA table_info(${env.TABLE_NAME})`).all();
-            hasArchivedColumn = columns.results.some(col => col.name === 'archived');
-        } catch (e) {
-            console.log('检查表结构失败:', e);
-        }
-
-        if (!hasArchivedColumn) {
-            return new Response(JSON.stringify({
-                error: '数据库表结构不支持存档功能，请先升级数据库'
-            }), {
+        // 检查是存档操作还是标签操作
+        const isArchiveOperation = archived !== null;
+        const isTagOperation = tag_7ree !== null;
+        
+        console.log('记录更新请求:', { 
+            id, 
+            archived, 
+            tag_7ree, 
+            isArchiveOperation, 
+            isTagOperation 
+        });
+        
+        if (!isArchiveOperation && !isTagOperation) {
+            return new Response(JSON.stringify({ error: '缺少更新参数' }), {
                 status: 400,
                 headers: { 'Content-Type': 'application/json' }
             });
         }
 
-        // 更新存档状态
-        const result = await env.DB.prepare(
-            `UPDATE ${env.TABLE_NAME} SET archived = ? WHERE id = ?`
-        ).bind(archived === '1' ? 1 : 0, id).run();
+        // 检查表结构，看是否有archived和tag_7ree字段
+        let hasArchivedColumn = false;
+        let hasTagColumn = false;
+        try {
+            const columns = await env.DB.prepare(`PRAGMA table_info(${env.TABLE_NAME})`).all();
+            hasArchivedColumn = columns.results.some(col => col.name === 'archived');
+            hasTagColumn = columns.results.some(col => col.name === 'tag_7ree');
+            console.log('表结构检查:', { hasArchivedColumn, hasTagColumn });
+        } catch (e) {
+            console.log('检查表结构失败:', e);
+        }
 
-        if (result.success) {
-            return new Response(JSON.stringify({
-                success: true,
-                message: archived === '1' ? '已移入存档' : '已移出存档'
-            }), {
-                headers: { 'Content-Type': 'application/json' }
-            });
-        } else {
-            throw new Error('更新失败');
+        // 处理存档操作
+        if (isArchiveOperation) {
+            if (!hasArchivedColumn) {
+                return new Response(JSON.stringify({
+                    error: '数据库表结构不支持存档功能，请先升级数据库'
+                }), {
+                    status: 400,
+                    headers: { 'Content-Type': 'application/json' }
+                });
+            }
+
+            // 更新存档状态
+            const result = await env.DB.prepare(
+                `UPDATE ${env.TABLE_NAME} SET archived = ? WHERE id = ?`
+            ).bind(archived === '1' ? 1 : 0, id).run();
+
+            if (result.success) {
+                return new Response(JSON.stringify({
+                    success: true,
+                    message: archived === '1' ? '已移入存档' : '已移出存档'
+                }), {
+                    headers: { 'Content-Type': 'application/json' }
+                });
+            } else {
+                throw new Error('更新失败');
+            }
+        }
+        
+        // 处理标签操作
+        if (isTagOperation) {
+            // 如果没有tag_7ree列，尝试自动添加
+            if (!hasTagColumn) {
+                try {
+                    console.log('添加tag_7ree列到表中...');
+                    await env.DB.prepare(`ALTER TABLE ${env.TABLE_NAME} ADD COLUMN tag_7ree TEXT DEFAULT '默认tag'`).run();
+                    console.log('tag_7ree列已添加');
+                } catch (alterError) {
+                    console.error('添加tag_7ree列失败:', alterError);
+                    return new Response(JSON.stringify({
+                        error: '数据库表结构不支持标签功能，且无法自动升级: ' + alterError.message
+                    }), {
+                        status: 500,
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                }
+            }
+            
+            // 验证标签长度
+            if (tag_7ree.length > 20) {
+                return new Response(JSON.stringify({
+                    error: '标签长度不能超过20个字符'
+                }), {
+                    status: 400,
+                    headers: { 'Content-Type': 'application/json' }
+                });
+            }
+            
+            // 检查记录是否存在
+            const checkStmt = env.DB.prepare(`SELECT id FROM ${env.TABLE_NAME} WHERE id = ?`);
+            const existingRecord = await checkStmt.bind(parseInt(id, 10)).first();
+            
+            if (!existingRecord) {
+                return new Response(JSON.stringify({
+                    success: false,
+                    error: `记录不存在（ID: ${id}）。请刷新页面后重试。`
+                }), {
+                    status: 404,
+                    headers: { 'Content-Type': 'application/json' }
+                });
+            }
+
+            // 更新标签
+            const result = await env.DB.prepare(
+                `UPDATE ${env.TABLE_NAME} SET tag_7ree = ? WHERE id = ?`
+            ).bind(tag_7ree, parseInt(id, 10)).run();
+
+            if (result.success) {
+                return new Response(JSON.stringify({
+                    success: true,
+                    message: '标签更新成功',
+                    data: {
+                        id: parseInt(id, 10),
+                        tag_7ree: tag_7ree
+                    }
+                }), {
+                    headers: { 'Content-Type': 'application/json' }
+                });
+            } else {
+                throw new Error('数据库更新失败');
+            }
         }
 
     } catch (error) {
+        console.error('记录更新错误:', error);
         return new Response(JSON.stringify({
-            error: '更新存档状态失败: ' + error.message
+            error: '更新失败: ' + error.message
         }), {
             status: 500,
             headers: { 'Content-Type': 'application/json' }
