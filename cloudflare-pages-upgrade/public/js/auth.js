@@ -49,6 +49,9 @@ class AuthManager {
 
     // 设置WebView存储监控
     setupWebViewStorageMonitoring() {
+        // 用于防抖的变量
+        this.lastFocusCheckTime = 0;
+        
         // 每30秒检查一次存储状态
         setInterval(() => {
             if (this.isAuthenticated) {
@@ -65,10 +68,17 @@ class AuthManager {
             }
         });
         
-        // 修复: 添加页面焦点恢复时的认证检查
+        // 修复: 添加页面焦点恢复时的认证检查（带防抖）
         window.addEventListener('focus', () => {
             if (this.isAuthenticated) {
-                this.checkAuthStatus_7ree();
+                const now = Date.now();
+                // 防抖：5分钟内不重复检查
+                if (now - this.lastFocusCheckTime > 5 * 60 * 1000) {
+                    this.lastFocusCheckTime = now;
+                    setTimeout(() => {
+                        this.checkAuthStatus_7ree();
+                    }, 1000);
+                }
             }
         });
         
@@ -217,6 +227,62 @@ class AuthManager {
             });
             return false;
         }
+    }
+    
+    // 带重试机制的token验证
+    async validateStoredTokenWithRetry(maxRetries = 2) {
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+                console.log(`Token验证尝试 ${attempt}/${maxRetries}`);
+                
+                const config = this.getRequestConfig({ method: 'GET' });
+                const response = await Promise.race([
+                    fetch('/api/records', config),
+                    new Promise((_, reject) => 
+                        setTimeout(() => reject(new Error('请求超时')), 10000)
+                    )
+                ]);
+                
+                console.log(`Token验证尝试 ${attempt} 响应:`, {
+                    status: response.status,
+                    ok: response.ok
+                });
+                
+                if (response.ok) {
+                    return true;
+                }
+                
+                // 401错误表示认证失败，不需要重试
+                if (response.status === 401) {
+                    console.log('收到401响应，认证确实无效');
+                    return false;
+                }
+                
+                // 其他错误可能是临时性的，继续重试
+                if (attempt < maxRetries) {
+                    console.log(`尝试 ${attempt} 失败（状态码: ${response.status}），等待重试...`);
+                    await new Promise(resolve => setTimeout(resolve, 2000 * attempt)); // 递增延迟
+                    continue;
+                }
+                
+                return false;
+                
+            } catch (error) {
+                console.error(`Token验证尝试 ${attempt} 异常:`, error.message);
+                
+                if (attempt < maxRetries) {
+                    console.log(`尝试 ${attempt} 异常，等待重试...`);
+                    await new Promise(resolve => setTimeout(resolve, 2000 * attempt)); // 递增延迟
+                    continue;
+                }
+                
+                // 所有尝试都失败，但这可能是网络问题，不应该清除认证
+                console.log('所有Token验证尝试都失败，可能是网络问题');
+                return false;
+            }
+        }
+        
+        return false;
     }
 
     // 从本地存储加载认证信息
@@ -918,10 +984,35 @@ class AuthManager {
                 return;
             }
             
-            // 验证token是否仍然有效
-            const isValid = await this.validateStoredToken();
+            // 解析存储的认证数据，检查是否在有效期内
+            try {
+                const authData = JSON.parse(stored);
+                const now = Date.now();
+                const expiry = authData.timestamp + (7 * 24 * 60 * 60 * 1000); // 7天有效期
+                
+                // 如果存储的数据已过期，直接清除
+                if (now >= expiry) {
+                    console.log('存储的认证信息已过期，清除认证状态');
+                    this.handleAuthLoss_7ree();
+                    return;
+                }
+                
+                // 如果距离过期还有超过1小时，跳过网络验证
+                if (expiry - now > 60 * 60 * 1000) {
+                    console.log('认证信息仍在有效期内，跳过网络验证');
+                    return;
+                }
+            } catch (e) {
+                console.error('解析认证数据失败:', e);
+                this.handleAuthLoss_7ree();
+                return;
+            }
+            
+            // 只有在认证数据即将过期时才进行网络验证
+            console.log('认证数据即将过期，进行网络验证');
+            const isValid = await this.validateStoredTokenWithRetry();
             if (!isValid) {
-                console.log('Token验证失败，需要重新认证');
+                console.log('Token网络验证失败，需要重新认证');
                 this.handleAuthLoss_7ree();
                 return;
             }
@@ -929,7 +1020,8 @@ class AuthManager {
             console.log('认证状态检查通过');
         } catch (error) {
             console.error('认证状态检查失败:', error);
-            this.handleAuthLoss_7ree();
+            // 网络错误不应该导致认证丢失，只记录错误
+            console.log('由于网络错误跳过本次认证检查');
         }
     }
     
@@ -949,11 +1041,11 @@ class AuthManager {
 // 创建全局认证管理器实例
 window.authManager = new AuthManager();
 
-// 修复: 更频繁的token检查
+// 修复: 优化的token检查策略
 setInterval(() => {
     if (window.authManager && window.authManager.isAuthenticated) {
         window.authManager.checkTokenExpiration();
-        // 每2分钟进行一次完整的认证状态检查
+        // 每10分钟进行一次认证状态检查（降低频率）
         window.authManager.checkAuthStatus_7ree();
     }
-}, 2 * 60 * 1000); // 每2分钟检查一次
+}, 10 * 60 * 1000); // 每10分钟检查一次
